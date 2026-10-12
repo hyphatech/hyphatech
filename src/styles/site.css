@@ -83,6 +83,16 @@
       --margin: calc(100% / 6);
     }
   }
+  /* The masthead's height, which a band filling the first screen takes
+     off: on a phone it carries the row of links under it. */
+  :root {
+    --masthead: calc(4rem + 3.34375rem + 2px);
+  }
+  @media (width >= 48rem) {
+    :root {
+      --masthead: 4rem;
+    }
+  }
   /* Focus in the accent; on paper in ink, where the accent is too faint. */
   :focus-visible {
     outline: 2px solid var(--color-accent);
@@ -373,6 +383,12 @@
   }
 }
 
+/* A place in the phone's row of links, as Sente's are: graphite, on
+   `panel` under the pointer, and the one you are on in ink on `raised`. */
+@utility nav-item {
+  @apply t-control rounded-control flex items-center whitespace-nowrap text-graphite transition-colors aria-[current]:bg-raised aria-[current]:text-ink not-aria-[current]:hover:bg-panel not-aria-[current]:hover:text-ink;
+}
+
 @utility tap {
   @apply pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center;
 }
@@ -414,31 +430,6 @@
 .marquee[data-held] .marquee-track,
 .marquee[data-paused] .marquee-track {
   animation-play-state: paused;
-}
-
-/* Phone menu slides in on open and closes at once; under reduced motion
-   it only fades in. */
-[data-menu][open] > nav {
-  animation: menu-in 200ms var(--ease-glide);
-}
-
-@keyframes menu-in {
-  from {
-    opacity: 0;
-    translate: 0 -0.5rem;
-  }
-}
-
-@keyframes menu-fade {
-  from {
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-menu][open] > nav {
-    animation-name: menu-fade;
-  }
 }
 
 @keyframes marquee {
