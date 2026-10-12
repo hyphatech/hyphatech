@@ -306,4 +306,16 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
       hold();
     });
   }
+
+  /* Where nothing hovers, a tap turns a card as hover would; a tap on it
+     again, or anywhere else, turns it back. Its links stay links. */
+  const touch = matchMedia("(hover: none)");
+  const cards = [...document.querySelectorAll<HTMLElement>(".invert-hover")];
+  document.addEventListener("click", (e) => {
+    if (!touch.matches) return;
+    const target = e.target as Element;
+    if (target.closest("a")) return;
+    const card = target.closest<HTMLElement>(".invert-hover");
+    for (const c of cards) c.toggleAttribute("data-on", c === card && !c.hasAttribute("data-on"));
+  });
 </script>

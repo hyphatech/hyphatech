@@ -356,8 +356,22 @@
 }
 
 /* A card that turns to paper on hover, swapping tokens as `.theme-light`
-   does. Only where a pointer hovers: a tap leaves hover behind. Children
-   inherit the card's timing so card and words turn as one. */
+   does. Only where a pointer hovers: a tap leaves hover behind, so on
+   touch a tap sets `data-on` instead, and the next tap clears it.
+   Children inherit the card's timing so card and words turn as one. */
+@utility paper-turned {
+  transition-duration: 450ms;
+  transition-timing-function: var(--ease-glide);
+  --color-ivory: var(--paper);
+  --color-ink: var(--night);
+  --color-graphite: var(--graphite-on-paper);
+  --color-rule: var(--rule-on-paper);
+  --color-accent: var(--accent-on-paper);
+  border-color: var(--paper);
+  background-color: var(--color-ivory);
+  color: var(--color-ink);
+}
+
 @utility invert-hover {
   transition-property: background-color, border-color, color;
   transition-duration: 300ms;
@@ -367,18 +381,12 @@
     transition-duration: inherit;
     transition-timing-function: inherit;
   }
+  &[data-on] {
+    @apply paper-turned;
+  }
   @media (hover: hover) {
     &:hover {
-      transition-duration: 450ms;
-      transition-timing-function: var(--ease-glide);
-      --color-ivory: var(--paper);
-      --color-ink: var(--night);
-      --color-graphite: var(--graphite-on-paper);
-      --color-rule: var(--rule-on-paper);
-      --color-accent: var(--accent-on-paper);
-      border-color: var(--paper);
-      background-color: var(--color-ivory);
-      color: var(--color-ink);
+      @apply paper-turned;
     }
   }
 }
