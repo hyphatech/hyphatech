@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "design/linkedin-banner.html"
+        ],
+        "createdAt": "2026-10-12T13:57:19.904Z",
+        "reason": "Claude triage: banner text is absolutely positioned with 44-88px insets (verified in rendered PNGs); padding:0 is intentional"
+      },
+      {
+        "rule": "tight-leading",
+        "value": "*",
+        "files": [
+          "design/linkedin-banner.html"
+        ],
+        "createdAt": "2026-10-12T14:03:19.790Z",
+        "reason": "Claude triage: two-line display headline at 0.98 matches the site's t-hero utility in src/styles/site.css; not body text"
+      }
+    ]
+  }
+}
