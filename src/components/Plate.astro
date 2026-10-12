@@ -1,0 +1,230 @@
+---
+/* The hero's sand on a round plate: rings, spokes and rosettes. Grains
+   wander where the plate moves and rest on its nodal lines.
+
+   A round mode is a Bessel function of the radius times a cosine of the
+   angle; each figure sums two, tabled on resize so a frame only looks
+   values up. The plate reaches the band's farthest corner from a centre
+   beside the words. Without JavaScript the band is its ground; with
+   reduced motion one settled frame is held. */
+---
+
+<div class="plate pointer-events-none absolute inset-0 overflow-hidden" data-plate aria-hidden="true">
+  <canvas class="absolute top-0 left-0"></canvas>
+</div>
+
+<style>
+  .plate canvas {
+    opacity: 0;
+    transition: opacity 500ms var(--ease-glide);
+  }
+  .plate.is-live canvas {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  import { Sand, stage, tone, type Scene } from "../scripts/stage";
+
+  /* Figures in play order: [order a, order b, b's turn in radians, add
+     (1) or cancel (-1)]. Order 0 is rings alone; order n adds n
+     diameters of stillness. */
+  const MODES: [number, number, number, 1 | -1][] = [
+    [0, 4, 0, 1],
+    [3, 6, 0.5, -1],
+    [2, 0, 0, 1],
+    [5, 1, 0.3, -1],
+    [4, 8, 0, 1],
+    [1, 6, 0.25, -1],
+  ];
+  /* Pixels between rings, near the hero's line spacing. */
+  const SPACING = 150;
+  /* Cells per side of a figure's table. */
+  const TABLE = 256;
+
+  /* The hero's timing and strength; see Chladni.astro. */
+  const HOLD = 9;
+  const EASE = 3.2;
+  const SHIMMER = 0.18;
+  const THROW = 0.009;
+  const SLIDE = 0.0018;
+  /* Grains per square CSS pixel, clamped to FEWEST..MOST; one grain's
+     alpha. */
+  const DENSITY = 0.032;
+  const FEWEST = 12000;
+  const MOST = 70000;
+  const GRAIN = 0.2;
+
+  /* J_n(x) by its power series, each term from the last; enough terms
+     for the arguments a plate this size reaches. */
+  const bessel = (n: number, x: number) => {
+    const half = x / 2;
+    let term = 1;
+    for (let i = 1; i <= n; i++) term *= half / i;
+    let sum = term;
+    const q = half * half;
+    for (let k = 1; k < 60; k++) {
+      term *= -q / (k * (k + n));
+      sum += term;
+      if (Math.abs(term) < 1e-12 * Math.abs(sum) && k > x) break;
+    }
+    return sum;
+  };
+
+  function plate(sand: Sand): Scene {
+    let width = 0;
+    let height = 0;
+    let cx = 0;
+    let cy = 0;
+    let radius = 1;
+    /* Per figure: motion and its x and y slopes over the plate's square. */
+    let fields: Float32Array[] = [];
+    let slopesX: Float32Array[] = [];
+    let slopesY: Float32Array[] = [];
+    let grains = 0;
+    let x = new Float32Array(0);
+    let y = new Float32Array(0);
+    let time = 0;
+
+    /* J_n depends on the radius alone: sampled once per order, then
+       looked up for every cell. */
+    const RADIAL = 4096;
+    const REACH = Math.SQRT2;
+    const radial = new Map<number, Float32Array>();
+    const along = (n: number, k: number) => {
+      let samples = radial.get(n);
+      if (!samples) {
+        samples = new Float32Array(RADIAL + 1);
+        for (let s = 0; s <= RADIAL; s++) samples[s] = bessel(n, k * (s / RADIAL) * REACH);
+        radial.set(n, samples);
+      }
+      return samples;
+    };
+    const lookup = (samples: Float32Array, r: number) => {
+      const p = (r / REACH) * RADIAL;
+      const s = Math.min(RADIAL - 1, p | 0);
+      const t = p - s;
+      return samples[s]! * (1 - t) + samples[s + 1]! * t;
+    };
+
+    const table = ([a, b, turn, sign]: (typeof MODES)[number], k: number) => {
+      const f = new Float32Array(TABLE * TABLE);
+      const ja = along(a, k);
+      const jb = along(b, k);
+      let most = 0;
+      for (let j = 0; j < TABLE; j++)
+        for (let i = 0; i < TABLE; i++) {
+          const u = (i / (TABLE - 1)) * 2 - 1;
+          const v = (j / (TABLE - 1)) * 2 - 1;
+          const r = Math.hypot(u, v);
+          const t = Math.atan2(v, u);
+          const value = lookup(ja, r) * Math.cos(a * t) + sign * lookup(jb, r) * Math.cos(b * (t + turn));
+          f[j * TABLE + i] = value;
+          most = Math.max(most, Math.abs(value));
+        }
+      /* Scaled to the hero's peak, so it shakes as hard. */
+      const scale = 1.6 / (most || 1);
+      const gx = new Float32Array(TABLE * TABLE);
+      const gy = new Float32Array(TABLE * TABLE);
+      const step = 2 / (TABLE - 1);
+      for (let j = 0; j < TABLE; j++)
+        for (let i = 0; i < TABLE; i++) {
+          const k0 = j * TABLE + i;
+          f[k0] = f[k0]! * scale;
+        }
+      for (let j = 0; j < TABLE; j++)
+        for (let i = 0; i < TABLE; i++) {
+          const k0 = j * TABLE + i;
+          const l = f[j * TABLE + Math.max(0, i - 1)]!;
+          const rr = f[j * TABLE + Math.min(TABLE - 1, i + 1)]!;
+          const up = f[Math.max(0, j - 1) * TABLE + i]!;
+          const dn = f[Math.min(TABLE - 1, j + 1) * TABLE + i]!;
+          /* Slopes per unit of plate width, as the hero's. */
+          gx[k0] = ((rr - l) / (2 * step)) * 2;
+          gy[k0] = ((dn - up) / (2 * step)) * 2;
+        }
+      return [f, gx, gy] as const;
+    };
+
+    const scatter = () => {
+      for (let i = 0; i < grains; i++) {
+        x[i] = Math.random() * width;
+        y[i] = Math.random() * height;
+      }
+    };
+
+    return {
+      warm: 0,
+      rest: HOLD * 0.8,
+      sand,
+      resize(w, h) {
+        width = w;
+        height = h;
+        const wide = w >= 768;
+        cx = wide ? w * 0.68 : w * 0.5;
+        cy = wide ? h * 0.42 : h * 0.32;
+        radius = Math.max(Math.hypot(cx, cy), Math.hypot(w - cx, cy), Math.hypot(cx, h - cy), Math.hypot(w - cx, h - cy));
+        const k = (Math.PI * radius) / SPACING;
+        radial.clear();
+        fields = [];
+        slopesX = [];
+        slopesY = [];
+        for (const mode of MODES) {
+          const [f, gx, gy] = table(mode, k);
+          fields.push(f);
+          slopesX.push(gx);
+          slopesY.push(gy);
+        }
+        grains = Math.round(Math.min(MOST, Math.max(FEWEST, w * h * DENSITY)));
+        x = new Float32Array(grains);
+        y = new Float32Array(grains);
+        scatter();
+        time = 0;
+      },
+      step(dt) {
+        time += dt;
+        const index = Math.floor(time / HOLD) % MODES.length;
+        const f = fields[index]!;
+        const gx = slopesX[index]!;
+        const gy = slopesY[index]!;
+        const into = time - Math.floor(time / HOLD) * HOLD;
+        const strength = SHIMMER + (1 - SHIMMER) * Math.exp(-into / (EASE / 3));
+        const frames = dt * 60;
+        const side = radius * 2;
+        const throwBy = THROW * side * strength * frames;
+        const slide = SLIDE * side * frames * 0.05;
+        const toCell = (TABLE - 1) / side;
+        for (let g = 0; g < grains; g++) {
+          const ti = (x[g]! - (cx - radius)) * toCell;
+          const tj = (y[g]! - (cy - radius)) * toCell;
+          const i0 = Math.min(TABLE - 2, Math.max(0, ti | 0));
+          const j0 = Math.min(TABLE - 2, Math.max(0, tj | 0));
+          const fi = ti - i0;
+          const fj = tj - j0;
+          const k0 = j0 * TABLE + i0;
+          const value =
+            (f[k0]! * (1 - fi) + f[k0 + 1]! * fi) * (1 - fj) + (f[k0 + TABLE]! * (1 - fi) + f[k0 + TABLE + 1]! * fi) * fj;
+          const move = Math.min(1, Math.abs(value) * 0.5) ** 0.35;
+          let qx = x[g]! + (Math.random() - 0.5) * 2 * throwBy * move - slide * value * gx[k0]!;
+          let qy = y[g]! + (Math.random() - 0.5) * 2 * throwBy * move - slide * value * gy[k0]!;
+          if (qx < 0) qx = -qx;
+          else if (qx >= width) qx = 2 * width - qx - 1;
+          if (qy < 0) qy = -qy;
+          else if (qy >= height) qy = 2 * height - qy - 1;
+          x[g] = qx;
+          y[g] = qy;
+        }
+      },
+      draw(context) {
+        sand.clear();
+        for (let g = 0; g < grains; g++) sand.plot(x[g]!, y[g]!);
+        sand.put(context);
+      },
+    };
+  }
+
+  for (const host of document.querySelectorAll<HTMLElement>("[data-plate]")) {
+    const colour = tone("--color-ink");
+    stage(host, plate(new Sand(colour, GRAIN)), { underWords: 0.08, feather: 28, head: 90, foot: 160 });
+  }
+</script>

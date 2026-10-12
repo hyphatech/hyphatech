@@ -1,0 +1,309 @@
+---
+import Base from "../layouts/Base.astro";
+import Paths from "../components/Paths.astro";
+import { ways } from "../content/ways";
+import Plate from "../components/Plate.astro";
+import Graph from "../components/Graph.astro";
+
+/* The only page that says how; the landing says why.
+
+   hero          the name and what it is
+   components    capabilities, each with the libraries that provide it
+   practices     the rules every repository keeps
+   language      OCaml, the outermost boundary, not the thing sold
+   ontology      the map of what a backend is built from
+   next          the ways in
+
+   Claim only what the repositories bear out; where a thing holds only
+   once turned on, say so. No promises, dates, roadmap or private links. */
+
+const repo = (name: string) => `https://github.com/hyphatech/${name}`;
+const docs = (path = "") => `https://hyphatech.github.io/spindle/${path}`;
+
+/* The map's capabilities that open code provides; a library may serve
+   several. The map links its concepts to these by id. */
+const spindle = { name: "Spindle", href: repo("spindle") };
+const capabilities = [
+  {
+    id: "http",
+    name: "HTTP and APIs",
+    is: "Routes typed from their inputs to their answers, and a typed refusal for whatever was wrong.",
+    by: [spindle],
+    read: [{ label: "Docs", href: docs() }],
+  },
+  {
+    id: "contracts",
+    name: "Data contracts",
+    is: "One description of the data a service takes and gives: checked on the way in, written on the way out, printed as the API spec and the clients' schema.",
+    by: [{ name: "Wiretype", href: repo("wiretype") }, spindle],
+    read: [],
+  },
+  {
+    id: "data",
+    name: "Data and persistence",
+    is: "SQL as written, with typed parameters and rows, each statement checkable against the database without running it; transactions, migrations and pooled connections.",
+    by: [{ name: "Rowtype", href: repo("rowtype") }, spindle, { name: "Postgres driver", href: repo("postgres-eio") }],
+    read: [],
+  },
+  {
+    id: "observe",
+    name: "Observability",
+    is: "A log line for every request and health checks; once turned on, traces that follow a request into each query, and metrics.",
+    by: [spindle],
+    read: [],
+  },
+  {
+    id: "identity",
+    name: "Identity and access",
+    is: "Sessions kept on the server, credentials named in the API spec, and limits on how often a caller may call a route.",
+    by: [spindle],
+    read: [],
+  },
+];
+
+/* What the practices keep, not the files or tools that keep them; no
+   tool is named. */
+const practices = [
+  {
+    title: "One house style",
+    body: "One way to write each thing, kept word for word across every repository, so code by a person or an agent reads as if one hand wrote it.",
+  },
+  {
+    title: "Exhaustive instructions",
+    body: "Every repository tells the agents that work in it everything: its commands, its rules and the checks a change must pass, so nothing they can look up is left to guess.",
+  },
+  {
+    title: "A harness that knows the code",
+    body: "Agents look up types and definitions, follow each error to its cause and search the code, reading what it means rather than guessing from its text.",
+  },
+  {
+    title: "Boundaries, enforced",
+    body: "Contracts held by the compiler, statements checked against the database, the API's description checked against its routes.",
+  },
+  {
+    title: "Computed, not guessed",
+    body: "What can be worked out is worked out: generated, parsed, validated, compiled. A model is asked only where judgement is needed.",
+  },
+  {
+    title: "Open at the core",
+    body: "The components, their tools and their practices are open. Putting them together for a product, and the judgement that takes, is the expertise Hypha brings.",
+  },
+];
+
+/* OCaml's properties, each as what the stack uses it for. */
+const ocaml = [
+  {
+    title: "Types that model the domain",
+    body: "Variants and records name each state; pattern matching handles each one, and the compiler warns of a case left out.",
+  },
+  {
+    title: "Boundaries in the language",
+    body: "Module signatures and abstract types say what a component exposes, and the compiler holds every caller to it.",
+  },
+  {
+    title: "Code that reads as its model",
+    body: "Concise, with types inferred, so intent and failure cases stay in plain sight.",
+  },
+  {
+    title: "Feedback while the work is fresh",
+    body: "Builds and tests stay quick, so the compiler answers inside the loop an agent works in.",
+  },
+  {
+    title: "Native and managed",
+    body: "Compiled to native code, with a garbage collector and a simple runtime.",
+  },
+  {
+    title: "Effects for I/O",
+    body: "Concurrency without async and await: code reads in order, and every task is bound to the work that started it.",
+  },
+];
+
+/* OCaml's users, labelled as OCaml's, never Hypha's. */
+const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", "LexiFi", "Citrix"];
+
+const section = "scroll-mt-8 border-t border-rule";
+const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
+---
+
+<Base
+  title="Hypha Stack · Hypha"
+  description="Hypha Stack: the coherent foundation for agentic engineering. Components, tools, practices and an ontology, built to fit together."
+>
+  {/* The hero, set as the landing's: figure above, words at its foot. */}
+  <section slot="band" class="relative overflow-hidden">
+    <Plate />
+    <div
+      class="relative mx-auto flex min-h-[max(34rem,calc(100svh-4rem))] max-w-page flex-col justify-end px-4 pt-32 pb-20 sm:px-6 md:pb-28"
+      data-content
+    >
+      <h1 class="t-hero md:ml-margin" data-clear>Hypha Stack</h1>
+      <p class="t-lede mt-8 max-w-2xl text-graphite md:mt-10 md:ml-margin" data-clear>
+        The coherent foundation for agentic engineering.
+      </p>
+    </div>
+  </section>
+
+  {/* A card per capability; library names come second, as they mean
+      nothing unopened. The dashed last card names no date. A hovered
+      card lights its concepts in the map. */}
+  <section id="components" class={section}>
+    <div class={inner}>
+      <div class="md:ml-margin">
+        <h2 class="t-h1 max-w-3xl">Components made to fit together.</h2>
+        <p class="t-lede mt-8 max-w-2xl text-graphite">
+          One way to describe data, one way to type a query, one way to
+          serve a route.
+        </p>
+      </div>
+      <ul class="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {
+          capabilities.map((c) => (
+            <li id={`cap-${c.id}`} data-part={c.id} class="invert-hover flex scroll-mt-24 flex-col rounded-panel border border-rule p-7">
+              <h3 class="t-h2">{c.name}</h3>
+              <p class="mt-4 grow leading-relaxed text-graphite">{c.is}</p>
+              <p class="mt-6 flex flex-wrap gap-x-4 gap-y-1">
+                {c.by.map((b) => <a href={b.href} class="link">{b.name}</a>)}
+                {c.read.map((r) => <a href={r.href} class="link">{r.label}</a>)}
+              </p>
+            </li>
+          ))
+        }
+        <li class="flex flex-col rounded-panel border border-dashed border-rule p-7">
+          <h3 class="t-h2 text-graphite">In the works</h3>
+          <p class="mt-4 leading-relaxed text-graphite">
+            Configuration, messaging and jobs, notifications, caches and
+            files, permissions and tenants: each joins the registry as it is ready
+            to be relied on.
+          </p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  {/* Run in columns, not cards: read, not compared. No file is named. */}
+  <section id="practices" class={section}>
+    <div class={inner}>
+      <div class="md:ml-margin">
+        <h2 class="t-h1 max-w-3xl">Practices that hold the boundaries.</h2>
+        <p class="t-lede mt-8 max-w-2xl text-graphite">
+          Rules for how the code is written and worked on, the same in every
+          repository and checked on every change.
+        </p>
+      </div>
+      <dl class="columns-run mt-12 md:ml-margin">
+        {
+          practices.map((p) => (
+            <div class="leading-relaxed text-graphite">
+              <dt>{p.title}.</dt>{" "}
+              <dd>{p.body}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  {/* The need, the properties that meet it, then OCaml's users,
+      labelled as OCaml's. No rules between properties. */}
+  <section id="ocaml" class={section}>
+    <div class={inner}>
+      <div class="md:ml-margin">
+        <h2 class="t-h1 max-w-4xl"><span class="block">What the language cannot say,</span> <span class="block">the system cannot get wrong.</span></h2>
+        <p class="t-lede mt-8 max-w-2xl text-graphite">
+          OCaml meets every need at once, and the stack is built within its
+          limits. It makes contracts and failure cases explicit; it does not
+          make an application correct on its own.
+        </p>
+        <dl class="mt-12 grid gap-x-10 gap-y-9 md:grid-cols-2 lg:grid-cols-3">
+          {
+            ocaml.map((o) => (
+              <div>
+                <dt class="t-h3">{o.title}</dt>
+                <dd class="mt-2 leading-relaxed text-graphite">{o.body}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+      {/* Stops under keyboard focus; a tap, click, Enter or Space holds
+          it until the next. */}
+      <div
+        class="mt-16 grid items-center gap-6 py-8 md:grid-cols-margin"
+        tabindex="0"
+        role="group"
+        aria-labelledby="ocaml-users-label"
+        data-strip
+      >
+        <p id="ocaml-users-label" class="t-label text-graphite">OCaml in production at</p>
+        <div class="marquee" id="ocaml-users" data-marquee>
+          <div class="marquee-track">
+            {
+              [false, true].map((copy) => (
+                <ul class="flex shrink-0" aria-hidden={copy ? "true" : undefined}>
+                  {users.map((u) => (
+                    <li class="t-h2 px-6 whitespace-nowrap text-graphite md:px-8">{u}</li>
+                  ))}
+                </ul>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* No legend: a hovered concept says what it is and what provides
+      it. */}
+  <section id="ontology" class:list={[section, "overflow-x-clip"]}>
+    <div class={inner}>
+      <div class="md:ml-margin">
+        <h2 id="ontology-title" class="t-h1 max-w-3xl">One ontology for people and agents.</h2>
+        <p class="t-lede mt-8 max-w-2xl text-graphite">
+          An explicit model of what a backend is built from: its concepts,
+          what each one means, and how they relate. People and agents build
+          from the same account, so nothing has to be inferred from a name.
+        </p>
+        <p class="mt-6 max-w-2xl leading-relaxed text-graphite">
+          What crosses a boundary is described once: a route is typed by its
+          data shape, and the API spec and the client schema are printed from
+          it.
+        </p>
+      </div>
+      <div class="mt-6 md:mt-8">
+        <Graph labelledby="ontology-title" />
+      </div>
+    </div>
+  </section>
+
+  {/* The ways in: a conversation, the code, the Principles. */}
+  <section id="next" class={section}>
+    <div class="mx-auto max-w-page px-4 pt-16 pb-4 sm:px-6 md:pt-20 md:pb-8">
+      <h2 class="t-h1 max-w-3xl md:ml-margin">Build with Hypha.</h2>
+      <Paths paths={ways} />
+    </div>
+  </section>
+</Base>
+
+<script>
+  /* Rests off screen; a tap, click, Enter or Space toggles a hold. With
+     reduced motion it is already still, so it is no tab stop. */
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  for (const strip of document.querySelectorAll<HTMLElement>("[data-marquee]")) {
+    new IntersectionObserver(([entry]) => {
+      strip.toggleAttribute("data-paused", !entry?.isIntersecting);
+    }).observe(strip);
+    const row = strip.closest<HTMLElement>("[data-strip]");
+    if (!row) continue;
+    if (still) {
+      row.removeAttribute("tabindex");
+      continue;
+    }
+    const hold = () => strip.toggleAttribute("data-held");
+    row.addEventListener("click", hold);
+    row.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      hold();
+    });
+  }
+</script>

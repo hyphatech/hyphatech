@@ -1,0 +1,10 @@
+---
+/* A white raster, inverted on paper. Sized for the largest use: 28px tall
+   at 3x. */
+interface Props {
+  class?: string;
+}
+const { class: className = "h-6" } = Astro.props;
+---
+
+<img src="/hypha.webp" alt="" width="52" height="84" class:list={["w-auto in-[.theme-light]:invert", className]} />

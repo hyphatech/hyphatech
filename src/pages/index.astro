@@ -1,0 +1,206 @@
+---
+import Base from "../layouts/Base.astro";
+import Paths from "../components/Paths.astro";
+import { ways } from "../content/ways";
+import Chladni from "../components/Chladni.astro";
+import Plate from "../components/Plate.astro";
+
+/* The landing says why; Stack's page says how, so no OCaml and no
+   library list here.
+
+   hero        what Hypha is; no lede
+   shift       AI has solved coding, not engineering
+   cause       a smarter model still guesses where meaning is unstated
+   principle   strong boundaries: people specify, the system enforces
+   answer      Hypha Stack, and how work goes on it in four steps
+   start       the ways in; nothing after them
+
+   No promises, dates or roadmap; nothing promises correct software.
+   Agents are never the culprit and no language is attacked. */
+
+/* Footnotes: each source says what it measured, so its figure is not
+   read for more. Evidence, never the argument. */
+const reading = [
+  {
+    what: "Logic and correctness issues were 75% more common in AI-co-authored pull requests.",
+    limit: "470 open-source pull requests, 320 AI-co-authored and 150 human-only; authorship inferred from signals in each PR.",
+    by: "CodeRabbit",
+    title: "State of AI vs human code generation report",
+    year: "2025",
+    href: "https://www.coderabbit.ai/blog/state-of-ai-vs-human-code-generation-report",
+  },
+  {
+    what: "As AI adoption increased, delivery stability fell by an estimated 7.2%.",
+    limit: "A survey-based association across teams, not a measured cause.",
+    by: "Google Cloud",
+    title: "Announcing the 2024 DORA report",
+    year: "2024",
+    href: "https://cloud.google.com/blog/products/devops-sre/announcing-the-2024-dora-report",
+  },
+];
+
+/* What happens at each step, never how. Only Composition claims checks:
+   only there does the stack enforce them. */
+const steps = [
+  { title: "Intent", body: "People say what the product must do; agents question it until nothing is left to interpret." },
+  { title: "Mapping", body: "The work is laid over one model of a backend: what is already built and proven, and what is the product's own." },
+  { title: "Composition", body: "Agents build with components made to fit together, held by checks on every change." },
+  { title: "Delivery", body: "Each change lands complete, with its tests and its documents." },
+];
+
+---
+
+<Base
+  title="Hypha · The foundation for agentic engineering"
+  description="The missing foundation for agentic engineering. AI has solved coding, not engineering: Hypha Stack is sound by design."
+>
+  {/* The hero: words at the band's foot, the figure above them. */}
+  <section slot="band" class="relative">
+    <Chladni />
+    <div
+      class="relative mx-auto flex min-h-[max(34rem,calc(100svh-4rem))] max-w-page flex-col justify-end px-4 pt-32 pb-20 sm:px-6 md:pb-28"
+      data-content
+    >
+      <h1 class="t-hero max-w-5xl md:ml-margin" data-clear>
+        The missing foundation
+        <br />
+        <span class="text-graphite">for agentic engineering.</span>
+      </h1>
+      <div class="mt-10 flex flex-wrap gap-3 md:mt-12 md:ml-margin" data-clear data-actions>
+        <a href="/stack" class="btn-primary">Explore Hypha Stack</a>
+        <a href="/principles" class="btn">Read the principles</a>
+      </div>
+    </div>
+  </section>
+
+  {/* The shift and its cause. Sources are footnotes under the paragraph
+      they support. Nothing is drawn as a queue or a sieve; correctness
+      is not throughput. */}
+  <section id="shift" class="scroll-mt-8 border-t border-rule">
+    <div class="mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20">
+      <div class="md:ml-margin">
+        <h2 class="t-h1 max-w-4xl"><span class="block">AI has solved coding.</span> <span class="block">Not engineering.</span></h2>
+        <p class="t-lede mt-8 max-w-2xl text-graphite">
+          Code is cheap. Software that holds is not.
+        </p>
+        <p class="mt-6 max-w-2xl leading-relaxed text-graphite">
+          Agents turn a prompt into a feature in minutes, each part with its
+          own conventions and assumptions. Where nothing holds them
+          together, a product becomes a patchwork, and every outage costs
+          traffic, customers and trust.<sup class="t-footmark">{reading.map((_, i) => (
+            <Fragment>{i > 0 && ","}<a href={`#note-${i + 1}`} id={`ref-${i + 1}`} class="scroll-mt-32" aria-label={`Note ${i + 1}`}>{i + 1}</a></Fragment>
+          ))}</sup>
+        </p>
+        <ol class="t-footnote mt-12 grid max-w-4xl gap-x-10 gap-y-5 md:grid-cols-2">
+          {
+            reading.map((r, i) => (
+              <li id={`note-${i + 1}`} class="grid scroll-mt-8 grid-cols-[1.25rem_minmax(0,1fr)]">
+                {/* Leads back to the note's mark in the text. */}
+                <a
+                  href={`#ref-${i + 1}`}
+                  class="t-backmark self-start justify-self-start font-serif tabular-nums"
+                  aria-label={`Back to note ${i + 1} in the text`}
+                >
+                  {i + 1}
+                </a>
+                <p>
+                  <span class="text-ink">{r.what}</span> {r.limit} {r.by},{" "}
+                  <a href={r.href} class="link-inline">{r.title}</a>, {r.year}.
+                </p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+
+    <div id="guess" class="scroll-mt-8 border-t border-rule">
+      <div class="mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20">
+        <div class="md:ml-margin">
+          <h2 class="t-h1 max-w-4xl"><span class="block">A smarter model guesses better.</span> <span class="block">It still guesses.</span></h2>
+          <p class="t-lede mt-8 max-w-2xl text-graphite">
+            Where meaning is unstated, a model infers it.
+          </p>
+          <p class="mt-6 max-w-2xl leading-relaxed text-graphite">
+            Every request leaves room for interpretation, and an agent sees
+            only what fits in its context. Where that room is wide, it fills
+            it with a guess: each one reasonable, none bound to agree with the
+            next. Reviews and linters judge a change after it is written;
+            nothing they read narrows the next one.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* The principle. The accent line between the pair is the boundary,
+      and the accent's first use on the page. */}
+  <section id="boundaries" class="scroll-mt-8 border-t border-rule">
+    <div class="mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20">
+      <div class="md:ml-margin">
+        <h2 class="t-h1 max-w-4xl">Strong boundaries make systems sound.</h2>
+        <p class="t-lede mt-8 max-w-2xl text-graphite">
+          A boundary is meaning an agent no longer has to guess: what each
+          thing is, what it may touch, what it must return. It lives in the
+          foundation and is checked on every change.
+        </p>
+        <dl class="mt-12 grid gap-y-8 md:grid-cols-[minmax(0,1fr)_1px_minmax(0,1fr)] md:gap-x-12">
+          <div>
+            <dt class="t-h2">People specify</dt>
+            <dd class="mt-3 max-w-sm leading-relaxed text-graphite">
+              What the product must do and the rules of its domain, in their
+              own words.
+            </dd>
+          </div>
+          <div aria-hidden="true" class="h-px w-16 bg-accent md:h-auto md:w-px"></div>
+          <div>
+            <dt class="t-h2">The system enforces</dt>
+            <dd class="mt-3 max-w-sm leading-relaxed text-graphite">
+              How it may be done: every part held to its contract.
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  {/* The answer, set as the hero is, with the figure Stack's page opens
+      on. */}
+  <section id="stack" class="relative scroll-mt-8 overflow-hidden border-t border-rule">
+    <Plate />
+    <div
+      class="relative mx-auto flex min-h-[max(34rem,88svh)] max-w-page flex-col justify-end px-4 pt-32 pb-20 sm:px-6 md:pb-28"
+      data-content
+    >
+      <h2 class="t-hero max-w-5xl md:ml-margin" data-clear><span class="block">Hypha Stack:</span> <span class="block">sound by design.</span></h2>
+      <p class="t-lede mt-8 max-w-2xl text-graphite md:mt-10 md:ml-margin" data-clear>
+        Components built to fit together, practices that hold the
+        boundaries, a language that makes them binding, and an ontology
+        that says what each part means.
+      </p>
+      <ol class="mt-12 grid gap-x-10 gap-y-8 sm:grid-cols-2 md:ml-margin lg:grid-cols-4" data-clear>
+        {
+          steps.map((s) => (
+            <li>
+              <h3 class="t-h3">{s.title}</h3>
+              <p class="mt-2 leading-relaxed text-graphite">{s.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="mt-12 flex flex-wrap gap-3 md:ml-margin" data-clear>
+        <a href="/stack" class="btn-primary">Explore Hypha Stack</a>
+      </div>
+    </div>
+
+  </section>
+
+  {/* The ways in: a conversation, the code, the Principles. */}
+  <section id="start" class="scroll-mt-8 border-t border-rule">
+    <div class="mx-auto max-w-page px-4 pt-16 pb-4 sm:px-6 md:pt-20 md:pb-8">
+      <h2 class="t-h1 max-w-4xl md:ml-margin">Build with Hypha.</h2>
+      <Paths paths={ways} />
+    </div>
+  </section>
+
+</Base>

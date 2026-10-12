@@ -1,0 +1,41 @@
+---
+/* The ways in that end the landing and Hypha Stack. The first panel is on
+   paper, as the one to try first. Actions align at the panels' foot;
+   titles stay on one line on a laptop. */
+
+export interface Path {
+  title: string;
+  body: string;
+  href: string;
+  action: string;
+  primary: boolean;
+  extra?: { label: string; href: string };
+}
+
+interface Props {
+  paths: Path[];
+}
+
+const { paths } = Astro.props;
+---
+
+<ul class="mt-12 grid gap-4 md:grid-cols-3">
+  {
+    paths.map((s) => (
+      <li class:list={["flex flex-col rounded-panel p-8", s.primary ? "theme-light" : "border border-rule"]}>
+        <h3 class="t-h2 lg:text-[1.75rem]">{s.title}</h3>
+        <p class="mt-3 grow leading-relaxed text-graphite">{s.body}</p>
+        <div class="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+          <a href={s.href} class={s.primary ? "btn-primary" : "btn"}>
+            {s.action}
+          </a>
+          {s.extra && (
+            <a href={s.extra.href} class="t-control tap underline decoration-current/40 underline-offset-4 hover:decoration-current">
+              {s.extra.label}
+            </a>
+          )}
+        </div>
+      </li>
+    ))
+  }
+</ul>

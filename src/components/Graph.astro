@@ -1,0 +1,845 @@
+---
+/* The ontology map: concepts, grouped by capability, and the named
+   relations between them. Concepts with an `entry` are open code: drawn
+   brighter and linked to their capability; the rest are fainter, unlinked.
+   Places are hand-set on a 2:1 frame. Wide screens show the whole map;
+   tablets stack capabilities in two columns, phones in one. Names keep
+   their size. Without JavaScript or with reduced motion it is static.
+   Screen readers get each concept and the relations as sentences; the
+   keyboard tabs in once and moves between concepts with the arrows. */
+
+import { bow, box, hull, ringBox, set, sides, type Box } from "./graph-geometry";
+
+interface Props {
+  /* Id of the heading that labels the map. */
+  labelledby?: string;
+}
+const { labelledby } = Astro.props;
+
+type Group = { id: string; name: string };
+type Thing = { id: string; name: string; group: string; is: string; entry?: string };
+
+const groups: Group[] = [
+  { id: "http", name: "HTTP and APIs" },
+  { id: "contracts", name: "Data contracts" },
+  { id: "data", name: "Data and persistence" },
+  { id: "observe", name: "Observability" },
+  { id: "identity", name: "Identity and access" },
+  { id: "config", name: "Configuration" },
+  { id: "messaging", name: "Messaging and jobs" },
+  { id: "notify", name: "Notifications" },
+];
+
+const things: Thing[] = [
+  { id: "request", name: "Request", group: "http", is: "A call to the service, as the server receives it.", entry: "spindle" },
+  { id: "route", name: "Route", group: "http", is: "A path and method, with its inputs and the answers it may give.", entry: "spindle" },
+  { id: "handler", name: "Handler", group: "http", is: "The code that does a route's work.", entry: "spindle" },
+  { id: "response", name: "Response", group: "http", is: "What a route answers, written from its declared shape.", entry: "spindle" },
+  { id: "refusal", name: "Refusal", group: "http", is: "A typed answer for what was wrong, and why.", entry: "spindle" },
+  { id: "shape", name: "Data shape", group: "contracts", is: "One description of the data a service takes and gives.", entry: "wiretype" },
+  { id: "client", name: "Client schema", group: "contracts", is: "The data shapes, printed for the clients that call the service.", entry: "spindle" },
+  { id: "spec", name: "API spec", group: "contracts", is: "The API described for others, printed from the routes the server runs.", entry: "spindle" },
+  { id: "statement", name: "Statement", group: "data", is: "A query as written, with typed parameters and rows.", entry: "rowtype" },
+  { id: "row", name: "Row", group: "data", is: "One result of a statement, typed.", entry: "rowtype" },
+  { id: "database", name: "Database", group: "data", is: "Where the service's data lives.", entry: "postgres-eio" },
+  { id: "migration", name: "Migration", group: "data", is: "A change to the database's schema, applied in order.", entry: "rowtype" },
+  { id: "pool", name: "Connection pool", group: "data", is: "Connections to the database, held open and shared.", entry: "spindle-postgres" },
+  { id: "transaction", name: "Transaction", group: "data", is: "Statements that succeed or fail together.", entry: "rowtype" },
+  { id: "log", name: "Log", group: "observe", is: "A line for something that happened in the service.", entry: "spindle" },
+  { id: "trace", name: "Trace", group: "observe", is: "One request followed through the service.", entry: "spindle" },
+  { id: "span", name: "Span", group: "observe", is: "One step within a trace, such as a query.", entry: "spindle-postgres" },
+  { id: "metric", name: "Metric", group: "observe", is: "Counts and timings of what the service does.", entry: "spindle" },
+  { id: "health", name: "Health check", group: "observe", is: "Whether the service and what it depends on are well.", entry: "spindle" },
+  { id: "identity", name: "Identity", group: "identity", is: "Who or what is calling." },
+  { id: "session", name: "Session", group: "identity", is: "An identity's proof, carried from call to call.", entry: "spindle" },
+  { id: "permission", name: "Permission", group: "identity", is: "What an identity may do." },
+  { id: "tenant", name: "Tenant", group: "identity", is: "The organisation an identity acts for." },
+  { id: "ratelimit", name: "Rate limit", group: "identity", is: "How often a caller may call.", entry: "spindle" },
+  { id: "audit", name: "Audit log", group: "identity", is: "A record of who did what, kept." },
+  { id: "config", name: "Config", group: "config", is: "The settings a service starts with." },
+  { id: "secret", name: "Secret", group: "config", is: "A setting that must not be seen." },
+  { id: "flag", name: "Feature flag", group: "config", is: "A switch that turns behaviour on or off." },
+  { id: "event", name: "Event", group: "messaging", is: "Something that happened, told to whoever listens." },
+  { id: "queue", name: "Queue", group: "messaging", is: "Work and events waiting their turn." },
+  { id: "job", name: "Job", group: "messaging", is: "Work done apart from the request that asked for it." },
+  { id: "schedule", name: "Schedule", group: "messaging", is: "When work is to run." },
+  { id: "webhook", name: "Webhook", group: "messaging", is: "An event from outside, delivered by a call." },
+  { id: "cache", name: "Cache", group: "data", is: "A result kept close, to be read again." },
+  { id: "file", name: "File", group: "data", is: "Data kept whole, outside the database." },
+  { id: "email", name: "Email", group: "notify", is: "A message sent to a person." },
+  { id: "notification", name: "Notification", group: "notify", is: "Word to a person that something happened." },
+];
+
+const relations = [
+  { from: "route", to: "request", label: "answers" },
+  { from: "route", to: "response", label: "returns" },
+  { from: "refusal", to: "response", label: "is a" },
+  { from: "handler", to: "route", label: "serves" },
+  { from: "route", to: "shape", label: "is typed by" },
+  { from: "client", to: "shape", label: "printed from" },
+  { from: "spec", to: "route", label: "printed from" },
+  { from: "handler", to: "statement", label: "runs" },
+  { from: "statement", to: "row", label: "returns" },
+  { from: "statement", to: "database", label: "runs on" },
+  { from: "migration", to: "database", label: "changes" },
+  { from: "pool", to: "database", label: "connects to" },
+  { from: "transaction", to: "statement", label: "groups" },
+  { from: "trace", to: "request", label: "follows" },
+  { from: "span", to: "trace", label: "is part of" },
+  { from: "span", to: "statement", label: "records" },
+  { from: "metric", to: "request", label: "counts" },
+  { from: "log", to: "request", label: "records" },
+  { from: "health", to: "database", label: "checks" },
+  { from: "identity", to: "permission", label: "has" },
+  { from: "permission", to: "route", label: "guards" },
+  { from: "request", to: "session", label: "carries" },
+  { from: "session", to: "identity", label: "proves" },
+  { from: "identity", to: "tenant", label: "acts for" },
+  { from: "ratelimit", to: "request", label: "throttles" },
+  { from: "audit", to: "request", label: "records" },
+  { from: "handler", to: "config", label: "reads" },
+  { from: "config", to: "secret", label: "holds" },
+  { from: "flag", to: "handler", label: "gates" },
+  { from: "handler", to: "cache", label: "reads" },
+  { from: "handler", to: "event", label: "emits" },
+  { from: "event", to: "queue", label: "waits in" },
+  { from: "queue", to: "job", label: "feeds" },
+  { from: "schedule", to: "job", label: "starts" },
+  { from: "webhook", to: "event", label: "delivers" },
+  { from: "job", to: "statement", label: "runs" },
+  { from: "handler", to: "file", label: "stores" },
+  { from: "event", to: "notification", label: "triggers" },
+  { from: "notification", to: "email", label: "sent as" },
+];
+
+
+const thing = (id: string) => things.find((t) => t.id === id)!;
+
+/* Hand-set places on the FW x FH frame, grouped by capability. */
+const FW = 1400;
+const FH = 740;
+const at: Record<string, [number, number]> = {
+  tenant: [70, 185],
+  identity: [70, 315],
+  audit: [70, 445],
+  permission: [215, 150],
+  ratelimit: [225, 285],
+  session: [225, 425],
+
+  refusal: [425, 105],
+  response: [455, 215],
+  route: [535, 305],
+  request: [435, 435],
+  handler: [735, 385],
+
+  spec: [665, 100],
+  shape: [835, 210],
+  client: [915, 100],
+
+  secret: [1175, 70],
+  config: [1110, 175],
+  flag: [1265, 190],
+
+  webhook: [1295, 300],
+  event: [1035, 350],
+  queue: [1165, 385],
+  schedule: [1310, 440],
+  job: [1175, 475],
+
+  statement: [745, 535],
+  row: [955, 545],
+  database: [690, 650],
+  migration: [580, 710],
+  pool: [820, 715],
+  transaction: [890, 640],
+
+  log: [110, 640],
+  metric: [230, 705],
+  trace: [290, 585],
+  span: [450, 620],
+  health: [420, 710],
+
+  cache: [1100, 700],
+  file: [1140, 610],
+  email: [1225, 715],
+  notification: [1270, 635],
+};
+const placed = things.map((t) => ({ ...t, x: at[t.id]![0], y: at[t.id]![1] }));
+
+/* Static layout for no-JavaScript readers. Name widths are estimated
+   here; the script measures them. */
+const points = new Map(placed.map((t) => [t.id, { x: t.x, y: t.y }]));
+const widths = new Map(placed.map((t) => [t.id, t.name.length * 8.3]));
+const side = sides(points, widths, relations, { w: FW, h: FH });
+const classAt = (g: Group) => {
+  const boxes: Box[] = placed
+    .filter((t) => t.group === g.id)
+    .flatMap((t) => [ringBox(t), box(t, widths.get(t.id)!, side.get(t.id)!)]);
+  const x = Math.min(...boxes.map((b) => b.x0));
+  const y = Math.min(...boxes.map((b) => b.y0)) - 12;
+  boxes.push({ x0: x, y0: y - 10, x1: x + g.name.length * 7.4, y1: y + 3 });
+  return { x, y, ground: hull(boxes) };
+};
+---
+
+<div class="sheet relative left-1/2 w-screen -translate-x-1/2 py-10 md:py-14" data-sheet>
+  <div class="paper" aria-hidden="true"></div>
+  <div class="field relative px-4 sm:px-6 md:px-10">
+    <svg
+      viewBox={`0 0 ${FW} ${FH}`}
+      class="graph block h-auto w-full overflow-visible select-none"
+      data-graph
+      data-things={JSON.stringify(placed)}
+      data-groups={JSON.stringify(groups)}
+      data-relations={JSON.stringify(relations)}
+      role="group"
+      aria-labelledby={labelledby}
+    >
+      <g class="grounds" aria-hidden="true">
+        {groups.map((g) => <path class="ground" data-ground={g.id} d={classAt(g).ground} />)}
+      </g>
+      <g class="classes" aria-hidden="true">
+        {
+          groups.map((g) => {
+            const c = classAt(g);
+            return (
+              <text class="class" data-group={g.id} x={c.x} y={c.y} fill="var(--color-graphite)" font-family="var(--font-sans)" font-size="10" letter-spacing="1.3">
+                {g.name.toUpperCase()}
+              </text>
+            );
+          })
+        }
+      </g>
+      <g class="edges" aria-hidden="true">
+        {
+          relations.map((r) => {
+            const a = placed.find((t) => t.id === r.from)!;
+            const b = placed.find((t) => t.id === r.to)!;
+            const e = bow(a, b);
+            return (
+              <g class:list={["edge", !(a.entry && b.entry) && "faint", a.group !== b.group && "across"]} data-from={r.from} data-to={r.to}>
+                <path class="line" d={e.d} pathLength="1" />
+                <path class="flow" d={e.d} pathLength="1" />
+                <text
+                  x={e.mid.x + e.n.x * 12}
+                  y={e.mid.y + e.n.y * 12 + 4}
+                  text-anchor="middle"
+                  fill="var(--color-graphite)"
+                  stroke="var(--color-ivory)"
+                  stroke-width="4"
+                  paint-order="stroke"
+                  font-family="var(--font-sans)"
+                  font-size="12"
+                >
+                  {r.label}
+                </text>
+              </g>
+            );
+          })
+        }
+      </g>
+      {
+        placed.map((t) => {
+          const tone = t.entry ? "var(--color-ink)" : "var(--color-graphite)";
+          const s = set(side.get(t.id)!);
+          const mark = (
+            <>
+              <circle class="hit" r="18" fill="transparent" />
+              <circle class="ring" r="7" fill="var(--color-ivory)" stroke={tone} stroke-width="1" />
+              <circle class="dot" r="2.8" fill={tone} />
+              <text
+                class="name"
+                x={s.x}
+                y={s.y}
+                text-anchor={s.anchor}
+                fill={tone}
+                stroke="var(--color-ivory)"
+                stroke-width="5"
+                paint-order="stroke"
+                font-family="var(--font-serif)"
+                font-size="15"
+              >
+                {t.name}
+              </text>
+            </>
+          );
+          /* Open-code concepts link to their capability; the rest are
+             role="img" so screen readers still announce them. */
+          return t.entry ? (
+            <g class="node" data-node={t.id} data-capability={t.entry} transform={`translate(${t.x} ${t.y})`}>
+              <a href={`#cap-${t.group}`} aria-label={`${t.name}: ${t.is}`} data-stop>{mark}</a>
+            </g>
+          ) : (
+            <g class="node mapped" data-node={t.id} transform={`translate(${t.x} ${t.y})`} role="img" aria-label={`${t.name}: ${t.is}`} data-stop>
+              {mark}
+            </g>
+          );
+        })
+      }
+    </svg>
+    {/* The relations as sentences, for screen readers. */}
+    <ul class="sr-only">
+      {relations.map((r) => <li>{`${thing(r.from).name} ${r.label} ${thing(r.to).name}.`}</li>)}
+    </ul>
+  </div>
+</div>
+
+<style>
+  /* Dotted background, faded toward the edges. */
+  .paper {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle, color-mix(in oklab, var(--color-ink) 22%, transparent) 1px, transparent 1.6px) 0 0 / 22px 22px;
+    mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 40%, transparent 100%);
+  }
+
+  /* The wide round stroke pads and softens the hull. */
+  .graph .ground {
+    fill: var(--color-ink);
+    stroke: var(--color-ink);
+    stroke-width: 28;
+    stroke-linejoin: round;
+    opacity: 0.028;
+    transition: opacity 400ms var(--ease-glide);
+  }
+  .graph[data-focus] .ground {
+    opacity: 0.02;
+  }
+  .graph[data-focus] .ground[data-lit] {
+    opacity: 0.06;
+  }
+
+  .graph .line,
+  .graph .flow {
+    fill: none;
+    stroke-linecap: round;
+  }
+  .graph .line {
+    stroke: var(--color-graphite);
+    stroke-width: 1;
+    stroke-dasharray: 1 1;
+    transition: stroke 300ms var(--ease-glide);
+  }
+  .graph .edge {
+    opacity: 0.32;
+    transition: opacity 300ms var(--ease-glide);
+  }
+  .graph .edge.faint {
+    opacity: 0.16;
+  }
+  .graph .edge text {
+    opacity: 0;
+    transition: opacity 300ms var(--ease-glide);
+  }
+  .graph .node,
+  .graph .class {
+    transition: opacity 300ms var(--ease-glide);
+  }
+  .graph[data-focus] .class {
+    opacity: 0.25;
+  }
+  .graph[data-focus] .class[data-lit] {
+    opacity: 1;
+  }
+  .graph[data-focus] .node:not([data-lit]) {
+    opacity: 0.2;
+  }
+  .graph[data-focus] .node[data-lit="2"] {
+    opacity: 0.6;
+  }
+  .graph[data-focus] .edge {
+    opacity: 0.05;
+  }
+  .graph[data-focus] .edge[data-lit="2"] {
+    opacity: 0.26;
+  }
+  .graph[data-focus] .edge[data-lit="1"] {
+    opacity: 1;
+  }
+  .graph[data-focus] .edge[data-lit="1"] .line {
+    stroke: color-mix(in oklab, var(--color-ink) 55%, transparent);
+  }
+  .graph[data-focus] .edge[data-lit="1"] text {
+    opacity: 1;
+  }
+
+  /* A short dash running from subject to object. `--flow` scales with
+     length so every dash moves at the same speed. */
+  .graph .flow {
+    stroke: var(--color-ink);
+    stroke-width: 1.75;
+    stroke-dasharray: 0.09 1;
+    stroke-dashoffset: 0.09;
+    opacity: 0;
+  }
+  .graph[data-focus] .edge[data-lit="1"] .flow {
+    animation: flow var(--flow, 1.6s) cubic-bezier(0.45, 0, 0.3, 1) 200ms infinite;
+  }
+  @keyframes flow {
+    0% {
+      stroke-dashoffset: 0.09;
+      opacity: 0;
+    }
+    15%,
+    80% {
+      opacity: 1;
+    }
+    100% {
+      stroke-dashoffset: -1;
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .graph .flow {
+      display: none;
+    }
+  }
+
+  .graph .node.mapped {
+    cursor: default;
+  }
+  .graph .node .hit {
+    pointer-events: all;
+  }
+  .graph .node .ring,
+  .graph .node .dot {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .graph .node .ring {
+    transition: transform 400ms var(--ease-glide);
+  }
+  .graph .node:hover .ring,
+  .graph .node[data-lit="0"] .ring {
+    transform: scale(1.35);
+  }
+  /* Focus shows on the ring in the accent, not as an outline. */
+  .graph [data-stop]:focus {
+    outline: none;
+  }
+  .graph [data-stop]:focus-visible .ring {
+    stroke: var(--color-accent);
+    stroke-width: 2;
+  }
+
+  /* Stacked, cross-capability relations would cut across bands, so they
+     show only when an end is in focus. */
+  .graph[data-stacked] .edge.across:not([data-lit]) {
+    opacity: 0;
+  }
+
+  /* Hidden until the draw-in animation starts. */
+  .graph[data-veiled] :is(.ground, .class, .edge, .node) {
+    opacity: 0;
+  }
+</style>
+
+<script>
+  import { bow, box, hull, ringBox, set, sides, type Box } from "./graph-geometry";
+
+  type Thing = { id: string; name: string; group: string; is: string; x: number; y: number; entry?: string };
+  type Group = { id: string; name: string };
+  type Relation = { from: string; to: string; label: string };
+
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* Idle float: amplitude in px, period in seconds. */
+  const FLOAT = 3.5;
+  const PERIOD = 9;
+  /* Neighbour lean toward the focused concept, in px, on a spring just
+     under critical damping (stiffness and damping, per second). */
+  const LEAN = 7;
+  const STIFF = 140;
+  const DAMP = 19;
+  /* Wide frame the places are set on. */
+  const FW = 1400;
+  const FH = 740;
+  /* Stacked layout: capability order, top to bottom. In px: EDGE is the
+     side margin, NAMES the width kept for names, HEAD the room above a
+     band for its title, BAND the gap between bands. SQUEEZE scales each
+     band's height. */
+  const STACK = ["identity", "http", "contracts", "observe", "data", "config", "messaging", "notify"];
+  const EDGE = 16;
+  const NAMES = 110;
+  const HEAD = 44;
+  const BAND = 64;
+  const SQUEEZE = 0.8;
+  /* Below this width (px), two columns; below 720, one. */
+  const PAIRED = 1100;
+  /* Below this width (px) the wide map scales down rather than
+     compressing, since its grounds would meet. */
+  const NARROWEST = 1280;
+  /* Above this width (px) the map stops widening and is centred. */
+  const WIDEST = 1600;
+
+  for (const svg of document.querySelectorAll<SVGSVGElement>("[data-graph]")) {
+    const field = svg.closest<HTMLElement>(".field")!;
+    const things: Thing[] = JSON.parse(svg.dataset.things || "[]");
+    const groups: Group[] = JSON.parse(svg.dataset.groups || "[]");
+    const relations: Relation[] = JSON.parse(svg.dataset.relations || "[]");
+
+    /* `stop` takes focus (the link or the node). `hx`, `hy`: home place;
+       `ox`, `oy`: lean offset; `vx`, `vy`: its velocity; `tx`, `ty`: its
+       target. */
+    type N = {
+      t: Thing;
+      el: SVGGElement;
+      stop: SVGElement;
+      name: SVGTextElement;
+      hx: number;
+      hy: number;
+      x: number;
+      y: number;
+      ox: number;
+      oy: number;
+      vx: number;
+      vy: number;
+      tx: number;
+      ty: number;
+      phase: number;
+    };
+    const nodes = new Map<string, N>();
+    things.forEach((t, i) => {
+      const el = svg.querySelector<SVGGElement>(`[data-node="${t.id}"]`)!;
+      const stop = el.matches("[data-stop]") ? el : el.querySelector<SVGElement>("[data-stop]")!;
+      const name = el.querySelector<SVGTextElement>(".name")!;
+      nodes.set(t.id, { t, el, stop, name, hx: 0, hy: 0, x: 0, y: 0, ox: 0, oy: 0, vx: 0, vy: 0, tx: 0, ty: 0, phase: i * 2.399 });
+    });
+    const classes = groups.map((g) => ({
+      g,
+      el: svg.querySelector<SVGTextElement>(`[data-group="${g.id}"]`)!,
+      ground: svg.querySelector<SVGPathElement>(`[data-ground="${g.id}"]`)!,
+    }));
+    const edges = [...svg.querySelectorAll<SVGGElement>(".edge")].map((g) => ({
+      g,
+      a: nodes.get(g.dataset.from!)!,
+      b: nodes.get(g.dataset.to!)!,
+      line: g.querySelector<SVGPathElement>(".line")!,
+      flow: g.querySelector<SVGPathElement>(".flow")!,
+      label: g.querySelector("text")!,
+    }));
+
+    /* Lays out in page pixels so names keep their size, then re-picks
+       name sides with measured widths. */
+    let W = 0, H = 0;
+    const band = (id: string) => [...nodes.values()].filter((n) => n.t.group === id);
+    const tall = (id: string) => {
+      const ys = band(id).map((n) => n.t.y);
+      return HEAD + (Math.max(...ys) - Math.min(...ys)) * SQUEEZE + BAND;
+    };
+    /* Stacks bands in a column at x `from`, narrowing each to fit `width`.
+       Returns the column's height. */
+    const column = (ids: string[], from: number, width: number) => {
+      let top = 0;
+      for (const id of ids) {
+        const mine = band(id);
+        const xs = mine.map((n) => n.t.x);
+        const ys = mine.map((n) => n.t.y);
+        const x0 = Math.min(...xs), y0 = Math.min(...ys);
+        const span = Math.max(1, Math.max(...xs) - x0);
+        const room = width - 2 * EDGE - NAMES;
+        const sx = Math.min(1, room / span);
+        const left = from + EDGE + (room - span * sx) / 2;
+        for (const n of mine) {
+          n.hx = left + (n.t.x - x0) * sx;
+          n.hy = top + HEAD + (n.t.y - y0) * SQUEEZE;
+        }
+        top += tall(id);
+      }
+      return top - BAND + HEAD;
+    };
+    const measure = () => {
+      W = svg.clientWidth || svg.parentElement!.clientWidth;
+      if (W < 720) {
+        H = column(STACK, 0, W);
+      } else if (W < PAIRED) {
+        const heights = STACK.map(tall);
+        const total = heights.reduce((a, b) => a + b, 0);
+        let split = 1;
+        let best = Infinity;
+        for (let k = 1, run = 0; k < STACK.length; k++) {
+          run += heights[k - 1]!;
+          const most = Math.max(run, total - run);
+          if (most < best) [best, split] = [most, k];
+        }
+        H = Math.max(column(STACK.slice(0, split), 0, W / 2), column(STACK.slice(split), W / 2, W / 2));
+      } else {
+        W = Math.max(W, NARROWEST);
+        const w = Math.min(W, WIDEST);
+        const left = (W - w) / 2;
+        H = (w * FH) / FW;
+        for (const n of nodes.values()) {
+          n.hx = left + (n.t.x / FW) * w;
+          n.hy = (n.t.y / FH) * H;
+        }
+      }
+      svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+      svg.toggleAttribute("data-stacked", W < PAIRED);
+      const points = new Map([...nodes].map(([id, n]) => [id, { x: n.hx, y: n.hy }]));
+      const widths = new Map([...nodes].map(([id, n]) => [id, n.name.getComputedTextLength() || n.t.name.length * 8.3]));
+      const side = sides(points, widths, relations, { w: W, h: H });
+      for (const [id, n] of nodes) {
+        const s = set(side.get(id)!);
+        n.name.setAttribute("x", String(s.x));
+        n.name.setAttribute("y", String(s.y));
+        n.name.setAttribute("text-anchor", s.anchor);
+      }
+      for (const c of classes) {
+        const boxes: Box[] = [...nodes.values()]
+          .filter((n) => n.t.group === c.g.id)
+          .flatMap((n) => [ringBox(points.get(n.t.id)!), box(points.get(n.t.id)!, widths.get(n.t.id)!, side.get(n.t.id)!)]);
+        const x = Math.min(...boxes.map((b) => b.x0));
+        const y = Math.min(...boxes.map((b) => b.y0)) - 12;
+        boxes.push({ x0: x, y0: y - 10, x1: x + (c.el.getComputedTextLength() || c.g.name.length * 7.4), y1: y + 3 });
+        c.el.setAttribute("x", x.toFixed(1));
+        c.el.setAttribute("y", y.toFixed(1));
+        c.ground.setAttribute("d", hull(boxes));
+      }
+      for (const e of edges) {
+        const len = Math.hypot(e.b.hx - e.a.hx, e.b.hy - e.a.hy);
+        e.g.style.setProperty("--flow", `${(900 + len * 3.2).toFixed(0)}ms`);
+      }
+    };
+
+    let time = 0;
+    const draw = () => {
+      for (const n of nodes.values()) {
+        n.x = n.hx + n.ox + (still ? 0 : Math.sin((2 * Math.PI * time) / PERIOD + n.phase) * FLOAT);
+        n.y = n.hy + n.oy + (still ? 0 : Math.cos((2 * Math.PI * time) / (PERIOD * 1.3) + n.phase) * FLOAT);
+        n.el.setAttribute("transform", `translate(${n.x.toFixed(1)} ${n.y.toFixed(1)})`);
+      }
+      for (const e of edges) {
+        const c = bow(e.a, e.b);
+        e.line.setAttribute("d", c.d);
+        e.flow.setAttribute("d", c.d);
+        e.label.setAttribute("x", (c.mid.x + c.n.x * 12).toFixed(1));
+        e.label.setAttribute("y", (c.mid.y + c.n.y * 12 + 4).toFixed(1));
+      }
+    };
+
+    measure();
+    draw();
+    const remeasure = () => {
+      measure();
+      draw();
+    };
+    new ResizeObserver(remeasure).observe(svg.parentElement!);
+    document.fonts?.ready.then(remeasure);
+
+    /* Animates only while on screen: floats unless focus holds it, and
+       runs until every lean settles. */
+    let visible = false;
+    let held = false;
+    let frame = 0;
+    let last = 0;
+    const lean = (dt: number) => {
+      let moving = false;
+      for (const n of nodes.values()) {
+        n.vx += (STIFF * (n.tx - n.ox) - DAMP * n.vx) * dt;
+        n.vy += (STIFF * (n.ty - n.oy) - DAMP * n.vy) * dt;
+        n.ox += n.vx * dt;
+        n.oy += n.vy * dt;
+        if (Math.abs(n.tx - n.ox) + Math.abs(n.ty - n.oy) + Math.abs(n.vx) + Math.abs(n.vy) > 0.02) moving = true;
+      }
+      return moving;
+    };
+    const tick = (now: number) => {
+      frame = 0;
+      if (!visible || document.hidden) return;
+      const dt = Math.min(1 / 30, (now - last) / 1000);
+      last = now;
+      if (!held) time += dt;
+      const moving = lean(dt);
+      draw();
+      if (!held || moving) frame = requestAnimationFrame(tick);
+    };
+    const play = () => {
+      if (still || frame || !visible || document.hidden) return;
+      last = performance.now();
+      frame = requestAnimationFrame(tick);
+    };
+    new IntersectionObserver(([entry]) => {
+      visible = Boolean(entry?.isIntersecting);
+      play();
+    }).observe(svg);
+    document.addEventListener("visibilitychange", play);
+
+    /* One-time draw-in on scroll, outward from the request by graph
+       distance; grounds last. STEP is the delay per step, in ms. */
+    const depth = new Map<N, number>([[nodes.get("request")!, 0]]);
+    for (let d = 0; depth.size < nodes.size && d < nodes.size; d++) {
+      for (const e of edges) {
+        const a = depth.get(e.a), b = depth.get(e.b);
+        if (a === d && b === undefined) depth.set(e.b, d + 1);
+        if (b === d && a === undefined) depth.set(e.a, d + 1);
+      }
+    }
+    const STEP = 260;
+    const glide = "cubic-bezier(0.16, 1, 0.3, 1)";
+    const drawIn = () => {
+      svg.removeAttribute("data-veiled");
+      for (const [n, d] of depth) {
+        n.el.animate([{ opacity: 0, offset: 0 }], { duration: 700, delay: d * STEP, easing: glide, fill: "backwards" });
+        n.el.querySelector(".ring")!.animate([{ transform: "scale(0.2)" }, { transform: "scale(1)" }], {
+          duration: 900,
+          delay: d * STEP,
+          easing: glide,
+          fill: "backwards",
+        });
+      }
+      for (const e of edges) {
+        const a = depth.get(e.a)!, b = depth.get(e.b)!;
+        e.line.animate([{ strokeDashoffset: a <= b ? 1 : -1 }, { strokeDashoffset: 0 }], {
+          duration: 1100,
+          delay: Math.min(a, b) * STEP + 120,
+          easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+          fill: "backwards",
+        });
+      }
+      for (const c of classes) {
+        const d = Math.min(...[...depth].filter(([n]) => n.t.group === c.g.id).map(([, d]) => d));
+        const at = { delay: (d + 1) * STEP + 300, easing: glide, fill: "backwards" as const };
+        c.ground.animate([{ opacity: 0, offset: 0 }], { duration: 1600, ...at });
+        c.el.animate([{ opacity: 0, offset: 0 }], { duration: 1200, ...at });
+      }
+    };
+    if (!still && svg.getBoundingClientRect().top > innerHeight * 0.5) {
+      svg.setAttribute("data-veiled", "");
+      const watch = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry?.isIntersecting) return;
+          watch.disconnect();
+          drawIn();
+        },
+        { rootMargin: "0px 0px -30% 0px" },
+      );
+      watch.observe(svg);
+    }
+
+    /* Lights the picked concepts (level 0) and two steps of neighbours,
+       and pauses the float. */
+    const focus = (pick: ((n: N) => boolean) | null) => {
+      const level = new Map<N, number>();
+      for (const n of nodes.values()) if (pick?.(n)) level.set(n, 0);
+      for (const step of [1, 2]) {
+        for (const e of edges) {
+          const a = level.get(e.a), b = level.get(e.b);
+          if (a === step - 1 && b === undefined) level.set(e.b, step);
+          if (b === step - 1 && a === undefined) level.set(e.a, step);
+        }
+      }
+      for (const e of edges) {
+        const a = level.get(e.a), b = level.get(e.b);
+        const near = a !== undefined && b !== undefined && Math.abs(a - b) === 1 ? Math.max(a, b) : undefined;
+        if (pick && near !== undefined) e.g.setAttribute("data-lit", String(near));
+        else e.g.removeAttribute("data-lit");
+      }
+      svg.toggleAttribute("data-focus", !!pick);
+      for (const n of nodes.values()) {
+        const l = level.get(n);
+        if (pick && l !== undefined) n.el.setAttribute("data-lit", String(l));
+        else n.el.removeAttribute("data-lit");
+        n.tx = n.ty = 0;
+      }
+      const lit = new Set([...level].filter(([, l]) => l === 0).map(([n]) => n.t.group));
+      for (const c of classes) {
+        c.el.toggleAttribute("data-lit", lit.has(c.g.id));
+        c.ground.toggleAttribute("data-lit", lit.has(c.g.id));
+      }
+      /* With one concept in focus, its neighbours lean toward it. */
+      const centre = [...level].filter(([, l]) => l === 0);
+      if (centre.length === 1) {
+        const [c] = centre[0]!;
+        for (const e of edges) {
+          const other = e.a === c ? e.b : e.b === c ? e.a : null;
+          if (!other) continue;
+          const dx = c.hx - other.hx, dy = c.hy - other.hy;
+          const d = Math.hypot(dx, dy) || 1;
+          other.tx = (dx / d) * LEAN;
+          other.ty = (dy / d) * LEAN;
+        }
+      }
+      held = !!pick;
+      play();
+    };
+    let forward: N | null = null;
+    const enter = (n: N) => {
+      forward = n;
+      focus((m) => m === n);
+    };
+    const leave = () => {
+      forward = null;
+      focus(null);
+    };
+    /* Mouse: hover focuses. Touch: no hover, so the first tap focuses and
+       a second tap follows a link. Hit area grows to fingertip size. */
+    let tapped: { n: N; armed: boolean } | null = null;
+    if (matchMedia("(pointer: coarse)").matches)
+      for (const hit of svg.querySelectorAll(".hit")) hit.setAttribute("r", "22");
+    for (const n of nodes.values()) {
+      n.el.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && enter(n));
+      n.el.addEventListener("pointerleave", (e) => e.pointerType === "mouse" && n.el !== focused()?.el && leave());
+      n.el.addEventListener("pointerdown", (e) => {
+        tapped = e.pointerType === "mouse" ? null : { n, armed: forward === n };
+      });
+      n.el.addEventListener("pointercancel", () => (tapped = null));
+      n.stop.addEventListener("click", (e) => {
+        const tap = tapped;
+        tapped = null;
+        if (!tap || tap.n !== n || tap.armed) return;
+        e.preventDefault();
+        n.stop.focus();
+        enter(n);
+      });
+    }
+
+    /* Roving tabindex: one tab stop, arrows to the nearest concept that
+       way, Home and End for first and last. Focus is listened for on the
+       field because Chrome makes any SVG element with a focus listener a
+       tab stop. */
+    const order = [...nodes.values()];
+    const rove = (n: N) => {
+      for (const m of order) m.stop.setAttribute("tabindex", m === n ? "0" : "-1");
+    };
+    rove(order[0]!);
+    const focused = () => order.find((n) => n.stop === document.activeElement) ?? null;
+    field.addEventListener("focusin", () => {
+      const n = focused();
+      if (!n) return;
+      rove(n);
+      enter(n);
+    });
+    field.addEventListener("focusout", (e) => {
+      if (!order.some((n) => n.stop === e.relatedTarget)) leave();
+    });
+    const toward = (from: N, dx: number, dy: number) => {
+      let best: N | null = null;
+      let score = Infinity;
+      for (const n of order) {
+        if (n === from) continue;
+        const ax = n.hx - from.hx;
+        const ay = n.hy - from.hy;
+        const along = ax * dx + ay * dy;
+        if (along <= 1) continue;
+        const across = Math.abs(ax * dy - ay * dx);
+        const s = along + across * 2;
+        if (s < score) [best, score] = [n, s];
+      }
+      return best;
+    };
+    field.addEventListener("keydown", (e) => {
+      const n = focused();
+      if (!n) return;
+      const ways: Record<string, [number, number]> = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowDown: [0, 1], ArrowUp: [0, -1] };
+      const next =
+        e.key === "Home" ? order[0] : e.key === "End" ? order.at(-1) : e.key in ways ? toward(n, ...ways[e.key]!) : undefined;
+      if (next === undefined) return;
+      e.preventDefault();
+      if (next) next.stop.focus();
+    });
+    for (const entry of document.querySelectorAll<HTMLElement>("li[data-part]")) {
+      entry.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && focus((n) => !!n.t.entry && n.t.group === entry.dataset.part));
+      entry.addEventListener("pointerleave", () => focus(null));
+    }
+  }
+</script>

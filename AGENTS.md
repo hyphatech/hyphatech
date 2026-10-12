@@ -1,0 +1,27 @@
+# AGENTS.md
+
+The source of [hyphatech.io](https://hyphatech.io), Hypha's website: an
+Astro site, built to static files and published by GitHub Pages. This file
+is for anyone changing it, human or agent. Visitors start at the site.
+
+## Commands
+
+```sh
+make setup   # once: install the dependencies
+make dev     # the site with live reload on http://localhost:4321
+make check   # type-check the pages and components
+make build   # the static site into dist/, as Pages builds it
+make help    # every other target, each with its one line
+```
+
+`.github/workflows/pages.yml` checks, builds and publishes the site to
+hyphatech.io on every push to `main`.
+
+## Git
+
+How work becomes a commit -- its format, where it happens, what is pushed
+-- is [GIT.md](GIT.md), the same in every Hypha repository and changed in
+all of them together, never in one. It is imported here, so it is read
+with this file:
+
+@GIT.md

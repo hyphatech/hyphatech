@@ -1,0 +1,73 @@
+---
+import Base from "../layouts/Base.astro";
+import { propositions, depth, type Proposition } from "../content/principles";
+
+/* The seven hang their numerals in the margin; propositions sit on the
+   line; remarks follow theirs at once, smaller. Every number links to its
+   own address (/principles#2.32) so it can be cited. Never name the
+   source or explain the form. */
+
+interface Line extends Proposition {
+  remarks: Proposition[];
+}
+interface Group extends Proposition {
+  lines: Line[];
+}
+
+const groups: Group[] = [];
+for (const p of propositions) {
+  const d = depth(p.n);
+  if (d === 1) groups.push({ ...p, lines: [] });
+  else if (d === 2) groups.at(-1)?.lines.push({ ...p, remarks: [] });
+  else groups.at(-1)?.lines.at(-1)?.remarks.push(p);
+}
+---
+
+<Base
+  title="Principles · Hypha"
+  description="The principles Hypha is built on, in seven propositions."
+  flush
+>
+  {/* The title alone on the dark ground; the propositions on paper. */}
+  <section class="mx-auto max-w-page px-4 pt-16 pb-16 sm:px-6 md:pt-20 md:pb-20">
+    <div class="max-w-2xl md:ml-margin">
+      <h1 class="t-display">Principles</h1>
+    </div>
+  </section>
+
+  <section class="theme-light">
+    <div class="mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20">
+      <ol>
+        {
+          groups.map((g) => (
+            <li id={g.n} class="scroll-mt-8 border-rule not-first:mt-16 not-first:border-t not-first:pt-12 md:not-first:mt-20 md:not-first:pt-16">
+              {/* The seven are headings, for navigation by heading. */}
+              <div class="grid grid-cols-[3.5rem_minmax(0,1fr)] gap-x-4 md:grid-cols-margin">
+                <a href={`#${g.n}`} class="t-cite t-number t-h2 md:text-right" aria-label={`Proposition ${g.n}`}>{g.n}</a>
+                <h2 class="t-h2 max-w-3xl">{g.text}</h2>
+              </div>
+              {g.lines.length > 0 && (<ol class="mt-8 md:mt-10">
+                {g.lines.map((l) => (
+                  <li id={l.n} class="grid scroll-mt-8 grid-cols-[3.5rem_minmax(0,1fr)] gap-x-4 not-first:mt-7 md:grid-cols-margin">
+                    <a href={`#${l.n}`} class="t-cite t-number self-start pt-1.5 text-base md:text-right" aria-label={`Proposition ${l.n}`}>{l.n}</a>
+                    <p class="t-h3 max-w-2xl [text-wrap:pretty]">{l.text}</p>
+                    {l.remarks.length > 0 && (
+                      <ol class="t-note col-start-2 mt-3 max-w-xl space-y-2">
+                        {l.remarks.map((r) => (
+                          <li id={r.n} class="t-cited scroll-mt-8">
+                            <a href={`#${r.n}`} class="t-cite font-serif text-ink tabular-nums" aria-label={`Proposition ${r.n}`}>{r.n}</a>{" "}
+                            {r.text}
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </li>
+                ))}
+              </ol>)}
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+</Base>

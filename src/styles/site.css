@@ -1,0 +1,464 @@
+@import "@fontsource/inter-tight/400.css";
+@import "@fontsource/inter-tight/500.css";
+@import "@fontsource-variable/roboto-slab/index.css";
+
+@import "tailwindcss";
+
+/* Five colours, two faces; hairline rules, no shadow, no bold. `accent`
+   is for marks, never text: text is ink and graphite only. */
+/* The palette. Night and paper swap as ground and text; roles are named
+   from these, never from a raw value. */
+:root {
+  --night: #15120e;
+  --paper: #f3efe8;
+  --graphite-on-night: #948c83; /* 5.6:1 */
+  --graphite-on-paper: #655d54; /* 5.6:1 */
+  --rule-on-night: #3d362c;
+  --rule-on-paper: #d6cfc2;
+  --accent-on-night: #d4a820;
+  --accent-on-paper: #9a7410; /* darkened, so a mark still shows */
+}
+
+@theme {
+  /* Role names: `ivory` is the ground, `ink` the text. On paper sections
+     their values swap. */
+  --color-ivory: var(--night);
+  --color-ink: var(--paper);
+  --color-graphite: var(--graphite-on-night);
+  --color-rule: var(--rule-on-night);
+  --color-accent: var(--accent-on-night);
+
+  /* Surfaces lift the ground toward ink instead of using shadows. Mixed in
+     oklab: oklch loses the near-grey ground's hue and mixes a cold pink. */
+  --color-panel: color-mix(in oklab, var(--color-ink) 4%, var(--color-ivory));
+  --color-raised: color-mix(in oklab, var(--color-ink) 7%, var(--color-ivory));
+
+  --container-page: 72rem;
+
+  /* Roboto Slab: Hypha's headline face. */
+  --font-serif: "Roboto Slab Variable", ui-serif, Georgia, serif;
+  --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1.4;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.35;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.4;
+
+  --radius-control: 4px;
+  --radius-panel: 10px;
+
+  --ease-glide: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-state: cubic-bezier(0.4, 0, 0.2, 1);
+  --default-transition-duration: 120ms;
+  --default-transition-timing-function: var(--ease-state);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background: var(--color-ivory);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--color-accent);
+    color: var(--night);
+  }
+  /* Grid: the margin is the first sixth; text starts on the line at its
+     end. Two rules place everything:
+       open   every section opens alike: heading on the line, lede below.
+       match  only things of a kind sit side by side; anything longer
+              follows, so no column is left waiting.
+     The margin holds only a number or label. Below a laptop it keeps a
+     label's width; on a phone the line is the page edge. */
+  :root {
+    --margin: 11.5rem;
+  }
+  @media (width >= 64rem) {
+    :root {
+      --margin: calc(100% / 6);
+    }
+  }
+  /* Focus in the accent; on paper in ink, where the accent is too faint. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+  /* Paper section: swaps the tokens, so contents need no light variants.
+     Graphite keeps 5.6:1; the accent is darkened so a mark still shows. */
+  .theme-light {
+    --color-ivory: var(--paper);
+    --color-ink: var(--night);
+    --color-graphite: var(--graphite-on-paper);
+    --color-rule: var(--rule-on-paper);
+    --color-accent: var(--accent-on-paper);
+    color-scheme: light;
+  }
+  .theme-light :focus-visible {
+    outline-color: var(--color-ink);
+  }
+  /* Surfaces re-mixed here: a color-mix resolves where it is declared and
+     would otherwise keep the dark ground's colours. */
+  .theme-light {
+    --color-panel: color-mix(in oklab, var(--color-ink) 4%, var(--color-ivory));
+    --color-raised: color-mix(in oklab, var(--color-ink) 7%, var(--color-ivory));
+    background-color: var(--color-ivory);
+    color: var(--color-ink);
+  }
+  .font-serif {
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@utility t-display {
+  text-wrap: balance;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+/* Sized so each of the hero's two lines fits the measure: a laptop sets
+   it in two lines, not four. */
+@utility t-hero {
+  text-wrap: balance;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2.75rem, 5.5vw, 5rem);
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+}
+
+@utility t-h1 {
+  text-wrap: balance;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+@utility t-h2 {
+  text-wrap: balance;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-size: clamp(1.5rem, 2.8vw, 2.25rem);
+  line-height: 1.15;
+  letter-spacing: -0.005em;
+}
+
+@utility t-h3 {
+  text-wrap: balance;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 1.375rem;
+  line-height: 1.25;
+}
+
+@utility t-lede {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 1.25rem;
+  line-height: 1.45;
+}
+
+@utility t-number {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--color-graphite);
+  line-height: 1;
+}
+
+@utility t-label {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@utility t-control {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: var(--text-sm);
+  line-height: 1.25;
+}
+
+@utility t-caption {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+
+/* Indents to the margin's line, where running text starts. */
+@utility ml-margin {
+  margin-left: var(--margin);
+}
+
+/* Caption-sized and in graphite, so a source never reads as the text it
+   supports; only its claim in ink. */
+@utility t-footnote {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-graphite);
+  text-wrap: pretty;
+  & li:target {
+    color: var(--color-ink);
+  }
+}
+
+@utility t-footmark {
+  font-family: var(--font-serif);
+  font-size: 0.6875rem;
+  font-variant-numeric: lining-nums tabular-nums;
+  line-height: 0;
+  margin-left: 0.15em;
+  color: var(--color-graphite);
+  & a {
+    padding-inline: 0.1em;
+    transition: color 120ms var(--ease-state);
+  }
+  & a:hover,
+  & a:target {
+    color: var(--color-ink);
+  }
+  /* On touch, a fingertip-sized hit area per figure, above and below the
+     line too, so adjacent marks can each be hit. */
+  @media (pointer: coarse) {
+    & a {
+      position: relative;
+      display: inline-block;
+      min-width: 1.5rem;
+      padding-inline: 0;
+      line-height: 1;
+      text-align: center;
+    }
+    & a::after {
+      content: "";
+      position: absolute;
+      inset: -0.5rem 0;
+    }
+  }
+}
+
+/* A note's link back to its mark, with a hit area wider than its figure. */
+@utility t-backmark {
+  position: relative;
+  transition: color 120ms var(--ease-state);
+  &:hover {
+    color: var(--color-ink);
+  }
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -0.375rem -0.5rem;
+  }
+  @media (pointer: coarse) {
+    &::after {
+      inset: -0.75rem;
+    }
+  }
+}
+
+/* A proposition's number, linking to its own address for citing. Inked
+   when its proposition is the target; a cited remark is inked whole
+   (`t-cited`), as its number is already ink. */
+@utility t-cite {
+  transition: color 120ms var(--ease-state);
+  &:hover,
+  :target > &,
+  :target > * > & {
+    color: var(--color-ink);
+  }
+}
+
+@utility t-cited {
+  transition: color 120ms var(--ease-state);
+  &:target {
+    color: var(--color-ink);
+  }
+}
+
+@utility t-note {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--color-graphite);
+  text-wrap: pretty;
+}
+
+/* Running columns: items flow across columns, never split, each opening
+   on run-in serif words instead of a heading. */
+@utility columns-run {
+  column-gap: 3rem;
+  & > * {
+    break-inside: avoid;
+    padding-bottom: 1.75rem;
+  }
+  & dt {
+    display: inline;
+    font-family: var(--font-serif);
+    font-size: 1.1875rem;
+    line-height: 1.375;
+    color: var(--color-ink);
+  }
+  & dd {
+    display: inline;
+  }
+  @media (width >= 48rem) {
+    column-count: 2;
+  }
+}
+
+/* Label or number in the margin, words on the line. */
+@utility grid-cols-margin {
+  grid-template-columns: calc(var(--margin) - 2.5rem) minmax(0, 1fr);
+  column-gap: 2.5rem;
+}
+
+@utility btn-primary {
+  @apply t-control rounded-control inline-flex h-10 pointer-coarse:h-11 cursor-pointer items-center bg-ink px-5 text-ivory transition-opacity hover:opacity-85;
+}
+
+@utility btn {
+  @apply t-control rounded-control inline-flex h-10 pointer-coarse:h-11 cursor-pointer items-center border border-rule bg-panel px-5 text-graphite transition-colors hover:border-graphite hover:bg-raised hover:text-ink;
+}
+
+/* A standalone link: control height on touch, so it can be hit. */
+@utility link {
+  @apply t-control pointer-coarse:min-h-11 cursor-pointer items-center text-graphite underline decoration-graphite/50 underline-offset-4 transition-colors pointer-coarse:inline-flex hover:text-ink hover:decoration-ink;
+}
+
+/* A card that turns to paper on hover, swapping tokens as `.theme-light`
+   does. Only where a pointer hovers: a tap leaves hover behind. Children
+   inherit the card's timing so card and words turn as one. */
+@utility invert-hover {
+  transition-property: background-color, border-color, color;
+  transition-duration: 300ms;
+  transition-timing-function: var(--ease-state);
+  & * {
+    transition-property: color, text-decoration-color, border-color;
+    transition-duration: inherit;
+    transition-timing-function: inherit;
+  }
+  @media (hover: hover) {
+    &:hover {
+      transition-duration: 450ms;
+      transition-timing-function: var(--ease-glide);
+      --color-ivory: var(--paper);
+      --color-ink: var(--night);
+      --color-graphite: var(--graphite-on-paper);
+      --color-rule: var(--rule-on-paper);
+      --color-accent: var(--accent-on-paper);
+      border-color: var(--paper);
+      background-color: var(--color-ivory);
+      color: var(--color-ink);
+    }
+  }
+}
+
+@utility tap {
+  @apply pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center;
+}
+
+@utility link-inline {
+  @apply cursor-pointer underline decoration-current/40 underline-offset-2 transition-colors hover:decoration-current;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0ms !important;
+  }
+}
+
+
+/* A drifting strip. The list is set twice to loop without a seam. Pauses
+   on hover, focus, hold and off screen; still and wrapped under reduced
+   motion. */
+.marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 45s linear infinite;
+}
+
+/* Only where a pointer hovers: a tap leaves hover behind, and the strip
+   would never restart. */
+@media (hover: hover) {
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+}
+
+[data-strip]:focus-visible .marquee-track,
+.marquee[data-held] .marquee-track,
+.marquee[data-paused] .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Phone menu slides in on open and closes at once; under reduced motion
+   it only fades in. */
+[data-menu][open] > nav {
+  animation: menu-in 200ms var(--ease-glide);
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    translate: 0 -0.5rem;
+  }
+}
+
+@keyframes menu-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-menu][open] > nav {
+    animation-name: menu-fade;
+  }
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    mask-image: none;
+  }
+
+  .marquee-track {
+    width: auto;
+    flex-wrap: wrap;
+    animation: none;
+  }
+
+  .marquee-track > [aria-hidden] {
+    display: none;
+  }
+}
