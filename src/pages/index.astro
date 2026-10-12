@@ -4,6 +4,10 @@ import Paths from "../components/Paths.astro";
 import { ways } from "../content/ways";
 import Chladni from "../components/Chladni.astro";
 import Plate from "../components/Plate.astro";
+import Icon from "../components/Icon.astro";
+import Layers from "@lucide/astro/icons/layers";
+import ScrollText from "@lucide/astro/icons/scroll-text";
+import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
 
 /* The landing says why; Stack's page says how, so no OCaml and no
    library list here.
@@ -64,11 +68,11 @@ const steps = [
       <h1 class="t-hero max-w-5xl md:ml-margin" data-clear>
         The missing foundation
         <br />
-        <span class="text-graphite">for agentic engineering.</span>
+        <span class="text-accent">for agentic engineering.</span>
       </h1>
       <div class="mt-10 flex flex-wrap gap-3 md:mt-12 md:ml-margin" data-clear data-actions>
-        <a href="/stack" class="btn-primary">Explore Hypha Stack</a>
-        <a href="/principles" class="btn">Read the principles</a>
+        <a href="/stack" class="btn-primary"><Icon icon={Layers} />Explore Hypha Stack</a>
+        <a href="/principles" class="btn"><Icon icon={ScrollText} />Read the principles</a>
       </div>
     </div>
   </section>
@@ -105,7 +109,7 @@ const steps = [
                 </a>
                 <p>
                   <span class="text-ink">{r.what}</span> {r.limit} {r.by},{" "}
-                  <a href={r.href} class="link-inline">{r.title}</a>, {r.year}.
+                  <a href={r.href} class="link-inline group">{r.title}<Icon icon={ArrowUpRight} class="ml-0.5 inline size-[0.8em] align-[-0.05em] transition-transform duration-300 ease-glide group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></a>, {r.year}.
                 </p>
               </li>
             ))
@@ -133,8 +137,7 @@ const steps = [
     </div>
   </section>
 
-  {/* The principle. The accent line between the pair is the boundary,
-      and the accent's first use on the page. */}
+  {/* The principle. The gold line between the pair is the boundary. */}
   <section id="boundaries" class="scroll-mt-8 border-t border-rule">
     <div class="mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20">
       <div class="md:ml-margin">
@@ -164,24 +167,25 @@ const steps = [
     </div>
   </section>
 
-  {/* The answer, set as the hero is, with the figure Stack's page opens
-      on. */}
+  {/* The answer, set as the hero is, over sand on a round plate. Each
+      new figure of its sand moves the steps on by one, and a line draws
+      over the step while the sand settles. */}
   <section id="stack" class="relative scroll-mt-8 overflow-hidden border-t border-rule">
     <Plate />
     <div
       class="relative mx-auto flex min-h-[max(34rem,88svh)] max-w-page flex-col justify-end px-4 pt-32 pb-20 sm:px-6 md:pb-28"
       data-content
     >
-      <h2 class="t-hero max-w-5xl md:ml-margin" data-clear><span class="block">Hypha Stack:</span> <span class="block">sound by design.</span></h2>
+      <h2 class="t-hero max-w-5xl md:ml-margin" data-clear><span class="block">Hypha Stack:</span> <span class="block text-accent">sound by design.</span></h2>
       <p class="t-lede mt-8 max-w-2xl text-graphite md:mt-10 md:ml-margin" data-clear>
-        Components built to fit together, practices that hold the
-        boundaries, a language that makes them binding, and an ontology
-        that says what each part means.
+        Components built to fit together, an ontology that says what each
+        part means, a language that makes it binding, and practices that
+        hold the boundaries.
       </p>
-      <ol class="mt-12 grid gap-x-10 gap-y-8 sm:grid-cols-2 md:ml-margin lg:grid-cols-4" data-clear>
+      <ol class="steps mt-12 grid gap-x-10 gap-y-8 sm:grid-cols-2 md:ml-margin lg:grid-cols-4" data-clear data-steps>
         {
           steps.map((s) => (
-            <li>
+            <li class="relative pt-5">
               <h3 class="t-h3">{s.title}</h3>
               <p class="mt-2 leading-relaxed text-graphite">{s.body}</p>
             </li>
@@ -189,7 +193,7 @@ const steps = [
         }
       </ol>
       <div class="mt-12 flex flex-wrap gap-3 md:ml-margin" data-clear>
-        <a href="/stack" class="btn-primary">Explore Hypha Stack</a>
+        <a href="/stack" class="btn-primary"><Icon icon={Layers} />Explore Hypha Stack</a>
       </div>
     </div>
 
@@ -204,3 +208,68 @@ const steps = [
   </section>
 
 </Base>
+
+<style>
+  /* Every step stands on a rule; the step in play draws its own over
+     it as the sand settles, and lets it go faster than it came. */
+  .steps > li::before,
+  .steps > li::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+  }
+  .steps > li::before {
+    background: var(--color-rule);
+  }
+  .steps > li::after {
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 400ms var(--ease-state);
+  }
+  .steps > li.is-now::after {
+    transform: scaleX(1);
+    transform-origin: left;
+    transition: transform 2400ms var(--ease-glide);
+  }
+  .steps.is-live h3 {
+    color: var(--color-graphite);
+    transition: color 600ms var(--ease-state);
+  }
+  .steps.is-live > li.is-now h3 {
+    color: var(--color-ink);
+  }
+</style>
+
+<script>
+  /* The steps keep time with the plate behind them: a figure each. A
+     hovered step holds until the pointer leaves. With reduced motion the
+     plate holds one frame and the steps stay as written. */
+  const list = document.querySelector<HTMLElement>("[data-steps]");
+  const plate = list?.closest("section")?.querySelector<HTMLElement>("[data-plate]");
+  if (list && plate && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const items = [...list.children] as HTMLElement[];
+    let figure = 0;
+    let held: number | null = null;
+    const show = () => {
+      const now = held ?? figure % items.length;
+      items.forEach((item, i) => item.classList.toggle("is-now", i === now));
+    };
+    plate.addEventListener("figure", (event) => {
+      figure = (event as CustomEvent<number>).detail;
+      list.classList.add("is-live");
+      show();
+    });
+    items.forEach((item, i) => {
+      item.addEventListener("pointerenter", () => {
+        held = i;
+        show();
+      });
+      item.addEventListener("pointerleave", () => {
+        held = null;
+        show();
+      });
+    });
+  }
+</script>

@@ -4,8 +4,11 @@
 
 @import "tailwindcss";
 
-/* Five colours, two faces; hairline rules, no shadow, no bold. `accent`
-   is for marks, never text: text is ink and graphite only. */
+/* Five colours, two faces; hairline rules, no shadow, no bold. Text is
+   ink and graphite, with gold (`accent`) the third colour in set roles
+   only: the heroes' second lines and marks. Never body copy, link
+   underlines (every link is underlined in its own colour, faint), the
+   footnotes, the masthead or the Principles' numerals. */
 /* The palette. Night and paper swap as ground and text; roles are named
    from these, never from a raw value. */
 :root {
@@ -15,8 +18,8 @@
   --graphite-on-paper: #655d54; /* 5.6:1 */
   --rule-on-night: #3d362c;
   --rule-on-paper: #d6cfc2;
-  --accent-on-night: #d4a820;
-  --accent-on-paper: #9a7410; /* darkened, so a mark still shows */
+  --accent-on-night: #d4a820; /* 8.4:1: one gold on either ground */
+  --accent-on-paper: #d4a820; /* 1.9:1: marks only */
 }
 
 @theme {
@@ -99,7 +102,8 @@
     outline-offset: 3px;
   }
   /* Paper section: swaps the tokens, so contents need no light variants.
-     Graphite keeps 5.6:1; the accent is darkened so a mark still shows. */
+     Graphite keeps 5.6:1; the accent keeps its one gold, faint here, so
+     it marks only. */
   .theme-light {
     --color-ivory: var(--paper);
     --color-ink: var(--night);
@@ -342,17 +346,24 @@
   column-gap: 2.5rem;
 }
 
+/* The clear border keeps its edge where forced colours drop the fill. */
 @utility btn-primary {
-  @apply t-control rounded-control inline-flex h-10 pointer-coarse:h-11 cursor-pointer items-center bg-ink px-5 text-ivory transition-opacity hover:opacity-85;
+  @apply t-control rounded-control inline-flex h-10 pointer-coarse:h-11 cursor-pointer items-center gap-2 border border-transparent bg-ink px-5 text-ivory transition-opacity hover:opacity-85;
 }
 
 @utility btn {
-  @apply t-control rounded-control inline-flex h-10 pointer-coarse:h-11 cursor-pointer items-center border border-rule bg-panel px-5 text-graphite transition-colors hover:border-graphite hover:bg-raised hover:text-ink;
+  @apply t-control rounded-control inline-flex h-10 pointer-coarse:h-11 cursor-pointer items-center gap-2 border border-rule bg-panel px-5 text-graphite transition-colors hover:border-graphite hover:bg-raised hover:text-ink;
 }
 
 /* A standalone link: control height on touch, so it can be hit. */
 @utility link {
-  @apply t-control pointer-coarse:min-h-11 cursor-pointer items-center text-graphite underline decoration-graphite/50 underline-offset-4 transition-colors pointer-coarse:inline-flex hover:text-ink hover:decoration-ink;
+  @apply t-control pointer-coarse:min-h-11 cursor-pointer items-center text-graphite underline decoration-current/40 underline-offset-4 transition-colors pointer-coarse:inline-flex hover:text-ink hover:decoration-current;
+}
+
+/* The ontology map's ground: ink dots on a 22px grid. Faded where it
+   is used, each place its own way. */
+@utility dotted {
+  background: radial-gradient(circle, color-mix(in oklab, var(--color-ink) 22%, transparent) 1px, transparent 1.6px) 0 0 / 22px 22px;
 }
 
 /* A card that turns to paper on hover, swapping tokens as `.theme-light`
@@ -372,6 +383,20 @@
   color: var(--color-ink);
 }
 
+/* The same card on paper turns to night. */
+@utility night-turned {
+  transition-duration: 450ms;
+  transition-timing-function: var(--ease-glide);
+  --color-ivory: var(--night);
+  --color-ink: var(--paper);
+  --color-graphite: var(--graphite-on-night);
+  --color-rule: var(--rule-on-night);
+  --color-accent: var(--accent-on-night);
+  border-color: var(--night);
+  background-color: var(--color-ivory);
+  color: var(--color-ink);
+}
+
 @utility invert-hover {
   transition-property: background-color, border-color, color;
   transition-duration: 300ms;
@@ -384,9 +409,15 @@
   &[data-on] {
     @apply paper-turned;
   }
+  .theme-light &[data-on] {
+    @apply night-turned;
+  }
   @media (hover: hover) {
     &:hover {
       @apply paper-turned;
+    }
+    .theme-light &:hover {
+      @apply night-turned;
     }
   }
 }
@@ -455,6 +486,13 @@
     width: auto;
     flex-wrap: wrap;
     animation: none;
+  }
+
+  /* The list itself wraps too, or the names past the edge are lost. */
+  .marquee-track > ul {
+    flex-shrink: 1;
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
   }
 
   .marquee-track > [aria-hidden] {

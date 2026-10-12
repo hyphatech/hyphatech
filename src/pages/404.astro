@@ -1,5 +1,9 @@
 ---
 import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import House from "@lucide/astro/icons/house";
+import Layers from "@lucide/astro/icons/layers";
+import ScrollText from "@lucide/astro/icons/scroll-text";
 
 /* The host serves this for any address it cannot find. */
 ---
@@ -11,12 +15,12 @@ import Base from "../layouts/Base.astro";
 >
   <section class="mx-auto max-w-page px-4 pt-16 pb-16 sm:px-6 md:pt-20 md:pb-20">
     <div class="max-w-2xl md:ml-margin">
-      <h1 class="t-display">Nothing at this address.</h1>
+      <h1 class="t-display"><span class="block">Nothing at</span> <span class="block text-accent">this address.</span></h1>
       <p class="t-lede mt-8 text-graphite">The page may have moved.</p>
       <div class="mt-10 flex flex-wrap gap-3 md:mt-12">
-        <a href="/" class="btn-primary">Home</a>
-        <a href="/stack" class="btn">Hypha Stack</a>
-        <a href="/principles" class="btn">Principles</a>
+        <a href="/" class="btn-primary"><Icon icon={House} />Home</a>
+        <a href="/stack" class="btn"><Icon icon={Layers} />Hypha Stack</a>
+        <a href="/principles" class="btn"><Icon icon={ScrollText} />Principles</a>
       </div>
     </div>
   </section>

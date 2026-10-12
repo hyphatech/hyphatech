@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Hypha LinkedIn Banners</title>
-  <!-- Banners for LinkedIn with the hero's Chladni sand behind them: the
+  <title>Hypha Banners</title>
+  <!-- Banners for LinkedIn, and the link preview, with the hero's Chladni sand behind them: the
        site's simulation, seeded and run to one settled frame. Open as is
        for every variant; ?only=<id> shows one flush at 0,0 for a
        screenshot. -->
@@ -17,6 +17,7 @@
       --night: #15120e;
       --paper: #f3efe8;
       --graphite: #948c83;
+      --accent: #d4a820;
       --serif: "Roboto Slab", Georgia, serif;
       --sans: "Inter Tight", system-ui, sans-serif;
     }
@@ -50,6 +51,8 @@
     /* LinkedIn personal profile: 1584 × 396. Company page: 1128 × 191. */
     .personal { width: 1584px; height: 396px; }
     .company  { width: 1128px; height: 191px; }
+    /* The link preview every page shares (public/og.jpg): 1200 × 630. */
+    .og       { width: 1200px; height: 630px; }
 
     .banner canvas { position: absolute; inset: 0; }
 
@@ -69,7 +72,7 @@
       letter-spacing: -0.025em;
       white-space: nowrap;
     }
-    .hero span { color: var(--graphite); }
+    .hero span { color: var(--accent); }
 
     /* Personal: the profile photo sits over the lower left, so the words
        go right and the wordmark top left, clear of it. */
@@ -77,6 +80,10 @@
     .personal .hero { font-size: 56px; right: 88px; top: 50%; transform: translateY(-50%); }
 
     .company .hero { font-size: 32px; right: 56px; top: 50%; transform: translateY(-50%); }
+    /* The preview: wordmark top left, the words low on the left, as the
+       hero sets them. */
+    .og .wordmark { --size: 22px; top: 64px; left: 80px; }
+    .og .hero { font-size: 80px; left: 80px; bottom: 80px; }
   </style>
 </head>
 <body>
@@ -91,6 +98,14 @@
   </div>
 
   <div>
+    <div class="label">Personal, without the words · 1584 × 396 · mode 8·10</div>
+    <div class="banner personal" id="p810plain" data-mode="8,10,1" data-seed="19">
+      <canvas></canvas>
+      <div class="wordmark"><img src="../public/hypha.webp" alt="">hypha</div>
+    </div>
+  </div>
+
+  <div>
     <div class="label">Company page · 1128 × 191 · mode 8·10</div>
     <div class="banner company" id="c810" data-mode="8,10,1" data-seed="31">
       <canvas></canvas>
@@ -98,6 +113,14 @@
     </div>
   </div>
 
+  <div>
+    <div class="label">Link preview · 1200 × 630 · mode 8·10</div>
+    <div class="banner og" id="og" data-mode="8,10,1" data-seed="7">
+      <canvas></canvas>
+      <div class="wordmark"><img src="../public/hypha.webp" alt="">hypha</div>
+      <div class="hero" data-clear>The missing foundation<br><span>for agentic engineering.</span></div>
+    </div>
+  </div>
 <script>
   /* The constants of src/components/Chladni.astro, so the sand reads as
      the hero's. */

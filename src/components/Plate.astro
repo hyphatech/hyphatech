@@ -6,7 +6,9 @@
    angle; each figure sums two, tabled on resize so a frame only looks
    values up. The plate reaches the band's farthest corner from a centre
    beside the words. Without JavaScript the band is its ground; with
-   reduced motion one settled frame is held. */
+   reduced motion one settled frame is held. Each new figure is
+   announced on the host as a `figure` event, its count since the
+   plate began as the detail. */
 ---
 
 <div class="plate pointer-events-none absolute inset-0 overflow-hidden" data-plate aria-hidden="true">
@@ -71,7 +73,7 @@
     return sum;
   };
 
-  function plate(sand: Sand): Scene {
+  function plate(sand: Sand, announce: (count: number) => void): Scene {
     let width = 0;
     let height = 0;
     let cx = 0;
@@ -85,6 +87,7 @@
     let x = new Float32Array(0);
     let y = new Float32Array(0);
     let time = 0;
+    let shown = -1;
 
     /* J_n depends on the radius alone: sampled once per order, then
        looked up for every cell. */
@@ -180,10 +183,13 @@
         y = new Float32Array(grains);
         scatter();
         time = 0;
+        shown = -1;
       },
       step(dt) {
         time += dt;
-        const index = Math.floor(time / HOLD) % MODES.length;
+        const count = Math.floor(time / HOLD);
+        if (count !== shown) announce((shown = count));
+        const index = count % MODES.length;
         const f = fields[index]!;
         const gx = slopesX[index]!;
         const gy = slopesY[index]!;
@@ -225,6 +231,7 @@
 
   for (const host of document.querySelectorAll<HTMLElement>("[data-plate]")) {
     const colour = tone("--color-ink");
-    stage(host, plate(new Sand(colour, GRAIN)), { underWords: 0.08, feather: 28, head: 90, foot: 160 });
+    const announce = (count: number) => host.dispatchEvent(new CustomEvent("figure", { detail: count }));
+    stage(host, plate(new Sand(colour, GRAIN), announce), { underWords: 0.08, feather: 28, head: 90, foot: 160 });
   }
 </script>

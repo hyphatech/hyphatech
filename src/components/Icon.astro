@@ -1,0 +1,31 @@
+---
+import type { AstroComponent } from "@lucide/astro";
+
+/* One set: Lucide, as Sente wears it. Every icon is rendered at one of
+   three sizes with the stroke scaled by the size, so the LINE is 1.35px
+   whichever is asked for: a set drawn at one stroke-width and rendered at
+   three sizes has three weights in it. Icons beside words are `sm` and
+   say nothing to a screen reader; the words do. `cap` follows the type
+   it heads, its drawing as tall as the capitals; beside the slab's
+   stems a 1.35px line reads as a hairline, so its line is 2.25px, held
+   by a stroke the scaling leaves alone. */
+interface Props {
+  icon: AstroComponent;
+  size?: "sm" | "md" | "lg" | "cap";
+  class?: string;
+}
+
+const ICON_PX = { sm: 16, md: 20, lg: 24 } as const;
+const LINE_PX = 1.35;
+const CAP_LINE_PX = 2.25;
+
+const { icon: Drawn, size = "sm", class: className } = Astro.props;
+---
+
+{
+  size === "cap" ? (
+    <Drawn size={24} stroke-width={CAP_LINE_PX} aria-hidden="true" class:list={["size-[0.8em] shrink-0 [&_*]:[vector-effect:non-scaling-stroke]", className]} />
+  ) : (
+    <Drawn size={ICON_PX[size]} stroke-width={(LINE_PX * 24) / ICON_PX[size]} aria-hidden="true" class:list={["shrink-0", className]} />
+  )
+}

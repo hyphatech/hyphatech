@@ -2,16 +2,23 @@
 import Base from "../layouts/Base.astro";
 import Paths from "../components/Paths.astro";
 import { ways } from "../content/ways";
-import Plate from "../components/Plate.astro";
 import Graph from "../components/Graph.astro";
+import Icon from "../components/Icon.astro";
+import Route from "@lucide/astro/icons/route";
+import Braces from "@lucide/astro/icons/braces";
+import Database from "@lucide/astro/icons/database";
+import Activity from "@lucide/astro/icons/activity";
+import KeyRound from "@lucide/astro/icons/key-round";
+import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
+import CircleDashed from "@lucide/astro/icons/circle-dashed";
 
 /* The only page that says how; the landing says why.
 
-   hero          the name and what it is
+   title         the name alone on the map's dotted ground
    components    capabilities, each with the libraries that provide it
-   practices     the rules every repository keeps
-   language      OCaml, the outermost boundary, not the thing sold
    ontology      the map of what a backend is built from
+   language      OCaml, the outermost boundary, not the thing sold
+   practices     the rules every repository keeps
    next          the ways in
 
    Claim only what the repositories bear out; where a thing holds only
@@ -26,6 +33,7 @@ const spindle = { name: "Spindle", href: repo("spindle") };
 const capabilities = [
   {
     id: "http",
+    icon: Route,
     name: "HTTP and APIs",
     is: "Routes typed from their inputs to their answers, and a typed refusal for whatever was wrong.",
     by: [spindle],
@@ -33,6 +41,7 @@ const capabilities = [
   },
   {
     id: "contracts",
+    icon: Braces,
     name: "Data contracts",
     is: "One description of the data a service takes and gives: checked on the way in, written on the way out, printed as the API spec and the clients' schema.",
     by: [{ name: "Wiretype", href: repo("wiretype") }, spindle],
@@ -40,6 +49,7 @@ const capabilities = [
   },
   {
     id: "data",
+    icon: Database,
     name: "Data and persistence",
     is: "SQL as written, with typed parameters and rows, each statement checkable against the database without running it; transactions, migrations and pooled connections.",
     by: [{ name: "Rowtype", href: repo("rowtype") }, spindle, { name: "Postgres driver", href: repo("postgres-eio") }],
@@ -47,6 +57,7 @@ const capabilities = [
   },
   {
     id: "observe",
+    icon: Activity,
     name: "Observability",
     is: "A log line for every request and health checks; once turned on, traces that follow a request into each query, and metrics.",
     by: [spindle],
@@ -54,6 +65,7 @@ const capabilities = [
   },
   {
     id: "identity",
+    icon: KeyRound,
     name: "Identity and access",
     is: "Sessions kept on the server, credentials named in the API spec, and limits on how often a caller may call a route.",
     by: [spindle],
@@ -69,8 +81,8 @@ const practices = [
     body: "One way to write each thing, kept word for word across every repository, so code by a person or an agent reads as if one hand wrote it.",
   },
   {
-    title: "Exhaustive instructions",
-    body: "Every repository tells the agents that work in it everything: its commands, its rules and the checks a change must pass, so nothing they can look up is left to guess.",
+    title: "Instructions next to the code",
+    body: "Each repository carries the full context and workflow its agents need, everything the code cannot say itself: the decisions behind it, the rules it keeps, and how a change becomes a commit.",
   },
   {
     title: "A harness that knows the code",
@@ -127,49 +139,49 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
 
 <Base
   title="Hypha Stack · Hypha"
-  description="Hypha Stack: the coherent foundation for agentic engineering. Components, tools, practices and an ontology, built to fit together."
+  description="Hypha Stack: the missing foundation for agentic engineering. Components, tools, practices and an ontology, built to fit together."
 >
-  {/* The hero, set as the landing's: figure above, words at its foot. */}
-  <section slot="band" class="relative overflow-hidden">
-    <Plate />
-    <div
-      class="relative mx-auto flex min-h-[max(34rem,calc(100svh-var(--masthead)))] max-w-page flex-col justify-end px-4 pt-32 pb-20 sm:px-6 md:pb-28"
-      data-content
-    >
-      <h1 class="t-hero md:ml-margin" data-clear>Hypha Stack</h1>
-      <p class="t-lede mt-8 max-w-2xl text-graphite md:mt-10 md:ml-margin" data-clear>
-        The coherent foundation for agentic engineering.
-      </p>
+  {/* The name alone, as Principles opens, on the ontology map's dotted
+      ground: the landing has already said what it is. */}
+  <section class="relative overflow-hidden">
+    <div class="dotted pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_70%_75%_at_50%_50%,black_30%,transparent_100%)]" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-page px-4 pt-16 pb-16 sm:px-6 md:pt-20 md:pb-20">
+      <h1 class="t-display max-w-2xl md:ml-margin">Hypha Stack</h1>
     </div>
   </section>
 
   {/* A card per capability; library names come second, as they mean
       nothing unopened. The dashed last card names no date. A hovered
       card lights its concepts in the map. */}
-  <section id="components" class={section}>
+  <section id="components" class:list={[section, "theme-light"]}>
     <div class={inner}>
       <div class="md:ml-margin">
         <h2 class="t-h1 max-w-3xl">Components made to fit together.</h2>
         <p class="t-lede mt-8 max-w-2xl text-graphite">
-          One way to describe data, one way to type a query, one way to
-          serve a route.
+          A new ecosystem, not a collection. Every component follows the
+          same rules, conventions and design decisions, to keep every
+          system built with them coherent.
         </p>
       </div>
       <ul class="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {
           capabilities.map((c) => (
             <li id={`cap-${c.id}`} data-part={c.id} class="invert-hover flex scroll-mt-24 flex-col rounded-panel border border-rule p-7">
-              <h3 class="t-h2">{c.name}</h3>
+              <h3 class="t-h2 flex gap-[0.4em]"><span class="flex h-[1lh] items-center"><Icon icon={c.icon} size="cap" class="text-accent" /></span>{c.name}</h3>
               <p class="mt-4 grow leading-relaxed text-graphite">{c.is}</p>
               <p class="mt-6 flex flex-wrap gap-x-4 gap-y-1">
-                {c.by.map((b) => <a href={b.href} class="link">{b.name}</a>)}
-                {c.read.map((r) => <a href={r.href} class="link">{r.label}</a>)}
+                {[...c.by.map((b) => ({ label: b.name, href: b.href })), ...c.read].map((l) => (
+                  <a href={l.href} class="link group inline-flex gap-1">
+                    {l.label}
+                    <Icon icon={ArrowUpRight} class="transition-transform duration-300 ease-glide group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </a>
+                ))}
               </p>
             </li>
           ))
         }
         <li class="flex flex-col rounded-panel border border-dashed border-rule p-7">
-          <h3 class="t-h2 text-graphite">In the works</h3>
+          <h3 class="t-h2 flex gap-[0.4em] text-graphite"><span class="flex h-[1lh] items-center"><Icon icon={CircleDashed} size="cap" /></span>In the works</h3>
           <p class="mt-4 leading-relaxed text-graphite">
             Configuration, messaging and jobs, notifications, caches and
             files, permissions and tenants: each joins the registry as it is ready
@@ -177,6 +189,78 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
           </p>
         </li>
       </ul>
+    </div>
+  </section>
+
+  {/* No legend: a hovered concept says what it is and what provides
+      it. */}
+  <section id="ontology" class:list={[section, "overflow-x-clip"]}>
+    <div class={inner}>
+      <div class="md:ml-margin">
+        <h2 id="ontology-title" class="t-h1 max-w-3xl">One ontology for people and agents.</h2>
+        <p class="t-lede mt-8 max-w-2xl text-graphite">
+          An explicit model of what a backend is built from: its concepts,
+          what each one means, and how they relate. People and agents build
+          from the same account, so nothing has to be inferred from a name.
+        </p>
+      </div>
+      <div class="mt-6 md:mt-8">
+        <Graph labelledby="ontology-title" />
+      </div>
+    </div>
+  </section>
+
+  {/* The need, the properties that meet it, then OCaml's users,
+      labelled as OCaml's. No rules between properties. */}
+  <section id="ocaml" class={section}>
+    <div class={inner}>
+      <div class="md:ml-margin">
+        <h2 class="t-h1 max-w-4xl"><span class="block">What the language cannot say,</span> <span class="block">the system cannot get wrong.</span></h2>
+        <p class="t-lede mt-8 max-w-2xl text-graphite">
+          <a href="https://ocaml.org" class="link-inline group text-ink">OCaml<Icon icon={ArrowUpRight} class="ml-0.5 inline size-[0.8em] align-[-0.05em] transition-transform duration-300 ease-glide group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></a> meets every need at once, and
+          the stack is built within its limits. It makes contracts and
+          failure cases explicit; it does not make an application correct on
+          its own.
+        </p>
+        <dl class="mt-12 grid gap-x-10 gap-y-9 md:grid-cols-2 lg:grid-cols-3">
+          {
+            ocaml.map((o) => (
+              <div>
+                <dt class="t-h3">{o.title}</dt>
+                <dd class="mt-2 leading-relaxed text-graphite">{o.body}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+      {/* Stops under keyboard focus; a tap, click, Enter or Space holds
+          it until the next. */}
+      <div
+        class="mt-16 grid items-center gap-6 py-8 md:grid-cols-margin"
+        tabindex="0"
+        role="group"
+        aria-labelledby="ocaml-users-label"
+        aria-describedby="ocaml-users-hold"
+        data-strip
+      >
+        <p id="ocaml-users-label" class="t-label text-graphite">OCaml in production at</p>
+        {/* Says whether the strip moves and how to hold it; written by the
+            script, which is what holds it. */}
+        <span id="ocaml-users-hold" class="sr-only" data-hold></span>
+        <div class="marquee" id="ocaml-users" data-marquee>
+          <div class="marquee-track">
+            {
+              [false, true].map((copy) => (
+                <ul class="flex shrink-0" aria-hidden={copy ? "true" : undefined}>
+                  {users.map((u) => (
+                    <li class="t-h2 px-6 whitespace-nowrap text-graphite md:px-8">{u}</li>
+                  ))}
+                </ul>
+              ))
+            }
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -203,79 +287,6 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
     </div>
   </section>
 
-  {/* The need, the properties that meet it, then OCaml's users,
-      labelled as OCaml's. No rules between properties. */}
-  <section id="ocaml" class={section}>
-    <div class={inner}>
-      <div class="md:ml-margin">
-        <h2 class="t-h1 max-w-4xl"><span class="block">What the language cannot say,</span> <span class="block">the system cannot get wrong.</span></h2>
-        <p class="t-lede mt-8 max-w-2xl text-graphite">
-          <span class="text-ink">OCaml</span> meets every need at once, and
-          the stack is built within its limits. It makes contracts and
-          failure cases explicit; it does not make an application correct on
-          its own.
-        </p>
-        <dl class="mt-12 grid gap-x-10 gap-y-9 md:grid-cols-2 lg:grid-cols-3">
-          {
-            ocaml.map((o) => (
-              <div>
-                <dt class="t-h3">{o.title}</dt>
-                <dd class="mt-2 leading-relaxed text-graphite">{o.body}</dd>
-              </div>
-            ))
-          }
-        </dl>
-      </div>
-      {/* Stops under keyboard focus; a tap, click, Enter or Space holds
-          it until the next. */}
-      <div
-        class="mt-16 grid items-center gap-6 py-8 md:grid-cols-margin"
-        tabindex="0"
-        role="group"
-        aria-labelledby="ocaml-users-label"
-        data-strip
-      >
-        <p id="ocaml-users-label" class="t-label text-graphite">OCaml in production at</p>
-        <div class="marquee" id="ocaml-users" data-marquee>
-          <div class="marquee-track">
-            {
-              [false, true].map((copy) => (
-                <ul class="flex shrink-0" aria-hidden={copy ? "true" : undefined}>
-                  {users.map((u) => (
-                    <li class="t-h2 px-6 whitespace-nowrap text-graphite md:px-8">{u}</li>
-                  ))}
-                </ul>
-              ))
-            }
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  {/* No legend: a hovered concept says what it is and what provides
-      it. */}
-  <section id="ontology" class:list={[section, "overflow-x-clip"]}>
-    <div class={inner}>
-      <div class="md:ml-margin">
-        <h2 id="ontology-title" class="t-h1 max-w-3xl">One ontology for people and agents.</h2>
-        <p class="t-lede mt-8 max-w-2xl text-graphite">
-          An explicit model of what a backend is built from: its concepts,
-          what each one means, and how they relate. People and agents build
-          from the same account, so nothing has to be inferred from a name.
-        </p>
-        <p class="mt-6 max-w-2xl leading-relaxed text-graphite">
-          What crosses a boundary is described once: a route is typed by its
-          data shape, and the API spec and the client schema are printed from
-          it.
-        </p>
-      </div>
-      <div class="mt-6 md:mt-8">
-        <Graph labelledby="ontology-title" />
-      </div>
-    </div>
-  </section>
-
   {/* The ways in: a conversation, the code, the Principles. */}
   <section id="next" class={section}>
     <div class="mx-auto max-w-page px-4 pt-16 pb-4 sm:px-6 md:pt-20 md:pb-8">
@@ -295,11 +306,20 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
     }).observe(strip);
     const row = strip.closest<HTMLElement>("[data-strip]");
     if (!row) continue;
+    const say = row.querySelector<HTMLElement>("[data-hold]");
     if (still) {
       row.removeAttribute("tabindex");
+      row.removeAttribute("aria-describedby");
       continue;
     }
-    const hold = () => strip.toggleAttribute("data-held");
+    const tell = () => {
+      if (say) say.textContent = strip.hasAttribute("data-held") ? "Held still. Enter lets it move." : "Still while focused. Enter holds it still.";
+    };
+    tell();
+    const hold = () => {
+      strip.toggleAttribute("data-held");
+      tell();
+    };
     row.addEventListener("click", hold);
     row.addEventListener("keydown", (e) => {
       if (e.key !== "Enter" && e.key !== " ") return;

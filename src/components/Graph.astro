@@ -183,7 +183,7 @@ const classAt = (g: Group) => {
 ---
 
 <div class="sheet relative left-1/2 w-screen -translate-x-1/2 py-10 md:py-14" data-sheet>
-  <div class="paper" aria-hidden="true"></div>
+  <div class="paper dotted" aria-hidden="true"></div>
   <div class="field relative px-4 sm:px-6 md:px-10">
     <svg
       viewBox={`0 0 ${FW} ${FH}`}
@@ -246,7 +246,7 @@ const classAt = (g: Group) => {
             <>
               <circle class="hit" r="18" fill="transparent" />
               <circle class="ring" r="7" fill="var(--color-ivory)" stroke={tone} stroke-width="1" />
-              <circle class="dot" r="2.8" fill={tone} />
+              <circle class="dot" r="2.8" fill={t.entry ? "var(--color-accent)" : tone} />
               <text
                 class="name"
                 x={s.x}
@@ -290,7 +290,6 @@ const classAt = (g: Group) => {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: radial-gradient(circle, color-mix(in oklab, var(--color-ink) 22%, transparent) 1px, transparent 1.6px) 0 0 / 22px 22px;
     mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 40%, transparent 100%);
   }
 
@@ -464,11 +463,10 @@ const classAt = (g: Group) => {
   const HEAD = 44;
   const BAND = 64;
   const SQUEEZE = 0.8;
-  /* Below this width (px), two columns; below 720, one. */
-  const PAIRED = 1100;
-  /* Below this width (px) the wide map scales down rather than
-     compressing, since its grounds would meet. */
-  const NARROWEST = 1280;
+  /* Below this width (px), two columns; below 720, one. The whole map
+     needs this much to keep its names at their size: narrower, its
+     grounds would meet, and scaled down, its names would shrink. */
+  const PAIRED = 1280;
   /* Above this width (px) the map stops widening and is centred. */
   const WIDEST = 1600;
 
@@ -564,7 +562,6 @@ const classAt = (g: Group) => {
         }
         H = Math.max(column(STACK.slice(0, split), 0, W / 2), column(STACK.slice(split), W / 2, W / 2));
       } else {
-        W = Math.max(W, NARROWEST);
         const w = Math.min(W, WIDEST);
         const left = (W - w) / 2;
         H = (w * FH) / FW;
