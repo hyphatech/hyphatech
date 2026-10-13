@@ -13,8 +13,8 @@ import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
    library list here.
 
    hero        what Hypha is; no lede
-   shift       AI has solved coding, not engineering
-   cause       a smarter model still guesses where meaning is unstated
+   shift       AI has solved coding, not engineering: a smarter model
+               still guesses where meaning is unstated
    principle   strong boundaries: people specify, the system enforces
    answer      Hypha Stack, and how work goes on it in four steps
    start       the ways in; nothing after them
@@ -77,21 +77,25 @@ const steps = [
     </div>
   </section>
 
-  {/* The shift and its cause. Sources are footnotes under the paragraph
-      they support. Nothing is drawn as a queue or a sieve; correctness
-      is not throughput. */}
+  {/* The shift and its cause, in one section. Sources are footnotes
+      under the paragraph they support. Nothing is drawn as a queue or a
+      sieve; correctness is not throughput. */}
   <section id="shift" class="scroll-mt-8 border-t border-rule">
     <div class="mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20">
       <div class="md:ml-margin">
         <h2 class="t-h1 max-w-4xl"><span class="block">AI has solved coding.</span> <span class="block">Not engineering.</span></h2>
         <p class="t-lede mt-8 max-w-2xl text-graphite">
-          Code is cheap. Software that holds is not.
+          Code is cheap. Software that holds is not. Agents build a feature
+          in minutes, but every request leaves room for interpretation, and
+          an agent sees only part of the system. So it fills that room with
+          choices, each reasonable, none bound to agree with the next.
         </p>
         <p class="mt-6 max-w-2xl leading-relaxed text-graphite">
-          Agents turn a prompt into a feature in minutes, each part with its
-          own conventions and assumptions. Where nothing holds them
-          together, a product becomes a patchwork, and every outage costs
-          traffic, customers and trust.<sup class="t-footmark">{reading.map((_, i) => (
+          A smarter model guesses better, but it still guesses. Reviews and
+          linters judge each change once it is written; what they find
+          never narrows the next one. With nothing holding those choices
+          together, a product becomes a patchwork that gives way at its
+          seams, and every outage costs traffic, customers and trust.<sup class="t-footmark">{reading.map((_, i) => (
             <Fragment>{i > 0 && ","}<a href={`#note-${i + 1}`} id={`ref-${i + 1}`} class="scroll-mt-32" aria-label={`Note ${i + 1}`}>{i + 1}</a></Fragment>
           ))}</sup>
         </p>
@@ -115,24 +119,6 @@ const steps = [
             ))
           }
         </ol>
-      </div>
-    </div>
-
-    <div id="guess" class="scroll-mt-8 border-t border-rule">
-      <div class="mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20">
-        <div class="md:ml-margin">
-          <h2 class="t-h1 max-w-4xl"><span class="block">A smarter model guesses better.</span> <span class="block">It still guesses.</span></h2>
-          <p class="t-lede mt-8 max-w-2xl text-graphite">
-            Where meaning is unstated, a model infers it.
-          </p>
-          <p class="mt-6 max-w-2xl leading-relaxed text-graphite">
-            Every request leaves room for interpretation, and an agent sees
-            only what fits in its context. Where that room is wide, it fills
-            it with a guess: each one reasonable, none bound to agree with the
-            next. Reviews and linters judge a change after it is written;
-            nothing they read narrows the next one.
-          </p>
-        </div>
       </div>
     </div>
   </section>
