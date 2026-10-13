@@ -76,8 +76,8 @@
 
     /* Personal: the profile photo sits over the lower left, so the words
        go right and the wordmark top left, clear of it. */
-    .personal .wordmark { --size: 22px; top: 44px; left: 56px; }
-    .personal .hero { font-size: 56px; right: 88px; top: 50%; transform: translateY(-50%); }
+    .personal .wordmark { --size: 26px; top: 48px; left: 60px; }
+    .personal .hero { font-size: 64px; right: 96px; top: 50%; transform: translateY(-50%); }
 
     .company .hero { font-size: 32px; right: 56px; top: 50%; transform: translateY(-50%); }
     /* The preview: wordmark top left, the words low on the left, as the
@@ -126,13 +126,17 @@
      the hero's. */
   const HOLD = 9, EASE = 3.2, SHIMMER = 0.18;
   const THROW = 0.009, SLIDE = 0.0018;
-  const DENSITY = 0.05, FEWEST = 12000, MOST = 70000;
-  const GRAIN = 0.2, CURVE = 0.85;
+  const DENSITY = 0.16, FEWEST = 30000, MOST = 160000;
+  /* A grain is drawn as a soft dot DOT CSS pixels across its middle, not
+     one device pixel: LinkedIn shows a banner at about half its size and
+     recompresses it, and a hairline does not survive either. Sand builds
+     up as 1 - e^(-GAIN·grains), to at most PEAK. */
+  const DOT = 1.8, GAIN = 0.3, PEAK = 0.66;
   /* Sand under the words, as a share, and the feather of its edge. */
   const UNDER_WORDS = 0.08, FEATHER = 28;
   /* Rendered at this many device pixels per CSS pixel, set from the
-     screenshot's scale so a grain stays one device pixel; a grain is
-     brightened by as much, so the sand reads the same at any scale. */
+     screenshot's scale; a dot is sized in CSS pixels, so the sand reads
+     the same at any scale. */
   const SCALE = window.devicePixelRatio || 1;
 
   const LEVELS = 1024;
@@ -156,8 +160,11 @@
     const rnd = random(Number(banner.dataset.seed));
     const cssW = banner.clientWidth, cssH = banner.clientHeight;
     const width = Math.round(cssW * SCALE), height = Math.round(cssH * SCALE);
-    const side = Math.max(width, height);
-    const offsetX = (width - side) / 2, offsetY = (height - side) / 2;
+    /* A square plate as wide as the banner's longer side times its zoom,
+       centred, then moved across by its shift, a share of the width. */
+    const zoom = Number(banner.dataset.zoom || 1), shift = Number(banner.dataset.shift || 0);
+    const side = Math.max(width, height) * zoom;
+    const offsetX = (width - side) / 2 + shift * width, offsetY = (height - side) / 2;
     const a = n * Math.PI, c = m * Math.PI;
 
     const along = (length, from, k) => {
@@ -204,8 +211,6 @@
     const context = canvas.getContext("2d");
     const image = context.createImageData(width, height);
     const colour = new Uint32Array(image.data.buffer);
-    const count = new Uint8Array(width * height);
-    const shade = new Uint32Array(256);
     /* The share of sand kept at each pixel: UNDER_WORDS inside the
        words' boxes, rising to all of it over FEATHER outside them. */
     const keep = new Float32Array(width * height).fill(1);
@@ -224,22 +229,40 @@
           if (k < keep[i]) keep[i] = k;
         }
     }
-    const rgb = (0xe8 << 16) | (0xef << 8) | 0xf3;
-    for (let k = 1; k < 256; k++) shade[k] = ((Math.round(255 * Math.min(1, k * GRAIN * SCALE) ** CURVE) << 24) | rgb) >>> 0;
+    /* Each grain adds a Gaussian dot to the sand's depth at every pixel
+       it covers. */
+    const depth = new Float32Array(width * height);
+    const sigma = (DOT / 2) * SCALE, reach = Math.ceil(sigma * 2.5);
+    const dot = [];
+    for (let dy = -reach; dy <= reach; dy++)
+      for (let dx = -reach; dx <= reach; dx++) {
+        const w = Math.exp(-(dx * dx + dy * dy) / (2 * sigma * sigma));
+        if (w > 0.02) dot.push(dx, dy, w);
+      }
     for (let i = 0; i < grains; i++) {
-      const k = (y[i] | 0) * width + (x[i] | 0);
-      const n = Math.min(255, count[k] + 1);
-      count[k] = n;
-      const alpha = Math.round((shade[n] >>> 24) * keep[k]);
+      const gx = x[i] | 0, gy = y[i] | 0;
+      for (let j = 0; j < dot.length; j += 3) {
+        const px = gx + dot[j], py = gy + dot[j + 1];
+        if (px >= 0 && px < width && py >= 0 && py < height) depth[py * width + px] += dot[j + 2];
+      }
+    }
+    const rgb = (0xe8 << 16) | (0xef << 8) | 0xf3;
+    for (let k = 0; k < depth.length; k++) {
+      if (!depth[k]) continue;
+      const alpha = Math.round(255 * PEAK * (1 - Math.exp(-GAIN * depth[k])) * keep[k]);
       colour[k] = ((alpha << 24) | rgb) >>> 0;
     }
     context.putImageData(image, 0, 0);
   }
 
-  const only = new URLSearchParams(location.search).get("only");
+  /* ?only=<id> keeps one banner; mode, seed, zoom and shift in the query
+     then try another figure on it without editing the page. */
+  const query = new URLSearchParams(location.search), only = query.get("only");
   if (only) {
     document.body.classList.add("only");
     for (const b of document.querySelectorAll(".banner")) if (b.id !== only) b.parentElement.remove();
+    const banner = document.getElementById(only);
+    for (const key of ["mode", "seed", "zoom", "shift"]) if (query.has(key)) banner.dataset[key] = query.get(key);
   }
   document.fonts.ready.then(() => {
     for (const banner of document.querySelectorAll(".banner")) settle(banner);

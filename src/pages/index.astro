@@ -87,13 +87,17 @@ const steps = [
         <p class="t-lede mt-8 max-w-2xl text-graphite">
           Code is cheap. Software that holds is not. Agents build a feature
           in minutes, but every request leaves room for interpretation, and
-          an agent sees only part of the system. So it fills that room with
-          choices, each reasonable, none bound to agree with the next.
+          an agent sees only part of the system. It fills that room with
+          choices of its own, each reasonable, none bound to agree with the
+          next.
         </p>
         <p class="mt-6 max-w-2xl leading-relaxed text-graphite">
-          A smarter model guesses better, but it still guesses. Reviews and
-          linters judge each change once it is written, but what they find
-          never narrows the next one. With nothing holding those choices
+          A smarter model guesses better, but it still guesses, and every
+          choice waits on a person. The review that follows is slow, with
+          feedback and test runs at every turn, and too shallow to trust:
+          changes are merged blindly to keep up. Another reviewer, human or
+          AI, only arrives once the code exists. What it finds gets patched,
+          but never narrows the next one. With nothing holding those choices
           together, a product becomes a patchwork that gives way at its
           seams, and every outage costs traffic, customers and trust.<sup class="t-footmark">{reading.map((_, i) => (
             <Fragment>{i > 0 && ","}<a href={`#note-${i + 1}`} id={`ref-${i + 1}`} class="scroll-mt-32" aria-label={`Note ${i + 1}`}>{i + 1}</a></Fragment>
