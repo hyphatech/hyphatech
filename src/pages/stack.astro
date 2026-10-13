@@ -4,13 +4,7 @@ import Paths from "../components/Paths.astro";
 import { ways } from "../content/ways";
 import Graph from "../components/Graph.astro";
 import Icon from "../components/Icon.astro";
-import Route from "@lucide/astro/icons/route";
-import Braces from "@lucide/astro/icons/braces";
-import Database from "@lucide/astro/icons/database";
-import Activity from "@lucide/astro/icons/activity";
-import KeyRound from "@lucide/astro/icons/key-round";
 import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
-import CircleDashed from "@lucide/astro/icons/circle-dashed";
 
 /* The only page that says how; the landing says why.
 
@@ -33,7 +27,6 @@ const spindle = { name: "Spindle", href: repo("spindle") };
 const capabilities = [
   {
     id: "http",
-    icon: Route,
     name: "HTTP and APIs",
     is: "Routes typed from their inputs to their answers, and a typed refusal for whatever was wrong.",
     by: [spindle],
@@ -41,7 +34,6 @@ const capabilities = [
   },
   {
     id: "contracts",
-    icon: Braces,
     name: "Data contracts",
     is: "One description of the data a service takes and gives: checked on the way in, written on the way out, printed as the API spec and the clients' schema.",
     by: [{ name: "Wiretype", href: repo("wiretype") }, spindle],
@@ -49,7 +41,6 @@ const capabilities = [
   },
   {
     id: "data",
-    icon: Database,
     name: "Data and persistence",
     is: "SQL as written, with typed parameters and rows, each statement checkable against the database without running it; transactions, migrations and pooled connections.",
     by: [{ name: "Rowtype", href: repo("rowtype") }, spindle, { name: "Postgres driver", href: repo("postgres-eio") }],
@@ -57,7 +48,6 @@ const capabilities = [
   },
   {
     id: "observe",
-    icon: Activity,
     name: "Observability",
     is: "A log line for every request and health checks; once turned on, traces that follow a request into each query, and metrics.",
     by: [spindle],
@@ -65,7 +55,6 @@ const capabilities = [
   },
   {
     id: "identity",
-    icon: KeyRound,
     name: "Identity and access",
     is: "Sessions kept on the server, credentials named in the API spec, and limits on how often a caller may call a route.",
     by: [spindle],
@@ -167,7 +156,7 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
         {
           capabilities.map((c) => (
             <li id={`cap-${c.id}`} data-part={c.id} class="invert-hover flex scroll-mt-24 flex-col rounded-panel border border-rule p-7">
-              <h3 class="t-h2 flex gap-[0.4em]"><span class="flex h-[1lh] items-center"><Icon icon={c.icon} size="cap" class="text-accent" /></span>{c.name}</h3>
+              <h3 class="t-h2">{c.name}</h3>
               <p class="mt-4 grow leading-relaxed text-graphite">{c.is}</p>
               <p class="mt-6 flex flex-wrap gap-x-4 gap-y-1">
                 {[...c.by.map((b) => ({ label: b.name, href: b.href })), ...c.read].map((l) => (
@@ -181,7 +170,7 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
           ))
         }
         <li class="flex flex-col rounded-panel border border-dashed border-rule p-7">
-          <h3 class="t-h2 flex gap-[0.4em] text-graphite"><span class="flex h-[1lh] items-center"><Icon icon={CircleDashed} size="cap" /></span>In the works</h3>
+          <h3 class="t-h2 text-graphite">In the works</h3>
           <p class="mt-4 leading-relaxed text-graphite">
             Configuration, messaging and jobs, notifications, caches and
             files, permissions and tenants: each joins the registry as it is ready
