@@ -4,7 +4,7 @@ import Paths from "../components/Paths.astro";
 import { ways } from "../content/ways";
 import Chladni from "../components/Chladni.astro";
 import Plate from "../components/Plate.astro";
-import PickPlace from "../components/PickPlace.astro";
+import TemplateRouter from "../components/TemplateRouter.astro";
 import Icon from "../components/Icon.astro";
 import Layers from "@lucide/astro/icons/layers";
 import ScrollText from "@lucide/astro/icons/scroll-text";
@@ -128,11 +128,11 @@ const steps = [
     </div>
   </section>
 
-  {/* The principle. The pick-and-place over the pair draws it: the
-      gantry takes its own order and routes, and the fixture's gold
-      nests seat every part in one place only. The gold line between the
-      pair is the boundary. It stands on the dotted ground the Principles
-      title does. */}
+  {/* The principle. The template router over the pair draws it: the
+      arm takes its own path every pass, and the bushing never leaves
+      the template's gold-edged opening, so every pocket comes out the
+      same. The gold line between the pair is the boundary. It stands on
+      the dotted ground the Principles title does. */}
   <section id="boundaries" class="relative scroll-mt-8 overflow-hidden border-t border-rule">
     <div class="dotted pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_70%_75%_at_50%_50%,black_30%,transparent_100%)]" aria-hidden="true"></div>
     <div class="relative mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20">
@@ -143,7 +143,7 @@ const steps = [
           thing is, what it may touch, what it must return. It lives in the
           foundation and is checked on every change.
         </p>
-        <PickPlace class="mt-12" />
+        <TemplateRouter class="mt-12" />
         <dl class="mt-12 grid gap-y-8 md:grid-cols-[auto_1px_auto] md:justify-start md:gap-x-12">
           <div>
             <dt class="t-h2">People specify</dt>

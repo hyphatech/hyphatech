@@ -1,0 +1,233 @@
+---
+/* The boundary as a template router: an arm that drives the router its
+   own way every pass, and a template whose gold-edged opening the
+   bushing cannot leave, so every pocket comes out the same. The SVG is
+   drawn here at build time, well into a pass with the bushing on the
+   edge; the script runs the passes while the figure is on screen. With
+   reduced motion, or without JavaScript, it rests. */
+
+import "./iso/iso.css";
+import { routeSvg } from "./route-geometry";
+import { Show } from "./route-model";
+
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+const show = new Show();
+const scene = show.sceneAt(show.rest());
+const svg = routeSvg({
+  ...scene,
+  boards: scene.boards.map((board) => ({ y: board.y, path: board.pass < 0 ? [] : show.run(board.pass).path.slice(0, board.points) })),
+});
+---
+
+<div class:list={["iso route", className]} data-route set:html={svg} />
+
+<script>
+  import { armSvg, boardMove, boardSolid, chunkD, chunksOf, faceOf, glowSvg, mouthFor, move, passSvg, pocketSvg, postsSvg, sweepSvg } from "./route-geometry";
+  import { BOARD, Show } from "./route-model";
+
+  const still = matchMedia("(prefers-reduced-motion: reduce)");
+
+  for (const root of document.querySelectorAll<HTMLElement>("[data-route]")) {
+    const one = (selector: string) => root.querySelector<SVGGElement>(selector)!;
+    const show = new Show();
+    const REST = show.rest();
+    const groups = { router: one('[data-move="router"]'), bushing: one('[data-move="bushing"]'), wrist: one('[data-move="wrist"]') };
+    const layers = { posts: one("[data-posts]"), arm: one("[data-arm]"), far: one('[data-glow="far"]'), near: one('[data-glow="near"]') };
+    const row = one("[data-row]");
+    const boards = [0, 1, 2, 3].map((n) => one(`[data-board="${n}"]`));
+    /* What each board's pocket shows: whose pass, and how far cut. */
+    const shown = boards.map(() => ({ pass: Number.NaN, points: 0 }));
+    const written = new Map<Element, string>();
+    const write = (element: Element, value: string, apply: () => void) => {
+      if (written.get(element) === value) return;
+      written.set(element, value);
+      apply();
+    };
+    const html = (element: Element, value: string) => write(element, value, () => (element.innerHTML = value));
+    const transform = (element: Element, value: string) => write(element, value, () => element.setAttribute("transform", value));
+
+    /* A pocket grows by its last chunk: that one is redrawn, and any
+       new ones are added after it. */
+    const grow = (n: number, pass: number, points: number) => {
+      const state = shown[n]!;
+      const pocket = boards[n]!.querySelector("[data-pocket]")!;
+      const path = pass < 0 ? [] : show.run(pass).path.slice(0, points);
+      if (state.pass !== pass || points < state.points) {
+        pocket.innerHTML = pocketSvg(n, path);
+        shown[n] = { pass, points };
+        return;
+      }
+      if (points === state.points) return;
+      const cut = pocket.querySelector("[data-cut]")!;
+      const passes = pocket.querySelector("[data-passes]")!;
+      const chunks = chunksOf(path).map(chunkD);
+      const from = Math.max(0, cut.children.length - 1);
+      for (let i = from; i < chunks.length; i++) {
+        if (i < cut.children.length) {
+          cut.children[i]!.setAttribute("d", chunks[i]!);
+          passes.children[i * 2]!.setAttribute("d", chunks[i]!);
+          passes.children[i * 2 + 1]!.setAttribute("d", chunks[i]!);
+        } else {
+          cut.insertAdjacentHTML("beforeend", sweepSvg(chunks[i]!));
+          passes.insertAdjacentHTML("beforeend", passSvg(chunks[i]!));
+        }
+      }
+      state.points = points;
+    };
+
+    const draw = (time: number) => {
+      const scene = show.sceneAt(time);
+      transform(groups.router, move(scene.bit));
+      transform(groups.bushing, move(scene.bit));
+      transform(groups.wrist, move(scene.arm));
+      html(layers.posts, postsSvg(scene.bit, scene.arm));
+      html(layers.arm, armSvg(scene.arm));
+      html(layers.far, glowSvg(scene.sample, "far"));
+      html(layers.near, glowSvg(scene.sample, "near"));
+      scene.boards.forEach((board, n) => {
+        const element = boards[n]!;
+        transform(element, boardMove(board.y, scene.dropped));
+        /* A board going into the stacker is cut off at its mouth. */
+        const from = mouthFor(board.y);
+        const solid = element.querySelector("[data-solid]")!;
+        write(solid, from > -BOARD.d / 2 ? from.toFixed(1) : "whole", () => {
+          solid.innerHTML = boardSolid(from);
+          element.querySelector("[data-face]")!.setAttribute("d", faceOf(from));
+        });
+        grow(n, board.pass, board.points);
+      });
+      /* Far boards first: the one back out of the feeder goes last. */
+      const order = scene.boards.map((board, n) => ({ y: board.y, n })).sort((a, b) => a.y - b.y);
+      write(row, order.map(({ n }) => n).join(), () => order.forEach(({ n }) => row.appendChild(boards[n]!)));
+    };
+
+    let clock = REST;
+    let last = 0;
+    let frame = 0;
+    let visible = false;
+    let ready = false;
+    const tick = (now: number) => {
+      clock += last ? Math.min(now - last, 50) / 1000 : 0;
+      last = now;
+      draw(clock);
+      frame = visible && !still.matches ? requestAnimationFrame(tick) : 0;
+    };
+    const run = () => {
+      if (frame || !visible || still.matches) return;
+      if (!ready) {
+        /* The drawing came from the same passes; read the pockets in. */
+        ready = true;
+        draw(clock);
+      }
+      last = 0;
+      frame = requestAnimationFrame(tick);
+    };
+    new IntersectionObserver((entries) => {
+      visible = entries[entries.length - 1]!.isIntersecting;
+      root.toggleAttribute("data-away", !visible);
+      run();
+    }).observe(root);
+    still.addEventListener("change", () => {
+      if (still.matches) draw((clock = REST));
+      run();
+    });
+  }
+</script>
+
+<style is:global>
+  /* The kit's tones in the site's night: warm greys a few steps off the
+     ground, graphite for the machine, paper for the boards, gold for the
+     opening. Each grey is graphite mixed into night, or paper into
+     graphite, so it keeps graphite's warmth and moves with the palette.
+     Only the halo, a shadow, is plain black. */
+  .iso.route {
+    --route-tone: var(--graphite-on-night);
+    --anatomy-paper: var(--night);
+    --anatomy-face: color-mix(in oklab, var(--route-tone) 15%, var(--night));
+    --anatomy-top: color-mix(in oklab, var(--route-tone) 12%, var(--night));
+    --anatomy-shade-0: color-mix(in oklab, var(--route-tone) 1%, var(--night));
+    --anatomy-shade-1: color-mix(in oklab, var(--route-tone) 4%, var(--night));
+    --anatomy-shade-2: color-mix(in oklab, var(--route-tone) 7%, var(--night));
+    --anatomy-shade-3: color-mix(in oklab, var(--route-tone) 10%, var(--night));
+    --anatomy-lit-top: color-mix(in oklab, var(--route-tone) 22%, var(--night));
+    --anatomy-lit-shade: var(--anatomy-face);
+    --anatomy-hi: color-mix(in oklab, var(--paper) 72%, var(--route-tone));
+    --anatomy-mid: color-mix(in oklab, var(--route-tone) 93%, var(--night));
+    --anatomy-lo: color-mix(in oklab, var(--route-tone) 53%, var(--night));
+    --anatomy-faint: color-mix(in oklab, var(--route-tone) 30%, var(--night));
+    --anatomy-lit: var(--paper);
+    --anatomy-halo: #000;
+    --anatomy-halo-opacity: 0.7;
+    --anatomy-dot: var(--anatomy-hi);
+    --anatomy-weight: 0.75px;
+  }
+  .iso.route .iso-line[data-tone="gold"] {
+    stroke: var(--color-accent);
+  }
+  /* The sub-base is clear: its faces barely tint what lies under it. */
+  .iso.route .route-glass > .iso-fill,
+  .iso.route .route-glass > .iso-shade,
+  .iso.route .route-glass > .iso-top {
+    opacity: 0.32;
+  }
+  .iso.route .route-void {
+    fill: color-mix(in oklab, #000 40%, var(--night));
+    stroke: none;
+  }
+  /* A pocket: its walls in the deepest shade, its floor a step up, and
+     the edge of each pass a thin ridge on it. */
+  .iso.route .route-wall {
+    fill: var(--anatomy-shade-0);
+    stroke: none;
+  }
+  .iso.route .route-sweep {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 19;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .iso.route .route-pass,
+  .iso.route .route-pass-edge {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .iso.route .route-pass-edge {
+    stroke: var(--anatomy-shade-1);
+    stroke-width: 19;
+  }
+  .iso.route .route-pass {
+    stroke: var(--anatomy-shade-3);
+    stroke-width: 17.6;
+  }
+  .iso.route .route-glow {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 3px;
+    stroke-linecap: round;
+  }
+  .iso.route .route-post {
+    stroke-width: 1.6px;
+  }
+  /* The boxes' lamps breathe; they say the boxes are at work, not how. */
+  .iso.route .route-lamp circle {
+    animation: route-lamp 2.4s ease-in-out infinite;
+  }
+  .iso.route[data-away] .route-lamp circle {
+    animation-play-state: paused;
+  }
+  @keyframes route-lamp {
+    50% {
+      opacity: 0.25;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .iso.route .route-lamp circle {
+      animation: none;
+    }
+  }
+</style>

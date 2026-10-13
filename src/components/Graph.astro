@@ -255,7 +255,7 @@ const classAt = (g: Group) => {
           const tone = t.entry ? "var(--color-ink)" : "var(--color-graphite)";
           const s = set(side.get(t.id)!);
           const mark = (
-            <>
+            <g class="mark">
               <circle class="hit" r="18" fill="transparent" />
               <circle class="ring" r="7" fill="var(--color-ivory)" stroke={tone} stroke-width="1" />
               <circle class="dot" r="2.8" fill={t.entry ? "var(--color-accent)" : tone} />
@@ -273,7 +273,7 @@ const classAt = (g: Group) => {
               >
                 {t.name}
               </text>
-            </>
+            </g>
           );
           /* Open-code concepts link to their capability; the rest are
              role="img" so screen readers still announce them. */
@@ -440,9 +440,10 @@ const classAt = (g: Group) => {
     opacity: 0;
   }
 
-  /* Hidden until the draw-in animation starts. */
+  /* Hidden until the draw-in animation starts. Visibility, not opacity,
+     so lifting it starts no opacity transition to fight the draw-in. */
   .graph[data-veiled] :is(.ground, .class, .edge, .node) {
-    opacity: 0;
+    visibility: hidden;
   }
 </style>
 
@@ -683,23 +684,27 @@ const classAt = (g: Group) => {
         if (b === d && a === undefined) depth.set(e.a, d + 1);
       }
     }
-    const STEP = 260;
+    const STEP = 180;
     const glide = "cubic-bezier(0.16, 1, 0.3, 1)";
     const drawIn = () => {
-      svg.removeAttribute("data-veiled");
+      /* Each concept fades in whole and quickly, on an even curve: the
+         glide would have it nearly opaque in its first tenth, which reads
+         as a pop rather than a fade. The fade runs on the mark
+         inside the node, clear of the node's own opacity transition.
+         Siblings at one depth are spread over a third of a step, so a ring
+         never appears at once. */
       for (const [n, d] of depth) {
-        n.el.animate([{ opacity: 0, offset: 0 }], { duration: 700, delay: d * STEP, easing: glide, fill: "backwards" });
-        n.el.querySelector(".ring")!.animate([{ transform: "scale(0.2)" }, { transform: "scale(1)" }], {
-          duration: 900,
-          delay: d * STEP,
-          easing: glide,
+        n.el.querySelector(".mark")!.animate([{ opacity: 0 }, { opacity: 1 }], {
+          duration: 550,
+          delay: d * STEP + (n.phase % 1) * STEP * 0.35,
+          easing: "cubic-bezier(0.33, 0, 0.25, 1)",
           fill: "backwards",
         });
       }
       for (const e of edges) {
         const a = depth.get(e.a)!, b = depth.get(e.b)!;
         e.line.animate([{ strokeDashoffset: a <= b ? 1 : -1 }, { strokeDashoffset: 0 }], {
-          duration: 1100,
+          duration: 800,
           delay: Math.min(a, b) * STEP + 120,
           easing: "cubic-bezier(0.65, 0, 0.35, 1)",
           fill: "backwards",
@@ -711,6 +716,7 @@ const classAt = (g: Group) => {
         c.ground.animate([{ opacity: 0, offset: 0 }], { duration: 1600, ...at });
         c.el.animate([{ opacity: 0, offset: 0 }], { duration: 1200, ...at });
       }
+      svg.removeAttribute("data-veiled");
     };
     if (!still && svg.getBoundingClientRect().top > innerHeight * 0.5) {
       svg.setAttribute("data-veiled", "");

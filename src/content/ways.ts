@@ -15,7 +15,7 @@ export const ways: Path[] = [
   },
   {
     title: "Read the code",
-    body: "The stack is open: source, tests and documentation.",
+    body: "The components are open: source, tests and documentation.",
     href: "https://github.com/hyphatech",
     action: "Open on GitHub",
     icon: CodeXml,
