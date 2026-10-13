@@ -123,6 +123,14 @@
     background-color: var(--color-ivory);
     color: var(--color-ink);
   }
+  /* Forced colours flatten every fill, which marks the page you are on
+     in the masthead: an underline marks it there instead. */
+  @media (forced-colors: active) {
+    [aria-current="page"] {
+      text-decoration: underline;
+      text-underline-offset: 6px;
+    }
+  }
   .font-serif {
     font-variant-numeric: lining-nums tabular-nums;
   }
@@ -299,6 +307,16 @@
   :target > * > & {
     color: var(--color-ink);
   }
+  /* On touch, a hit area past the figure. Remarks stand closer than a
+     fingertip, so it stops short of the next one's. */
+  @media (pointer: coarse) {
+    position: relative;
+    &::after {
+      content: "";
+      position: absolute;
+      inset: -0.5rem;
+    }
+  }
 }
 
 @utility t-cited {
@@ -465,7 +483,13 @@
   }
 }
 
-[data-strip]:focus-visible .marquee-track,
+/* The hold button is unseen, so its row draws the focus. */
+[data-strip]:has([data-hold]:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+[data-strip]:has([data-hold]:focus-visible) .marquee-track,
 .marquee[data-held] .marquee-track,
 .marquee[data-paused] .marquee-track {
   animation-play-state: paused;

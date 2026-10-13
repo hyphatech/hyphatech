@@ -41,30 +41,38 @@ const along = (e: { a: Pt; b: Pt; c: Pt }) =>
     return { x: u * u * e.a.x + 2 * u * t * e.c.x + t * t * e.b.x, y: u * u * e.a.y + 2 * u * t * e.c.y + t * t * e.b.y };
   });
 
+/* Where a name goes: its side, and for a name above or below, how far it
+   slides off centre to stay inside the frame. */
+export type Place = { side: Side; dx: number };
+
 /* A name's bounding box on each side of its point, and its text offset. */
 export const NAME = { gap: 13, rise: 11, fall: 5, under: 27, over: 15 };
-export const box = (p: Pt, w: number, s: Side): Box => {
+export const box = (p: Pt, w: number, { side: s, dx }: Place): Box => {
   const { gap, rise, fall, under, over } = NAME;
   if (s === "right") return { x0: p.x + gap - 2, y0: p.y - rise, x1: p.x + gap + w + 2, y1: p.y + fall };
   if (s === "left") return { x0: p.x - gap - w - 2, y0: p.y - rise, x1: p.x - gap + 2, y1: p.y + fall };
-  if (s === "below") return { x0: p.x - w / 2 - 2, y0: p.y + under - rise - 5, x1: p.x + w / 2 + 2, y1: p.y + under + fall - 5 };
-  return { x0: p.x - w / 2 - 2, y0: p.y - over - rise, x1: p.x + w / 2 + 2, y1: p.y - over + fall };
+  const x0 = p.x + dx - w / 2 - 2;
+  const x1 = p.x + dx + w / 2 + 2;
+  if (s === "below") return { x0, y0: p.y + under - rise - 5, x1, y1: p.y + under + fall - 5 };
+  return { x0, y0: p.y - over - rise, x1, y1: p.y - over + fall };
 };
-export const set = (s: Side) =>
+export const set = ({ side: s, dx }: Place) =>
   s === "right"
     ? { x: NAME.gap, y: NAME.fall, anchor: "start" }
     : s === "left"
       ? { x: -NAME.gap, y: NAME.fall, anchor: "end" }
       : s === "below"
-        ? { x: 0, y: NAME.under, anchor: "middle" }
-        : { x: 0, y: -NAME.over, anchor: "middle" };
+        ? { x: dx, y: NAME.under, anchor: "middle" }
+        : { x: dx, y: -NAME.over, anchor: "middle" };
 
 const hits = (b: Box, p: Pt, m = 0) => p.x > b.x0 - m && p.x < b.x1 + m && p.y > b.y0 - m && p.y < b.y1 + m;
 const meets = (a: Box, b: Box, m = 0) => a.x0 < b.x1 + m && b.x0 < a.x1 + m && a.y0 < b.y1 + m && b.y0 < a.y1 + m;
 
 /* Picks each name's side, avoiding curves, other points, placed names
    and the frame edge. Right is preferred; most-connected concepts pick
-   first. */
+   first. A name above or below that would cross the frame's side slides
+   inward, as long as it still spans its point: at a narrow band's edge
+   that is often the only place clear of a neighbour. */
 export const sides = (
   points: Map<string, Pt>,
   widths: Map<string, number>,
@@ -75,17 +83,24 @@ export const sides = (
   const degree = (id: string) => relations.filter((r) => r.from === id || r.to === id).length;
   const order = [...points.keys()].sort((a, b) => degree(b) - degree(a));
   const bias: Record<Side, number> = { right: 0, left: 0.6, below: 1.4, above: 1.6 };
-  const chosen = new Map<string, Side>();
+  const chosen = new Map<string, Place>();
   const taken: Box[] = [];
   for (const id of order) {
     const p = points.get(id)!;
     const w = widths.get(id)!;
-    let best: Side = "right";
+    let best: Place = { side: "right", dx: 0 };
     let cost = Infinity;
-    for (const s of ["right", "left", "below", "above"] as Side[]) {
+    for (const side of ["right", "left", "below", "above"] as Side[]) {
+      let s: Place = { side, dx: 0 };
+      if (side === "below" || side === "above") {
+        const centred = box(p, w, s);
+        const dx = centred.x0 < 0 ? -centred.x0 : centred.x1 > frame.w ? frame.w - centred.x1 : 0;
+        if (Math.abs(dx) > w / 2 - RING) continue;
+        s = { side, dx };
+      }
       const b = box(p, w, s);
       if (b.x0 < 0 || b.x1 > frame.w || b.y0 < 0 || b.y1 > frame.h) continue;
-      let c = bias[s];
+      let c = bias[side];
       for (const { pts } of curves) c += pts.filter((q) => hits(b, q, 3)).length * 3;
       for (const [o, q] of points) if (o !== id && hits(b, q, RING + 3)) c += 40;
       for (const t of taken) if (meets(b, t, 4)) c += 60;

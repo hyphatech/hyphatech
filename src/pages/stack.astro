@@ -226,16 +226,15 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
           it until the next. */}
       <div
         class="mt-16 grid items-center gap-6 py-8 md:grid-cols-margin"
-        tabindex="0"
         role="group"
         aria-labelledby="ocaml-users-label"
-        aria-describedby="ocaml-users-hold"
         data-strip
       >
         <p id="ocaml-users-label" class="t-label text-graphite">OCaml in production at</p>
-        {/* Says whether the strip moves and how to hold it; written by the
-            script, which is what holds it. */}
-        <span id="ocaml-users-hold" class="sr-only" data-hold></span>
+        {/* The hold, as a toggle a screen reader names and reads the state
+            of; the names stay a list beside it. The row draws its focus.
+            Shown by the script, which is what holds it. */}
+        <button type="button" class="sr-only" aria-pressed="false" aria-controls="ocaml-users" hidden data-hold>Hold still</button>
         <div class="marquee" id="ocaml-users" data-marquee>
           <div class="marquee-track">
             {
@@ -286,34 +285,22 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
 </Base>
 
 <script>
-  /* Rests off screen; a tap, click, Enter or Space toggles a hold. With
-     reduced motion it is already still, so it is no tab stop. */
+  /* Rests off screen; a tap or click on the row, or the hold button,
+     toggles a hold. With reduced motion it is already still, so the
+     button stays hidden. */
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   for (const strip of document.querySelectorAll<HTMLElement>("[data-marquee]")) {
     new IntersectionObserver(([entry]) => {
       strip.toggleAttribute("data-paused", !entry?.isIntersecting);
     }).observe(strip);
     const row = strip.closest<HTMLElement>("[data-strip]");
-    if (!row) continue;
-    const say = row.querySelector<HTMLElement>("[data-hold]");
-    if (still) {
-      row.removeAttribute("tabindex");
-      row.removeAttribute("aria-describedby");
-      continue;
-    }
-    const tell = () => {
-      if (say) say.textContent = strip.hasAttribute("data-held") ? "Held still. Enter lets it move." : "Still while focused. Enter holds it still.";
-    };
-    tell();
-    const hold = () => {
-      strip.toggleAttribute("data-held");
-      tell();
-    };
-    row.addEventListener("click", hold);
-    row.addEventListener("keydown", (e) => {
-      if (e.key !== "Enter" && e.key !== " ") return;
-      e.preventDefault();
-      hold();
+    const button = row?.querySelector<HTMLButtonElement>("[data-hold]");
+    if (!row || !button || still) continue;
+    button.hidden = false;
+    /* The button's own click, from Enter or Space too, bubbles here. */
+    row.addEventListener("click", () => {
+      const held = strip.toggleAttribute("data-held");
+      button.setAttribute("aria-pressed", String(held));
     });
   }
 
