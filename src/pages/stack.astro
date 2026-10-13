@@ -42,14 +42,14 @@ const capabilities = [
   {
     id: "data",
     name: "Data and persistence",
-    is: "SQL as written, with typed parameters and rows, each statement checkable against the database without running it; transactions, migrations and pooled connections.",
+    is: "SQL as written, with typed parameters and rows, each statement checkable against the database without running it, along with transactions, migrations and pooled connections.",
     by: [{ name: "Rowtype", href: repo("rowtype") }, spindle, { name: "Postgres driver", href: repo("postgres-eio") }],
     read: [],
   },
   {
     id: "observe",
     name: "Observability",
-    is: "A log line for every request and health checks; once turned on, traces that follow a request into each query, and metrics.",
+    is: "A log line for every request, and health checks. Once turned on, traces that follow a request into each query, and metrics.",
     by: [spindle],
     read: [],
   },
@@ -95,7 +95,7 @@ const practices = [
 const ocaml = [
   {
     title: "Types that model the domain",
-    body: "Variants and records name each state; pattern matching handles each one, and the compiler warns of a case left out.",
+    body: "Variants and records name each state, pattern matching handles each one, and the compiler warns of a case left out.",
   },
   {
     title: "Boundaries in the language",
@@ -147,9 +147,9 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
       <div class="md:ml-margin">
         <h2 class="t-h1 max-w-3xl">Components made to fit together.</h2>
         <p class="t-lede mt-8 max-w-2xl text-graphite">
-          A new ecosystem, not a collection. Every component follows the
-          same rules, conventions and design decisions, to keep every
-          system built with them coherent.
+          A new, coherent ecosystem. Every component follows the same
+          rules, conventions and design decisions, so whatever is built
+          from them holds together.
         </p>
       </div>
       <ul class="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -189,8 +189,9 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
         <h2 id="ontology-title" class="t-h1 max-w-3xl">One ontology for people and agents.</h2>
         <p class="t-lede mt-8 max-w-2xl text-graphite">
           An explicit model of what a backend is built from: its concepts,
-          what each one means, and how they relate. People and agents build
-          from the same account, so nothing has to be inferred from a name.
+          what each one means, and how they relate. People and agents work
+          from the same definitions, so no one has to guess what a word
+          means.
         </p>
       </div>
       <div class="mt-6 md:mt-8">
@@ -208,7 +209,7 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
         <p class="t-lede mt-8 max-w-2xl text-graphite">
           <a href="https://ocaml.org" class="link-inline group text-ink">OCaml<Icon icon={ArrowUpRight} class="ml-0.5 inline size-[0.8em] align-[-0.05em] transition-transform duration-300 ease-glide group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></a> meets every need at once, and
           the stack is built within its limits. It makes contracts and
-          failure cases explicit; it does not make an application correct on
+          failure cases explicit, but it does not make an application correct on
           its own.
         </p>
         <dl class="mt-12 grid gap-x-10 gap-y-9 md:grid-cols-2 lg:grid-cols-3">

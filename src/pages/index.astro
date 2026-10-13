@@ -27,7 +27,7 @@ import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
 const reading = [
   {
     what: "Logic and correctness issues were 75% more common in AI-co-authored pull requests.",
-    limit: "470 open-source pull requests, 320 AI-co-authored and 150 human-only; authorship inferred from signals in each PR.",
+    limit: "470 open-source pull requests, 320 AI-co-authored and 150 human-only, with authorship inferred from signals in each PR.",
     by: "CodeRabbit",
     title: "State of AI vs human code generation report",
     year: "2025",
@@ -46,7 +46,7 @@ const reading = [
 /* What happens at each step, never how. Only Composition claims checks:
    only there does the stack enforce them. */
 const steps = [
-  { title: "Intent", body: "People say what the product must do; agents question it until nothing is left to interpret." },
+  { title: "Intent", body: "People say what the product must do, and agents question it until nothing is left to interpret." },
   { title: "Mapping", body: "The work is laid over one model of a backend: what is already built and proven, and what is the product's own." },
   { title: "Composition", body: "Agents build with components made to fit together, held by checks on every change." },
   { title: "Delivery", body: "Each change lands complete, with its tests and its documents." },
@@ -92,7 +92,7 @@ const steps = [
         </p>
         <p class="mt-6 max-w-2xl leading-relaxed text-graphite">
           A smarter model guesses better, but it still guesses. Reviews and
-          linters judge each change once it is written; what they find
+          linters judge each change once it is written, but what they find
           never narrows the next one. With nothing holding those choices
           together, a product becomes a patchwork that gives way at its
           seams, and every outage costs traffic, customers and trust.<sup class="t-footmark">{reading.map((_, i) => (
