@@ -60,6 +60,13 @@ const capabilities = [
     by: [spindle],
     read: [],
   },
+  {
+    id: "messaging",
+    name: "Jobs",
+    is: "Work a change owes, written in the same transaction as the change, claimed under a lease, retried with backoff and finished once.",
+    by: [{ name: "Spool", href: repo("spool") }],
+    read: [],
+  },
 ];
 
 /* What the practices keep, not the files or tools that keep them; no
@@ -171,7 +178,7 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
         <li class="flex flex-col rounded-panel border border-dashed border-rule p-7">
           <h3 class="t-h2 text-graphite">In the works</h3>
           <p class="mt-4 leading-relaxed text-graphite">
-            Configuration, messaging and jobs, notifications, caches and
+            Configuration, messaging, notifications, caches and
             files, permissions and tenants: each joins the registry as it is ready
             to be relied on.
           </p>
