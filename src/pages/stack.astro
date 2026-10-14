@@ -28,45 +28,52 @@ const capabilities = [
   {
     id: "http",
     name: "HTTP and APIs",
-    is: "Routes typed from their inputs to their answers, and a typed refusal for whatever was wrong.",
+    is: "An RFC-strict web framework, typed end to end, fast and multi-core by design. OpenAPI docs via Scalar.",
     by: [spindle],
     read: [{ label: "Docs", href: docs() }],
   },
   {
     id: "contracts",
     name: "Data contracts",
-    is: "One description of the data a service takes and gives: checked on the way in, written on the way out, printed as the API spec and the clients' schema.",
+    is: "Unified JSON contracts, strict by the standard, for backend, frontend and agents. Printed as JSON Schema and Zod.",
     by: [{ name: "Wiretype", href: repo("wiretype") }, spindle],
     read: [],
   },
   {
     id: "data",
     name: "Data and persistence",
-    is: "SQL as written, with typed parameters and rows, each statement checkable against the database without running it, along with transactions, migrations and pooled connections.",
+    is: "Typed Postgres queries, checked against the database schema. Migrations built in, on a native driver with TLS, pooling and failover.",
     by: [{ name: "Rowtype", href: repo("rowtype") }, spindle, { name: "Postgres driver", href: repo("postgres-eio") }],
     read: [],
   },
   {
     id: "observe",
     name: "Observability",
-    is: "A log line for every request, and health checks. Once turned on, traces that follow a request into each query, and metrics.",
+    is: "OpenTelemetry-compatible logs, traces and metrics, from the first request into every query. Health checks for any orchestrator, and no secret ever logged.",
     by: [spindle],
     read: [],
   },
   {
     id: "identity",
     name: "Identity and access",
-    is: "Sessions kept on the server, credentials named in the API spec, and limits on how often a caller may call a route.",
+    is: "Sessions, CSRF and CORS, secure by default. Standard credentials and per-route rate limits.",
     by: [spindle],
     read: [],
   },
   {
     id: "messaging",
     name: "Jobs",
-    is: "Work a change owes, written in the same transaction as the change, claimed under a lease, retried with backoff and finished once.",
+    is: "A durable job queue in your own Postgres that scales. Scheduled, prioritised and resilient.",
     by: [{ name: "Spool", href: repo("spool") }],
     read: [],
   },
+];
+
+/* What is in the works, three cards to fill the grid's last row. */
+const coming = [
+  { name: "Identity", is: "OAuth, permissions and tenants." },
+  { name: "Data", is: "Dataframes, caches and files." },
+  { name: "Integrations", is: "Webhooks, notifications and SDKs for third-party services." },
 ];
 
 /* What the practices keep, not the files or tools that keep them; no
@@ -147,7 +154,7 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
   </section>
 
   {/* A card per capability; library names come second, as they mean
-      nothing unopened. The dashed last card names no date. A hovered
+      nothing unopened. The dashed last row, labelled WIP, names no date. A hovered
       card lights its concepts in the map. */}
   <section id="components" class:list={[section, "theme-light"]}>
     <div class={inner}>
@@ -175,14 +182,15 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
             </li>
           ))
         }
-        <li class="flex flex-col rounded-panel border border-dashed border-rule p-7">
-          <h3 class="t-h2 text-graphite">In the works</h3>
-          <p class="mt-4 leading-relaxed text-graphite">
-            Configuration, messaging, notifications, caches and
-            files, permissions and tenants: each joins the registry as it is ready
-            to be relied on.
-          </p>
-        </li>
+        {
+          coming.map((c) => (
+            <li class="flex flex-col rounded-panel border border-dashed border-rule p-7">
+              <h3 class="t-h2 text-graphite">{c.name}</h3>
+              <p class="mt-4 grow leading-relaxed text-graphite">{c.is}</p>
+              <p class="t-label mt-6 self-start rounded-full border border-rule px-3 py-1 text-graphite">WIP</p>
+            </li>
+          ))
+        }
       </ul>
     </div>
   </section>
