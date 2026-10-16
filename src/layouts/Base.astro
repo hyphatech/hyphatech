@@ -26,6 +26,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 /* Pages are served as directories ("/stack/"): drop the trailing slash
    before matching a nav link. */
 const path = Astro.url.pathname.replace(/(.)\/$/, "$1");
+/* A component's page (/stack/spindle) is within Hypha Stack. */
+const within = (href: string) => path === href || path.startsWith(`${href}/`);
 
 const nav = [
   { label: "Hypha Stack", href: "/stack", icon: Layers },
@@ -75,10 +77,10 @@ const nav = [
             nav.map((item) => (
               <a
                 href={item.href}
-                aria-current={path === item.href ? "page" : undefined}
+                aria-current={path === item.href ? "page" : within(item.href) ? "true" : undefined}
                 class:list={[
                   "t-control tap inline-flex items-center gap-2 transition-colors hover:text-ink",
-                  path === item.href ? "text-ink" : "text-graphite",
+                  within(item.href) ? "text-ink" : "text-graphite",
                 ]}
               >
                 <Icon icon={item.icon} />
@@ -88,8 +90,8 @@ const nav = [
           }
         </nav>
       </div>
-      {/* On a phone the same links stand in a row under the masthead, as
-          Sente's do; the page you are on is on `raised`. */}
+      {/* On a phone the same links stand in a row under the masthead;
+          the page you are on is on `raised`. */}
       <nav class="border-y border-rule md:hidden" aria-label="Site">
         <ul class="mx-auto flex max-w-page gap-0.5 overflow-x-auto px-1.5 min-[22.5rem]:gap-1 min-[22.5rem]:px-2 py-2 sm:px-4">
           {
@@ -97,7 +99,7 @@ const nav = [
               <li class="shrink-0">
                 <a
                   href={item.href}
-                  aria-current={path === item.href ? "page" : undefined}
+                  aria-current={path === item.href ? "page" : within(item.href) ? "true" : undefined}
                   class="nav-item gap-1.5 px-2 py-2.5 min-[22.5rem]:gap-2 min-[22.5rem]:px-3"
                 >
                   <Icon icon={item.icon} />

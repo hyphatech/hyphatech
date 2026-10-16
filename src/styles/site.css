@@ -440,7 +440,7 @@
   }
 }
 
-/* A place in the phone's row of links, as Sente's are: graphite, on
+/* A place in the phone's row of links: graphite, on
    `panel` under the pointer, and the one you are on in ink on `raised`. */
 @utility nav-item {
   @apply t-control rounded-control flex items-center whitespace-nowrap text-graphite transition-colors aria-[current]:bg-raised aria-[current]:text-ink not-aria-[current]:hover:bg-panel not-aria-[current]:hover:text-ink;

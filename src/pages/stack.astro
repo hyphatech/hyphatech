@@ -5,6 +5,7 @@ import { ways } from "../content/ways";
 import Graph from "../components/Graph.astro";
 import Icon from "../components/Icon.astro";
 import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
+import ArrowRight from "@lucide/astro/icons/arrow-right";
 
 /* The only page that says how; the landing says why.
 
@@ -18,54 +19,48 @@ import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
    Claim only what the repositories bear out; where a thing holds only
    once turned on, say so. No promises, dates, roadmap or private links. */
 
-const repo = (name: string) => `https://github.com/hyphatech/${name}`;
-const docs = (path = "") => `https://hyphatech.github.io/spindle/${path}`;
+const page = (slug: string) => `/stack/${slug}`;
 
 /* The map's capabilities that open code provides; a library may serve
-   several. The map links its concepts to these by id. */
-const spindle = { name: "Spindle", href: repo("spindle") };
+   several, and each has its own page. The map links its concepts to
+   these by id. */
+const spindle = { name: "Spindle", href: page("spindle") };
 const capabilities = [
   {
     id: "http",
     name: "HTTP and APIs",
     is: "An RFC-strict web framework, typed end to end, fast and multi-core by design. OpenAPI docs via Scalar.",
     by: [spindle],
-    read: [{ label: "Docs", href: docs() }],
   },
   {
     id: "contracts",
     name: "Data contracts",
     is: "Unified JSON contracts, strict by the standard, for backend, frontend and agents. Printed as JSON Schema and Zod.",
-    by: [{ name: "Wiretype", href: repo("wiretype") }, spindle],
-    read: [],
+    by: [{ name: "Wiretype", href: page("wiretype") }, spindle],
   },
   {
     id: "data",
     name: "Data and persistence",
     is: "Typed Postgres queries, checked against the database schema. Migrations built in, on a native driver with TLS, pooling and failover.",
-    by: [{ name: "Rowtype", href: repo("rowtype") }, spindle, { name: "Postgres driver", href: repo("postgres-eio") }],
-    read: [],
+    by: [{ name: "Rowtype", href: page("rowtype") }, spindle, { name: "Postgres driver", href: page("postgres-eio") }],
   },
   {
     id: "observe",
     name: "Observability",
     is: "OpenTelemetry-compatible logs, traces and metrics, from the first request into every query. Health checks for any orchestrator, and no secret ever logged.",
     by: [spindle],
-    read: [],
   },
   {
     id: "identity",
     name: "Identity and access",
     is: "Sessions, CSRF and CORS, secure by default. Standard credentials and per-route rate limits.",
     by: [spindle],
-    read: [],
   },
   {
     id: "messaging",
     name: "Jobs",
     is: "A durable job queue in your own Postgres that scales. Scheduled, prioritised and resilient.",
-    by: [{ name: "Spool", href: repo("spool") }],
-    read: [],
+    by: [{ name: "Spool", href: page("spool") }],
   },
 ];
 
@@ -171,11 +166,11 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
             <li id={`cap-${c.id}`} data-part={c.id} class="invert-hover flex scroll-mt-24 flex-col rounded-panel border border-rule p-7">
               <h3 class="t-h2">{c.name}</h3>
               <p class="mt-4 grow leading-relaxed text-graphite">{c.is}</p>
-              <p class="mt-6 flex flex-wrap gap-x-4 gap-y-1">
-                {[...c.by.map((b) => ({ label: b.name, href: b.href })), ...c.read].map((l) => (
-                  <a href={l.href} class="link group inline-flex gap-1">
-                    {l.label}
-                    <Icon icon={ArrowUpRight} class="transition-transform duration-300 ease-glide group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              <p class="mt-6 flex flex-wrap gap-2">
+                {c.by.map((b) => (
+                  <a href={b.href} class="t-label group inline-flex items-center gap-1.5 rounded-full border border-transparent bg-ink px-3 py-1 text-ivory transition-opacity hover:opacity-85 pointer-coarse:min-h-11">
+                    {b.name}
+                    <Icon icon={ArrowRight} class="size-3.5 transition-transform duration-300 ease-glide group-hover:translate-x-0.5" />
                   </a>
                 ))}
               </p>

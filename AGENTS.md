@@ -17,6 +17,15 @@ make help    # every other target, each with its one line
 `.github/workflows/pages.yml` checks, builds and publishes the site to
 hyphatech.io on every push to `main`.
 
+## Components
+
+Each open component has a page at `/stack/<slug>`, drawn from its entry
+in `src/content/components.ts`: its words, install lines and snippets
+copied from its README, and `version`, its latest release's tag. The
+site reads nothing from GitHub, so a component's release is not on its
+page until that entry is changed: after releasing, set `version`, and
+whatever the README changed that the entry copies.
+
 ## Git
 
 How work becomes a commit -- its format, where it happens, what is pushed
