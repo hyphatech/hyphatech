@@ -3,9 +3,7 @@ import Base from "../layouts/Base.astro";
 import Paths from "../components/Paths.astro";
 import { ways } from "../content/ways";
 import Graph from "../components/Graph.astro";
-import Icon from "../components/Icon.astro";
-import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
-import ArrowRight from "@lucide/astro/icons/arrow-right";
+import Arrow from "../components/Arrow.astro";
 
 /* The only page that says how; the landing says why.
 
@@ -168,9 +166,9 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
               <p class="mt-4 grow leading-relaxed text-graphite">{c.is}</p>
               <p class="mt-6 flex flex-wrap gap-2">
                 {c.by.map((b) => (
-                  <a href={b.href} class="t-label group inline-flex items-center gap-1.5 rounded-full border border-transparent bg-ink px-3 py-1 text-ivory transition-opacity hover:opacity-85 pointer-coarse:min-h-11">
+                  <a href={b.href} class="t-label group inline-flex items-center gap-1 rounded-full border border-transparent bg-ink py-1 pr-2 pl-3 text-ivory transition-opacity hover:opacity-85 pointer-coarse:min-h-11">
                     {b.name}
-                    <Icon icon={ArrowRight} class="size-3.5 transition-transform duration-300 ease-glide group-hover:translate-x-0.5" />
+                    <Arrow way="on" class="size-3.5" />
                   </a>
                 ))}
               </p>
@@ -216,7 +214,7 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
       <div class="md:ml-margin">
         <h2 class="t-h1 max-w-4xl"><span class="block">What the language cannot say,</span> <span class="block">the system cannot get wrong.</span></h2>
         <p class="t-lede mt-8 max-w-2xl text-graphite">
-          <a href="https://ocaml.org" class="link-inline group text-ink">OCaml<Icon icon={ArrowUpRight} class="ml-0.5 inline size-[0.8em] align-[-0.05em] transition-transform duration-300 ease-glide group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></a> meets every need at once, and
+          <a href="https://ocaml.org" class="link-inline group text-ink">OCaml<Arrow way="out" class="ml-0.5 inline size-[0.8em] align-[-0.05em]" /></a> meets every need at once, and
           the stack is built within its limits. It makes contracts and
           failure cases explicit, but it does not make an application correct on
           its own.

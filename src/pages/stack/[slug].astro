@@ -2,10 +2,9 @@
 import { Code } from "astro:components";
 import Base from "../../layouts/Base.astro";
 import Icon from "../../components/Icon.astro";
+import Arrow from "../../components/Arrow.astro";
 import Paths from "../../components/Paths.astro";
-import ArrowLeft from "@lucide/astro/icons/arrow-left";
 import ArrowRight from "@lucide/astro/icons/arrow-right";
-import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
 import { byEntry, components, install, releaseUrl, repoUrl, type Component } from "../../content/components";
 import { groups, relations, things, type Thing } from "../../content/ontology";
 import { ways } from "../../content/ways";
@@ -51,27 +50,27 @@ const code = "rounded-panel border border-rule p-5 text-sm leading-relaxed overf
     <div class="relative mx-auto max-w-page px-4 pt-12 pb-16 sm:px-6 md:pt-16 md:pb-20">
       <div class="md:ml-margin">
         <a href="/stack#components" class="link group inline-flex gap-1.5">
-          <Icon icon={ArrowLeft} class="transition-transform duration-300 ease-glide group-hover:-translate-x-0.5" />
+          <Arrow way="back" />
           Hypha Stack
         </a>
         <h1 class="t-display mt-6 max-w-3xl">{c.name}</h1>
         <p class="t-lede mt-6 max-w-2xl text-graphite">{c.tagline}</p>
         <p class="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
-          <a href={repo} class="btn-primary">
+          <a href={repo} class="btn-primary group">
             Source on GitHub
-            <Icon icon={ArrowUpRight} />
+            <Arrow way="out" />
           </a>
           {
             c.docs && (
-              <a href={c.docs} class="btn">
+              <a href={c.docs} class="btn group">
                 Documentation
-                <Icon icon={ArrowUpRight} />
+                <Arrow way="out" />
               </a>
             )
           }
           <a href={releaseUrl(c)} class="link group inline-flex gap-1">
             Latest: {c.version}
-            <Icon icon={ArrowUpRight} class="transition-transform duration-300 ease-glide group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            <Arrow way="out" />
           </a>
         </p>
       </div>

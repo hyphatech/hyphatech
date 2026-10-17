@@ -6,15 +6,15 @@ import Chladni from "../components/Chladni.astro";
 import Plate from "../components/Plate.astro";
 import TemplateRouter from "../components/TemplateRouter.astro";
 import Icon from "../components/Icon.astro";
+import Arrow from "../components/Arrow.astro";
 import Layers from "@lucide/astro/icons/layers";
-import ScrollText from "@lucide/astro/icons/scroll-text";
-import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
+import Compass from "@lucide/astro/icons/compass";
 
 /* The landing says why; Stack's page says how, so no OCaml and no
    library list here.
 
    hero        what Hypha is; no lede
-   shift       code is cheap, software that holds is not: a smarter model
+   shift       coding is solved, products still fall apart: a smarter model
                still guesses where meaning is unstated
    principle   strong boundaries: people specify, the system enforces
    answer      Hypha Stack, and how work goes on it in four steps
@@ -57,7 +57,7 @@ const steps = [
 
 <Base
   title="Hypha · The missing foundation for agentic engineering"
-  description="The missing foundation for agentic engineering. Code is cheap, software that holds is not: Hypha Stack is sound by design."
+  description="The missing foundation for agentic engineering. Coding is solved, products still fall apart: Hypha Stack is sound by design."
 >
   {/* The hero: words at the band's foot, the figure above them. */}
   <section slot="band" class="relative">
@@ -73,7 +73,7 @@ const steps = [
       </h1>
       <div class="mt-10 flex flex-wrap gap-3 md:mt-12 md:ml-margin" data-clear data-actions>
         <a href="/stack" class="btn-primary"><Icon icon={Layers} />Explore Hypha Stack</a>
-        <a href="/principles" class="btn"><Icon icon={ScrollText} />Read the principles</a>
+        <a href="/principles" class="btn"><Icon icon={Compass} />Read the principles</a>
       </div>
     </div>
   </section>
@@ -84,16 +84,16 @@ const steps = [
   <section id="shift" class="scroll-mt-8 border-t border-rule">
     <div class="mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20">
       <div class="md:ml-margin">
-        <h2 class="t-h1 max-w-4xl"><span class="block">Code is cheap.</span> <span class="block">Software that holds is not.</span></h2>
+        <h2 class="t-h1 max-w-4xl"><span class="block">Coding is solved.</span> <span class="block">Products still fall apart.</span></h2>
         <p class="t-lede mt-8 max-w-2xl text-graphite">
-          Agents build a feature in minutes, but every request leaves room
-          for interpretation, and an agent sees only part of the system. It
+          Agents can build a feature in minutes, but every request leaves
+          room for interpretation, and an agent sees only part of the system. It
           fills that room with choices of its own, each reasonable, none
           bound to agree with the next.
         </p>
         <p class="mt-6 max-w-2xl leading-relaxed text-graphite">
-          A smarter model guesses better, but it still guesses, and every
-          choice waits on a person. The review that follows is slow, with
+          A smarter model reasons better, but it is fuzzy by design, and
+          every choice waits on a person. The review that follows is slow, with
           feedback and test runs at every turn, and too shallow to trust:
           changes are merged blindly to keep up. Another reviewer, human or
           AI, only arrives once the code exists. What it finds gets patched,
@@ -117,7 +117,7 @@ const steps = [
                 </a>
                 <p>
                   <span class="text-ink">{r.what}</span> {r.limit} {r.by},{" "}
-                  <a href={r.href} class="link-inline group">{r.title}<Icon icon={ArrowUpRight} class="ml-0.5 inline size-[0.8em] align-[-0.05em] transition-transform duration-300 ease-glide group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></a>, {r.year}.
+                  <a href={r.href} class="link-inline group">{r.title}<Arrow way="out" class="ml-0.5 inline size-[0.8em] align-[-0.05em]" /></a>, {r.year}.
                 </p>
               </li>
             ))

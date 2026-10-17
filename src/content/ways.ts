@@ -1,7 +1,7 @@
 import type { Path } from "../components/Paths.astro";
 import Mail from "@lucide/astro/icons/mail";
 import CodeXml from "@lucide/astro/icons/code-xml";
-import ScrollText from "@lucide/astro/icons/scroll-text";
+import Compass from "@lucide/astro/icons/compass";
 
 /* Held once so the landing and Hypha Stack end on the same three. */
 export const ways: Path[] = [
@@ -26,7 +26,7 @@ export const ways: Path[] = [
     body: "The argument in full, in seven propositions.",
     href: "/principles",
     action: "Read the principles",
-    icon: ScrollText,
+    icon: Compass,
     primary: false,
   },
 ];

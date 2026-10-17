@@ -3,7 +3,8 @@ import Wordmark from "../components/Wordmark.astro";
 import Mark from "../components/Mark.astro";
 import Icon from "../components/Icon.astro";
 import Layers from "@lucide/astro/icons/layers";
-import ScrollText from "@lucide/astro/icons/scroll-text";
+import Compass from "@lucide/astro/icons/compass";
+import Newspaper from "@lucide/astro/icons/newspaper";
 import CodeXml from "@lucide/astro/icons/code-xml";
 import "../styles/site.css";
 /* Preloaded: every page opens in the slab, and the moving bands wait for
@@ -31,7 +32,8 @@ const within = (href: string) => path === href || path.startsWith(`${href}/`);
 
 const nav = [
   { label: "Hypha Stack", href: "/stack", icon: Layers },
-  { label: "Principles", href: "/principles", icon: ScrollText },
+  { label: "Principles", href: "/principles", icon: Compass },
+  { label: "Blog", href: "https://hypha.pub/", icon: Newspaper },
   { label: "GitHub", href: "https://github.com/hyphatech", icon: CodeXml },
 ];
 ---
@@ -61,7 +63,7 @@ const nav = [
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="The missing foundation for agentic engineering." />
     <meta name="twitter:card" content="summary_large_image" />
-    <script is:inline defer src="https://cloud.umami.is/script.js" data-website-id="a3f870a5-b958-4bf7-afa4-8f26c1c7fff7" data-domains="hyphatech.io"></script>
+    <script is:inline async src="https://cloud.umami.is/script.js" data-website-id="a3f870a5-b958-4bf7-afa4-8f26c1c7fff7" data-domains="hyphatech.io"></script>
   </head>
 
   <body class="min-h-dvh bg-ivory text-ink">
@@ -91,9 +93,10 @@ const nav = [
         </nav>
       </div>
       {/* On a phone the same links stand in a row under the masthead;
-          the page you are on is on `raised`. */}
+          the page you are on is on `raised`. Too wide for the screen, the
+          row scrolls under a finger, with no bar drawn under it. */}
       <nav class="border-y border-rule md:hidden" aria-label="Site">
-        <ul class="mx-auto flex max-w-page gap-0.5 overflow-x-auto px-1.5 min-[22.5rem]:gap-1 min-[22.5rem]:px-2 py-2 sm:px-4">
+        <ul class="mx-auto flex max-w-page gap-0.5 overflow-x-auto px-1.5 [scrollbar-width:none] min-[22.5rem]:gap-1 min-[22.5rem]:px-2 py-2 sm:px-4 [&::-webkit-scrollbar]:hidden">
           {
             nav.map((item) => (
               <li class="shrink-0">

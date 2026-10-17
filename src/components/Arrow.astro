@@ -1,0 +1,25 @@
+---
+import ArrowLeft from "@lucide/astro/icons/arrow-left";
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import ArrowUpRight from "@lucide/astro/icons/arrow-up-right";
+import Icon from "./Icon.astro";
+
+/* Three glyphs, one meaning each, and no chevron: on through the site,
+   back, or out of it. Every one moves its own way as its link is hovered,
+   buttons too, so the link (or the card it stretches over) is the `group`. */
+interface Props {
+  way: "on" | "back" | "out";
+  class?: string;
+}
+
+const GLYPH = { on: ArrowRight, back: ArrowLeft, out: ArrowUpRight } as const;
+const NUDGE = {
+  on: "group-hover:translate-x-0.5",
+  back: "group-hover:-translate-x-0.5",
+  out: "group-hover:translate-x-0.5 group-hover:-translate-y-0.5",
+} as const;
+
+const { way, class: className } = Astro.props;
+---
+
+<Icon icon={GLYPH[way]} class:list={["transition-transform duration-300 ease-glide", NUDGE[way], className]} />
