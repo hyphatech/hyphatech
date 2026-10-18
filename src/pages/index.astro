@@ -14,8 +14,8 @@ import Compass from "@lucide/astro/icons/compass";
    library list here.
 
    hero        what Hypha is; no lede
-   shift       coding is solved, products still fall apart: a smarter model
-               still guesses where meaning is unstated
+   shift       coding is solved, engineering is not: a model is fuzzy
+               by nature, and speed piles its choices up
    principle   strong boundaries: people specify, the system enforces
    answer      Hypha Stack, and how work goes on it in four steps
    start       the ways in; nothing after them
@@ -57,7 +57,7 @@ const steps = [
 
 <Base
   title="Hypha · The missing foundation for agentic engineering"
-  description="The missing foundation for agentic engineering. Coding is solved, products still fall apart: Hypha Stack is sound by design."
+  description="The missing foundation for agentic engineering. Coding is solved, engineering is not. Hypha Stack is sound by design."
 >
   {/* The hero: words at the band's foot, the figure above them. */}
   <section slot="band" class="relative">
@@ -84,24 +84,21 @@ const steps = [
   <section id="shift" class="scroll-mt-8 border-t border-rule">
     <div class="mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20">
       <div class="md:ml-margin">
-        <h2 class="t-h1 max-w-4xl"><span class="block">Coding is solved.</span> <span class="block">Products still fall apart.</span></h2>
+        <h2 class="t-h1 max-w-4xl"><span class="block">Coding is solved.</span> <span class="block">Engineering is not.</span></h2>
         <p class="t-lede mt-8 max-w-2xl text-graphite">
-          Agents can build a feature in minutes, but every request leaves
-          room for interpretation, and an agent sees only part of the system. It
-          fills that room with choices of its own, each reasonable, none
-          bound to agree with the next.
-        </p>
-        <p class="mt-6 max-w-2xl leading-relaxed text-graphite">
-          A smarter model reasons better, but it is fuzzy by design, and
-          every choice waits on a person. The review that follows is slow, with
-          feedback and test runs at every turn, and too shallow to trust:
-          changes are merged blindly to keep up. Another reviewer, human or
-          AI, only arrives once the code exists. What it finds gets patched,
-          but never narrows the next one. With nothing holding those choices
-          together, a product becomes a patchwork that gives way at its
-          seams, and every outage costs traffic, customers and trust.<sup class="t-footmark">{reading.map((_, i) => (
+          A model is fuzzy by nature. It writes the most likely code for
+          what it is asked and makes its own choices about everything it is
+          not asked, and better prompts only make it guess better. The
+          faster agents write, the faster those choices pile up. With
+          nothing holding them together, a product becomes a patchwork that
+          gives way at its seams, and every outage costs traffic, customers
+          and trust.<sup class="t-footmark">{reading.map((_, i) => (
             <Fragment>{i > 0 && ","}<a href={`#note-${i + 1}`} id={`ref-${i + 1}`} class="scroll-mt-32" aria-label={`Note ${i + 1}`}>{i + 1}</a></Fragment>
           ))}</sup>
+        </p>
+        <p class="mt-6 max-w-2xl leading-relaxed text-graphite">
+          What has to change is not the model but the foundation it builds
+          on.
         </p>
         <ol class="t-footnote mt-12 grid max-w-4xl gap-x-10 gap-y-5 md:grid-cols-2">
           {
