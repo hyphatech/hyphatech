@@ -3,8 +3,7 @@
    relations between them. Concepts with an `entry` are open code: drawn
    brighter and linked to their capability; the rest are fainter, unlinked.
    Places are hand-set on a wide frame. Wide screens show the whole map;
-   tablets stack capabilities in two columns, phones in one. Names keep
-   their size. Without JavaScript or with reduced motion it is static.
+   narrower ones a window on it. Names keep their size. Without JavaScript or with reduced motion it is static.
    Screen readers get each concept and the relations as sentences; the
    keyboard tabs in once and moves between concepts with the arrows. */
 
@@ -133,7 +132,7 @@ const classAt = (g: Group) =>
             const b = placed.find((t) => t.id === r.to)!;
             const e = bow(a, b);
             return (
-              <g class:list={["edge", !(a.entry && b.entry) && "faint", a.group !== b.group && "across"]} data-from={r.from} data-to={r.to}>
+              <g class:list={["edge", !(a.entry && b.entry) && "faint"]} data-from={r.from} data-to={r.to}>
                 <path class="line" d={e.d} pathLength="1" />
                 <path class="flow" d={e.d} pathLength="1" />
                 <text
@@ -338,10 +337,14 @@ const classAt = (g: Group) =>
     stroke-width: 2;
   }
 
-  /* Stacked, cross-capability relations would cut across bands, so they
-     show only when an end is in focus. */
-  .graph[data-stacked] .edge.across:not([data-lit]) {
-    opacity: 0;
+  /* On a phone, a window on the map: edge to edge, fading out on every
+     side. */
+  .field:has(> [data-window]) {
+    padding-inline: 0;
+    mask-image:
+      linear-gradient(to right, transparent, black 12%, black 88%, transparent),
+      linear-gradient(transparent, black 10%, black 90%, transparent);
+    mask-composite: intersect;
   }
 
   /* Hidden until the draw-in animation starts. Visibility, not opacity,
@@ -352,7 +355,7 @@ const classAt = (g: Group) =>
 </style>
 
 <script>
-  import { FRAME, bow, box, ground, ringBox, set, sides } from "./graph-geometry";
+  import { FRAME, apart, bow, box, ground, ringBox, set, sides } from "./graph-geometry";
   import { onceVisible, reducedMotion, whileVisible } from "../lib/motion";
 
   type Thing = { id: string; name: string; group: string; is: string; x: number; y: number; entry?: string };
@@ -368,20 +371,19 @@ const classAt = (g: Group) =>
   const LEAN = 7;
   const STIFF = 140;
   const DAMP = 19;
-  /* Stacked layout: capability order, top to bottom. In px: EDGE is the
-     side margin, NAMES the width kept for names, HEAD the room above a
-     band for its title, BAND the gap between bands. SQUEEZE scales each
-     band's height. */
-  const STACK = ["ui", "identity", "http", "contracts", "observe", "data", "config", "messaging", "notify"];
-  const EDGE = 16;
-  const NAMES = 110;
-  const HEAD = 44;
-  const BAND = 64;
-  const SQUEEZE = 0.8;
-  /* Below this width (px), two columns; below 720, one. The whole map
+  /* Below this width (px) the map keeps its wide layout at FULL width,
+     as without the script, and shows a window on it WINDOW tall, centred
+     on CENTRE: the rest runs off past the faded edges. The whole map
      needs this much to keep its names at their size: narrower, its
      grounds would meet, and scaled down, its names would shrink. */
-  const PAIRED = 1280;
+  const NARROW = 1280;
+  const FULL = 1216;
+  const WINDOW = 560;
+  const CENTRE = "route";
+  /* Grounds stand at least GUTTER px apart, past their padding: two
+     that touch would read as capabilities sharing a boundary. */
+  const GUTTER = 12;
+  const PAD = 14;
   /* Above this width (px) the map stops widening and is centred. */
   const WIDEST = 1600;
 
@@ -436,46 +438,18 @@ const classAt = (g: Group) =>
        name sides with measured widths. */
     let W = 0, H = 0;
     const band = (id: string) => [...nodes.values()].filter((n) => n.t.group === id);
-    const tall = (id: string) => {
-      const ys = band(id).map((n) => n.t.y);
-      return HEAD + (Math.max(...ys) - Math.min(...ys)) * SQUEEZE + BAND;
-    };
-    /* Stacks bands in a column at x `from`, narrowing each to fit `width`.
-       Returns the column's height. */
-    const column = (ids: string[], from: number, width: number) => {
-      let top = 0;
-      for (const id of ids) {
-        const mine = band(id);
-        const xs = mine.map((n) => n.t.x);
-        const ys = mine.map((n) => n.t.y);
-        const x0 = Math.min(...xs), y0 = Math.min(...ys);
-        const span = Math.max(1, Math.max(...xs) - x0);
-        const room = width - 2 * EDGE - NAMES;
-        const sx = Math.min(1, room / span);
-        const left = from + EDGE + (room - span * sx) / 2;
-        for (const n of mine) {
-          n.hx = left + (n.t.x - x0) * sx;
-          n.hy = top + HEAD + (n.t.y - y0) * SQUEEZE;
-        }
-        top += tall(id);
-      }
-      return top - BAND + HEAD;
-    };
     const measure = () => {
+      const narrow = field.clientWidth < NARROW;
+      svg.toggleAttribute("data-window", narrow);
       W = svg.clientWidth || svg.parentElement!.clientWidth;
-      if (W < 720) {
-        H = column(STACK, 0, W);
-      } else if (W < PAIRED) {
-        const heights = STACK.map(tall);
-        const total = heights.reduce((a, b) => a + b, 0);
-        let split = 1;
-        let best = Infinity;
-        for (let k = 1, run = 0; k < STACK.length; k++) {
-          run += heights[k - 1]!;
-          const most = Math.max(run, total - run);
-          if (most < best) [best, split] = [most, k];
+      const view = W;
+      if (narrow) {
+        W = FULL;
+        H = (W * FRAME.h) / FRAME.w;
+        for (const n of nodes.values()) {
+          n.hx = (n.t.x / FRAME.w) * W;
+          n.hy = (n.t.y / FRAME.h) * H;
         }
-        H = Math.max(column(STACK.slice(0, split), 0, W / 2), column(STACK.slice(split), W / 2, W / 2));
       } else {
         const w = Math.min(W, WIDEST);
         const left = (W - w) / 2;
@@ -485,26 +459,66 @@ const classAt = (g: Group) =>
           n.hy = (n.t.y / FRAME.h) * H;
         }
       }
-      svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-      svg.toggleAttribute("data-stacked", W < PAIRED);
-      const points = new Map([...nodes].map(([id, n]) => [id, { x: n.hx, y: n.hy }]));
       const widths = new Map([...nodes].map(([id, n]) => [id, n.name.getComputedTextLength() || n.t.name.length * 8.3]));
-      const side = sides(points, widths, relations, { w: W, h: H });
+      const place = () => {
+        const points = new Map([...nodes].map(([id, n]) => [id, { x: n.hx, y: n.hy }]));
+        const side = sides(points, widths, relations, { w: W, h: H });
+        const grounds = classes.map((c) =>
+          ground(
+            band(c.g.id).flatMap((n) => [ringBox(points.get(n.t.id)!), box(points.get(n.t.id)!, widths.get(n.t.id)!, side.get(n.t.id)!)]),
+            c.el.getComputedTextLength() || c.g.name.length * 7.4,
+          ),
+        );
+        return { side, grounds };
+      };
+      /* Moves overlapping capabilities apart, half each, then places the
+         names again, as moving may free or block a side. */
+      let placed = place();
+      for (let round = 0; round < 8; round++) {
+        let moved = false;
+        for (let i = 0; i < classes.length; i++)
+          for (let j = i + 1; j < classes.length; j++) {
+            const v = apart(placed.grounds[i]!.ring, placed.grounds[j]!.ring, 2 * PAD + GUTTER);
+            if (!v) continue;
+            moved = true;
+            for (const n of band(classes[i]!.g.id)) [n.hx, n.hy] = [n.hx - v.x / 2, n.hy - v.y / 2];
+            for (const n of band(classes[j]!.g.id)) [n.hx, n.hy] = [n.hx + v.x / 2, n.hy + v.y / 2];
+          }
+        if (!moved) break;
+        placed = place();
+      }
+      /* Moving may have pushed a capability past the top or left edge:
+         the whole map shifts back. */
+      const ring = placed.grounds.flatMap((g) => g.ring);
+      const dx = Math.max(0, PAD - Math.min(...ring.map((p) => p.x)));
+      const dy = Math.max(0, PAD - Math.min(...ring.map((p) => p.y)));
+      if (dx || dy) {
+        for (const n of nodes.values()) [n.hx, n.hy] = [n.hx + dx, n.hy + dy];
+        H += dy;
+        placed = place();
+      }
+      const { side, grounds } = placed;
+      H = Math.max(H, ...grounds.flatMap((g) => g.ring.map((p) => p.y + PAD)));
+      if (narrow) {
+        const c = nodes.get(CENTRE)!;
+        /* Wider than the map, the window centres it. */
+        const clamp = (v: number, most: number) => (most < 0 ? most / 2 : Math.max(0, Math.min(most, v)));
+        const x = clamp(c.hx - view / 2, W - view);
+        const y = clamp(c.hy - WINDOW / 2, H - WINDOW);
+        svg.setAttribute("viewBox", `${x.toFixed(1)} ${y.toFixed(1)} ${view} ${WINDOW}`);
+      } else svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
       for (const [id, n] of nodes) {
         const s = set(side.get(id)!);
         n.name.setAttribute("x", String(s.x));
         n.name.setAttribute("y", String(s.y));
         n.name.setAttribute("text-anchor", s.anchor);
       }
-      for (const c of classes) {
-        const { x, y, d } = ground(
-          band(c.g.id).flatMap((n) => [ringBox(points.get(n.t.id)!), box(points.get(n.t.id)!, widths.get(n.t.id)!, side.get(n.t.id)!)]),
-          c.el.getComputedTextLength() || c.g.name.length * 7.4,
-        );
+      classes.forEach((c, i) => {
+        const { x, y, d } = grounds[i]!;
         c.el.setAttribute("x", x.toFixed(1));
         c.el.setAttribute("y", y.toFixed(1));
         c.ground.setAttribute("d", d);
-      }
+      });
       for (const e of edges) {
         const len = Math.hypot(e.b.hx - e.a.hx, e.b.hy - e.a.hy);
         e.g.style.setProperty("--flow", `${(900 + len * 3.2).toFixed(0)}ms`);

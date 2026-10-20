@@ -118,7 +118,8 @@ export const sides = (
 /* A capability's ground: the convex hull of the given boxes, corners
    rounded by up to ROUND. CSS pads it further with a wide stroke. */
 const ROUND = 26;
-export const hull = (boxes: Box[]) => {
+/* The hull's corners, clockwise. */
+const outline = (boxes: Box[]) => {
   const pts = boxes
     .flatMap((b) => [
       { x: b.x0, y: b.y0 },
@@ -136,7 +137,10 @@ export const hull = (boxes: Box[]) => {
     }
     return out.slice(0, -1);
   };
-  const ring = [...half(pts), ...half([...pts].reverse())];
+  return [...half(pts), ...half([...pts].reverse())];
+};
+export const hull = (boxes: Box[]) => {
+  const ring = outline(boxes);
   /* Corner radius is capped at half the shorter adjacent side. */
   const toward = (p: Pt, q: Pt) => {
     const d = Math.hypot(q.x - p.x, q.y - p.y) || 1;
@@ -158,7 +162,39 @@ export const hull = (boxes: Box[]) => {
 export const ground = (boxes: Box[], title: number) => {
   const x = Math.min(...boxes.map((b) => b.x0));
   const y = Math.min(...boxes.map((b) => b.y0)) - 12;
-  return { x, y, d: hull([...boxes, { x0: x, y0: y - 10, x1: x + title, y1: y + 3 }]) };
+  const all = [...boxes, { x0: x, y0: y - 10, x1: x + title, y1: y + 3 }];
+  return { x, y, d: hull(all), ring: outline(all) };
+};
+
+/* How far to move hull `b` so it stands at least `m` clear of hull `a`,
+   or null when it already does. Tests the hulls' own edge directions:
+   two convex shapes are that far apart when some edge direction shows
+   the gap, and the one with the smallest overlap is the shortest way
+   out. */
+export const apart = (a: Pt[], b: Pt[], m: number): Pt | null => {
+  let best: Pt | null = null;
+  let need = Infinity;
+  for (const ring of [a, b])
+    for (let i = 0; i < ring.length; i++) {
+      const p = ring[i]!;
+      const q = ring[(i + 1) % ring.length]!;
+      const l = Math.hypot(q.x - p.x, q.y - p.y);
+      if (l === 0) continue;
+      const n = { x: (q.y - p.y) / l, y: (p.x - q.x) / l };
+      const on = (r: Pt[]) => r.map((t) => t.x * n.x + t.y * n.y);
+      const pa = on(a);
+      const pb = on(b);
+      const ahead = Math.min(...pb) - Math.max(...pa);
+      const behind = Math.min(...pa) - Math.max(...pb);
+      const gap = Math.max(ahead, behind);
+      if (gap >= m) return null;
+      if (m - gap < need) {
+        need = m - gap;
+        const way = ahead >= behind ? 1 : -1;
+        best = { x: n.x * need * way, y: n.y * need * way };
+      }
+    }
+  return best;
 };
 
 export const ringBox = (p: Pt): Box => ({ x0: p.x - RING - 4, y0: p.y - RING - 4, x1: p.x + RING + 4, y1: p.y + RING + 4 });
