@@ -5,6 +5,17 @@
 
 export type Snippet = { caption: string; lang: string; code: string };
 
+/* A benchmark's headline: per scenario, the rate each rival reaches,
+   copied from a run's summary.md, and a note of whose run it was. The
+   component's own row is the one named as it is, or as it is with how
+   it ran in brackets after: "postgres-eio (pipelined)". Scenarios in
+   one unit share a scale; in different units, each has its own. */
+export type Bench = {
+  note: string;
+  scale?: "shared" | "each";
+  scenarios: { name: string; rates: { server: string; rate: number }[] }[];
+};
+
 export type Component = {
   slug: string;
   name: string;
@@ -19,6 +30,7 @@ export type Component = {
   dune: string;
   entries: string[];
   snippets: Snippet[];
+  bench?: Bench;
 };
 
 export const repoUrl = (c: Component) => `https://github.com/hyphatech/${c.repo}`;
@@ -31,17 +43,17 @@ export const install = (c: Component) => opam(c.packages);
 export const components: Component[] = [
   {
     slug: "spindle",
-    version: "0.6.1",
+    version: "0.8.0",
     name: "Spindle",
     repo: "spindle",
     tagline: "The Eio-native web framework for modern OCaml.",
     about: [
       "Build typed APIs and web applications, simple to start and ready for production. Handlers are straight-line OCaml, and JSON is derived from your types and validated on the way in, with every mistake reported at once.",
       "Your routes give you interactive OpenAPI docs, served by Scalar. Your types become your front end's schemas, Zod included, so a changed type changes both ends.",
-      "Every HTTP requirement it meets is backed by a test, with secure defaults, bounded waits and clean shutdowns. Postgres, WebSockets, live updates, sessions, logging, traces and metrics are included.",
+      "Multicore by design. Every HTTP requirement it meets is backed by a test, with secure defaults, bounded waits and clean shutdowns. Postgres, WebSockets, live updates, sessions, logging, traces and metrics are included.",
     ],
     docs: "https://hyphatech.github.io/spindle/",
-    packages: ["spindle", "spindle-postgres", "spindle-cli"],
+    packages: ["spindle"],
     dune: `(executable
  (name main)
  (libraries spindle eio_main)
@@ -87,10 +99,33 @@ let () =
 {"each":33}`,
       },
     ],
+    bench: {
+      note: "Sustained RPS on one core, request log on. Apple M4 Pro, Spindle 0.6.0, median of three runs.",
+      scenarios: [
+        {
+          name: "Plaintext",
+          rates: [
+            { server: "Spindle", rate: 78_800 },
+            { server: "Dream", rate: 51_800 },
+            { server: "NestJS", rate: 42_500 },
+            { server: "FastAPI", rate: 16_500 },
+          ],
+        },
+        {
+          name: "JSON",
+          rates: [
+            { server: "Spindle", rate: 61_200 },
+            { server: "Dream", rate: 46_800 },
+            { server: "NestJS", rate: 32_500 },
+            { server: "FastAPI", rate: 13_500 },
+          ],
+        },
+      ],
+    },
   },
   {
     slug: "wiretype",
-    version: "0.5.0",
+    version: "0.6.0",
     name: "Wiretype",
     repo: "wiretype",
     tagline: "JSON contracts for OCaml.",
@@ -189,7 +224,7 @@ Pg.run db find_user id`,
   },
   {
     slug: "postgres-eio",
-    version: "0.5.0",
+    version: "0.5.1",
     name: "postgres-eio",
     repo: "postgres-eio",
     tagline: "A native Postgres driver for OCaml 5 and Eio.",
@@ -217,10 +252,40 @@ Pg.run db find_user id`,
 host=db user=app sslmode=require`,
       },
     ],
+    bench: {
+      note: "Operations per second on one connection, Postgres 18.6 in Docker on an Apple M4 Pro, postgres-eio 0.5.1, median of three runs. A query is one round trip, rows are read 100,000 a query, and postgres-eio pipelines its 1,000 inserts into one round trip, which libpq and postgres_async cannot. libpq, in C, spends about a third of the CPU a query.",
+      scale: "each",
+      scenarios: [
+        {
+          name: "Queries",
+          rates: [
+            { server: "libpq", rate: 4_090 },
+            { server: "postgres-eio", rate: 3_510 },
+            { server: "postgres_async", rate: 2_040 },
+          ],
+        },
+        {
+          name: "Rows read",
+          rates: [
+            { server: "postgres-eio", rate: 7_190_000 },
+            { server: "postgres_async", rate: 6_910_000 },
+            { server: "libpq", rate: 5_600_000 },
+          ],
+        },
+        {
+          name: "Inserts",
+          rates: [
+            { server: "postgres-eio (pipelined)", rate: 396_900 },
+            { server: "libpq", rate: 3_970 },
+            { server: "postgres_async", rate: 1_840 },
+          ],
+        },
+      ],
+    },
   },
   {
     slug: "spool",
-    version: "0.3.1",
+    version: "0.4.0",
     name: "Spool",
     repo: "spool",
     tagline: "A durable job queue in your own Postgres, for OCaml 5 and Eio.",
@@ -251,6 +316,47 @@ Spool.enqueue conn ~now ~unique:order_id receipt order_id`,
     conninfo
 in
 Spool.Runner.start runner`,
+      },
+    ],
+  },
+  {
+    slug: "solidtype",
+    version: "0.1.0",
+    name: "Solidtype",
+    repo: "solidtype",
+    tagline: "Typed OCaml front ends on SolidJS and Kobalte.",
+    about: [
+      "Write your components in OCaml's JSX, and the browser gets the same code Solid's own compiler emits. A reactive read in the wrong place does not compile, and neither does a prop left out, an attribute an element does not take, or a missed case.",
+      "[Solid](https://www.solidjs.com) and [Kobalte](https://kobalte.dev) are bound whole, server rendering included, with every element's attributes typed from Solid's own JSX types.",
+    ],
+    packages: ["solidtype", "ppx_solidtype", "mlx"],
+    dune: `(library
+ (name app)
+ (modes melange)
+ (libraries solidtype melange.dom)
+ (preprocess (pps melange.ppx ppx_solidtype)))`,
+    entries: ["solidtype"],
+    snippets: [
+      {
+        caption: "A JSX component.",
+        lang: "ocaml",
+        code: `module Jsx = Solidtype.Jsx
+module Solid = Solidtype.Solid
+
+let make () =
+  let count, set_count = Solid.create_signal 0 in
+  <button type_=\`button on_click=(fun _ -> Solid.update set_count succ)>
+    "Clicked " (fun () -> Jsx.int (Solid.get count))
+  </button>`,
+      },
+      {
+        caption: "Seamless integration with Solid.",
+        lang: "js",
+        code: `import { defineConfig } from "vite";
+import solid from "vite-plugin-solid";
+import solidtype from "vite-plugin-solidtype";
+
+export default defineConfig({ plugins: [solidtype(), solid()] });`,
       },
     ],
   },

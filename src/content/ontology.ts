@@ -7,6 +7,7 @@ export type Group = { id: string; name: string };
 export type Thing = { id: string; name: string; group: string; is: string; entry?: string };
 
 export const groups: Group[] = [
+  { id: "ui", name: "Front end" },
   { id: "http", name: "HTTP and APIs" },
   { id: "contracts", name: "Data contracts" },
   { id: "data", name: "Data and persistence" },
@@ -18,6 +19,11 @@ export const groups: Group[] = [
 ];
 
 export const things: Thing[] = [
+  { id: "page", name: "Page", group: "ui", is: "A screen the user reaches by its address." },
+  { id: "component", name: "Component", group: "ui", is: "A part of the interface, with the inputs it takes.", entry: "solidtype" },
+  { id: "state", name: "State", group: "ui", is: "What the interface holds, kept on screen as it changes.", entry: "solidtype" },
+  { id: "query", name: "Query", group: "ui", is: "Data the interface asks the service for, shown as it arrives.", entry: "solidtype" },
+  { id: "form", name: "Form", group: "ui", is: "Input the user gives, checked before it is sent." },
   { id: "request", name: "Request", group: "http", is: "A call to the service, as the server receives it.", entry: "spindle" },
   { id: "route", name: "Route", group: "http", is: "A path and method, with its inputs and the answers it may give.", entry: "spindle" },
   { id: "handler", name: "Handler", group: "http", is: "The code that does a route's work.", entry: "spindle" },
@@ -58,6 +64,13 @@ export const things: Thing[] = [
 ];
 
 export const relations = [
+  { from: "page", to: "component", label: "is built from" },
+  { from: "page", to: "route", label: "is served by" },
+  { from: "component", to: "state", label: "shows" },
+  { from: "query", to: "route", label: "calls" },
+  { from: "query", to: "state", label: "fills" },
+  { from: "form", to: "component", label: "is a" },
+  { from: "form", to: "client", label: "is checked by" },
   { from: "route", to: "request", label: "answers" },
   { from: "route", to: "response", label: "returns" },
   { from: "refusal", to: "response", label: "is a" },
@@ -93,6 +106,7 @@ export const relations = [
   { from: "queue", to: "job", label: "feeds" },
   { from: "schedule", to: "job", label: "starts" },
   { from: "webhook", to: "event", label: "delivers" },
+  { from: "webhook", to: "request", label: "arrives as" },
   { from: "job", to: "statement", label: "runs" },
   { from: "handler", to: "file", label: "stores" },
   { from: "event", to: "notification", label: "triggers" },

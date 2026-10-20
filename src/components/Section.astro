@@ -1,0 +1,19 @@
+---
+/* A page section; `ground` adds the dotted background. */
+
+import Ground from "./Ground.astro";
+
+interface Props {
+  id?: string;
+  class?: string;
+  ground?: boolean;
+}
+const { id, class: className, ground = false } = Astro.props;
+---
+
+<section id={id} class:list={["scroll-mt-8 border-t border-rule", ground && "relative overflow-hidden", className]}>
+  {ground && <Ground />}
+  <div class:list={["mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20", ground && "relative"]}>
+    <slot />
+  </div>
+</section>

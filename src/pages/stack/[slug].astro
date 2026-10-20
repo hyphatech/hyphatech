@@ -1,14 +1,16 @@
 ---
 import { Code } from "astro:components";
 import Base from "../../layouts/Base.astro";
+import TitleBand from "../../components/TitleBand.astro";
+import Section from "../../components/Section.astro";
+import Closing from "../../components/Closing.astro";
 import Icon from "../../components/Icon.astro";
 import Arrow from "../../components/Arrow.astro";
-import Paths from "../../components/Paths.astro";
 import ArrowRight from "@lucide/astro/icons/arrow-right";
 import { byEntry, components, install, releaseUrl, repoUrl, type Component } from "../../content/components";
 import { groups, relations, things, type Thing } from "../../content/ontology";
-import { ways } from "../../content/ways";
 import { codeTheme } from "../../lib/code-theme";
+import Bench from "../../components/Bench.astro";
 
 /* One page per open component, the same for each, in the order a
    reader asks: what it is, how to get it, what code with it looks like,
@@ -37,80 +39,90 @@ const capabilities = groups.filter((g) => provided.some((t) => t.group === g.id)
 /* A concept another component provides links to that component's page. */
 const elsewhere = (t: Thing) => (t.entry && !ids.has(t.id) ? byEntry(t.entry) : undefined);
 
+/* Splits [text](url) links out of a paragraph. */
+const runs = (p: string) =>
+  p.split(/(\[[^\]]+\]\([^)]+\))/).map((s) => {
+    const m = s.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    return m ? { text: m[1]!, href: m[2]! } : s;
+  });
 
-const section = "scroll-mt-8 border-t border-rule";
-const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
 const row = "grid gap-y-6 md:grid-cols-margin";
 const code = "rounded-panel border border-rule p-5 text-sm leading-relaxed overflow-x-auto";
 ---
 
 <Base title={`${c.name} · Hypha Stack`} description={`${c.name}: ${c.tagline}`}>
-  <section class="relative overflow-hidden">
-    <div class="dotted pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_70%_75%_at_50%_50%,black_30%,transparent_100%)]" aria-hidden="true"></div>
-    <div class="relative mx-auto max-w-page px-4 pt-12 pb-16 sm:px-6 md:pt-16 md:pb-20">
-      <div class="md:ml-margin">
-        <a href="/stack#components" class="link group inline-flex gap-1.5">
-          <Arrow way="back" />
-          Hypha Stack
-        </a>
-        <h1 class="t-display mt-6 max-w-3xl">{c.name}</h1>
-        <p class="t-lede mt-6 max-w-2xl text-graphite">{c.tagline}</p>
-        <p class="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
-          <a href={repo} class="btn-primary group">
-            Source on GitHub
+  <TitleBand title={c.name}>
+    <a slot="above" href="/stack#components" class="link group inline-flex gap-1.5">
+      <Arrow way="back" />
+      Hypha Stack
+    </a>
+    <p class="t-lede mt-6 max-w-2xl text-graphite">{c.tagline}</p>
+    <p class="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+      <a href={repo} class="btn-primary group">
+        Source on GitHub
+        <Arrow way="out" />
+      </a>
+      {
+        c.docs && (
+          <a href={c.docs} class="btn group">
+            Documentation
             <Arrow way="out" />
           </a>
-          {
-            c.docs && (
-              <a href={c.docs} class="btn group">
-                Documentation
-                <Arrow way="out" />
-              </a>
-            )
-          }
-          <a href={releaseUrl(c)} class="link group inline-flex gap-1">
-            Latest: {c.version}
-            <Arrow way="out" />
-          </a>
-        </p>
-      </div>
-    </div>
-  </section>
+        )
+      }
+      <a href={releaseUrl(c)} class="link group inline-flex gap-1">
+        Latest: {c.version}
+        <Arrow way="out" />
+      </a>
+    </p>
+  </TitleBand>
 
   {/* What it is, then how to get it: the margin names each part. */}
-  <section class:list={[section, "theme-light"]}>
-    <div class={inner}>
-      <div class={row}>
-        <h2 class="t-label pt-1.5 text-graphite">About</h2>
-        <div class="max-w-2xl space-y-4 leading-relaxed">
-          {c.about.map((p) => <p>{p}</p>)}
-          {
-            capabilities.length > 0 && (
-              <p class="flex flex-wrap gap-2 pt-2">
-                {capabilities.map((g) => (
-                  <a href={`/stack#cap-${g.id}`} class="t-control rounded-full border border-rule px-3 py-1 text-graphite transition-colors hover:border-graphite hover:text-ink">
-                    {g.name}
+  <Section class="theme-light">
+    <div class={row}>
+      <h2 class="t-label pt-1.5 text-graphite">About</h2>
+      <div class="max-w-2xl space-y-4 leading-relaxed">
+        {
+          c.about.map((p) => (
+            <p>
+              {runs(p).map((r) =>
+                typeof r === "string" ? (
+                  r
+                ) : (
+                  <a href={r.href} target="_blank" rel="noopener" class="link-inline group">
+                    {r.text}
+                    <Arrow way="out" class="ml-0.5 inline size-[0.8em] align-[-0.05em]" />
                   </a>
-                ))}
-              </p>
-            )
-          }
-        </div>
-      </div>
-      <div class:list={[row, "mt-14"]}>
-        <h2 class="t-label pt-1.5 text-graphite">Install</h2>
-        <div class="min-w-0 max-w-3xl space-y-4">
-          <p class="leading-relaxed text-graphite">From Hypha's opam repository, on OCaml 5.5 or later:</p>
-          <Code code={install(c)} lang="shellscript" theme={codeTheme} class={code} />
-          <p class="leading-relaxed text-graphite">Then in your <code class="font-mono text-sm text-ink">dune</code> file:</p>
-          <Code code={c.dune} lang="lisp" theme={codeTheme} class={code} />
-        </div>
+                ),
+              )}
+            </p>
+          ))
+        }
+        {
+          capabilities.length > 0 && (
+            <p class="flex flex-wrap gap-2 pt-2">
+              {capabilities.map((g) => (
+                <a href={`/stack#cap-${g.id}`} class="t-control rounded-full border border-rule px-3 py-1 text-graphite transition-colors hover:border-graphite hover:text-ink">
+                  {g.name}
+                </a>
+              ))}
+            </p>
+          )
+        }
       </div>
     </div>
-  </section>
+    <div class:list={[row, "mt-14"]}>
+      <h2 class="t-label pt-1.5 text-graphite">Install</h2>
+      <div class="min-w-0 max-w-3xl space-y-4">
+        <p class="leading-relaxed text-graphite">From Hypha's opam repository, on OCaml 5.5 or later:</p>
+        <Code code={install(c)} lang="shellscript" theme={codeTheme} class={code} />
+        <p class="leading-relaxed text-graphite">Then in your <code class="font-mono text-sm text-ink">dune</code> file:</p>
+        <Code code={c.dune} lang="lisp" theme={codeTheme} class={code} />
+      </div>
+    </div>
+  </Section>
 
-  <section class={section}>
-    <div class={inner}>
+  <Section>
       <div class={row}>
         <h2 class="t-label pt-1.5 text-graphite">In code</h2>
         <ol class="min-w-0 max-w-3xl space-y-10">
@@ -124,14 +136,23 @@ const code = "rounded-panel border border-rule p-5 text-sm leading-relaxed overf
           }
         </ol>
       </div>
-    </div>
-  </section>
+  </Section>
+
+  {
+    c.bench && (
+      <Section>
+          <div class={row}>
+            <h2 class="t-label pt-1.5 text-graphite">Under load</h2>
+            <Bench bench={c.bench} name={c.name} />
+          </div>
+      </Section>
+    )
+  }
 
   {/* The relations that touch its concepts: its own in ink, another
       component's linked to its page, and the ones no open code provides
       dashed. The ontology is not open; this only illustrates it. */}
-  <section class={section}>
-    <div class={inner}>
+  <Section>
       <div class={row}>
         <h2 class="t-label pt-1.5 text-graphite">Ontology</h2>
         <div class="min-w-0 max-w-4xl">
@@ -164,13 +185,7 @@ const code = "rounded-panel border border-rule p-5 text-sm leading-relaxed overf
           </ul>
         </div>
       </div>
-    </div>
-  </section>
+  </Section>
 
-  <section class={section}>
-    <div class="mx-auto max-w-page px-4 pt-16 pb-4 sm:px-6 md:pt-20 md:pb-8">
-      <h2 class="t-h1 max-w-3xl md:ml-margin">Build with Hypha.</h2>
-      <Paths paths={ways} />
-    </div>
-  </section>
+  <Closing />
 </Base>

@@ -1,7 +1,9 @@
 ---
 import Base from "../layouts/Base.astro";
-import Paths from "../components/Paths.astro";
-import { ways } from "../content/ways";
+import TitleBand from "../components/TitleBand.astro";
+import Section from "../components/Section.astro";
+import Opener from "../components/Opener.astro";
+import Closing from "../components/Closing.astro";
 import Graph from "../components/Graph.astro";
 import Arrow from "../components/Arrow.astro";
 
@@ -9,7 +11,7 @@ import Arrow from "../components/Arrow.astro";
 
    title         the name alone on the map's dotted ground
    components    capabilities, each with the libraries that provide it
-   ontology      the map of what a backend is built from
+   ontology      the map of what an application is built from
    language      OCaml, the outermost boundary, not the thing sold
    practices     the rules every repository keeps
    next          the ways in
@@ -60,41 +62,44 @@ const capabilities = [
     is: "A durable job queue in your own Postgres that scales. Scheduled, prioritised and resilient.",
     by: [{ name: "Spool", href: page("spool") }],
   },
+  {
+    id: "ui",
+    name: "Front end",
+    is: "Reactive front ends on SolidJS, with accessible components. Same language and shared types, from the browser to the database.",
+    by: [{ name: "Solidtype", href: page("solidtype") }],
+  },
 ];
 
-/* What is in the works, three cards to fill the grid's last row. */
+/* Work in progress, filling the grid's last row. */
 const coming = [
-  { name: "Identity", is: "OAuth, permissions and tenants." },
   { name: "Analytics", is: "Typed dataframes and an embedded OLAP engine." },
   { name: "Integrations", is: "Webhooks, notifications and SDKs for third-party services." },
 ];
 
-/* What the practices keep, not the files or tools that keep them; no
-   tool is named. */
 const practices = [
   {
-    title: "One house style",
-    body: "One way to write each thing, kept word for word across every repository. Code by a person or an agent reads as if one hand wrote it.",
+    title: "A single source of truth",
+    body: "The rules, the practices and the ontology live in a shared Vault. Nothing is copied, so nothing drifts, and code by a person or an agent reads as if one hand wrote it.",
   },
   {
-    title: "Instructions next to the code",
-    body: "Each repository carries the full context and workflow its agents need, everything the code cannot say itself: the decisions behind it, the rules it keeps, and how a change becomes a commit.",
+    title: "An architecture that scales",
+    body: "Carefully crafted from years of building complex systems, it brings the best ideas of enterprise software into one solid design that grows with the product.",
+  },
+  {
+    title: "Decided before it is built",
+    body: "Agents question a request until nothing is left to guess, and the work is written as requirements with scenarios, signed before any code.",
+  },
+  {
+    title: "A spec that stays true",
+    body: "What the application is gets written again from what was built, at every landing, so it never falls behind the code.",
   },
   {
     title: "A harness that knows the code",
-    body: "Agents look up types and definitions, follow each error to its cause and search the code, reading what it means rather than guessing from its text.",
-  },
-  {
-    title: "Boundaries, enforced",
-    body: "Contracts held by the compiler, statements checked against the database, the API's description checked against its routes.",
+    body: "Agents read each module's contract, see every error the compiler raises, and search the code, reading what it means from its types rather than guessing from its text.",
   },
   {
     title: "Computed, not guessed",
     body: "What can be worked out is worked out: generated, parsed, validated, compiled. A model is asked only where judgement is needed.",
-  },
-  {
-    title: "Open at the core",
-    body: "The components are open source. Putting them together for a product, and the judgement that takes, is the expertise Hypha brings.",
   },
 ];
 
@@ -129,8 +134,6 @@ const ocaml = [
 /* OCaml's users, labelled as OCaml's, never Hypha's. */
 const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", "LexiFi", "Citrix"];
 
-const section = "scroll-mt-8 border-t border-rule";
-const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
 ---
 
 <Base
@@ -139,168 +142,145 @@ const inner = "mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20";
 >
   {/* The name alone, as Principles opens, on the ontology map's dotted
       ground: the landing has already said what it is. */}
-  <section class="relative overflow-hidden">
-    <div class="dotted pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_70%_75%_at_50%_50%,black_30%,transparent_100%)]" aria-hidden="true"></div>
-    <div class="relative mx-auto max-w-page px-4 pt-16 pb-16 sm:px-6 md:pt-20 md:pb-20">
-      <h1 class="t-display max-w-2xl md:ml-margin">Hypha Stack</h1>
-    </div>
-  </section>
+  <TitleBand title="Hypha Stack" />
 
   {/* A card per capability; library names come second, as they mean
       nothing unopened. The dashed last row, labelled WIP, names no date. A hovered
       card lights its concepts in the map. */}
-  <section id="components" class:list={[section, "theme-light"]}>
-    <div class={inner}>
-      <div class="md:ml-margin">
-        <h2 class="t-h1 max-w-3xl">Components made to fit together.</h2>
-        <p class="t-lede mt-8 max-w-2xl text-graphite">
-          Designed from the ground up for agents and people to build
-          software that matters.
-        </p>
-      </div>
-      <ul class="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {
-          capabilities.map((c) => (
-            <li id={`cap-${c.id}`} data-part={c.id} class="invert-hover flex scroll-mt-24 flex-col rounded-panel border border-rule p-7">
-              <h3 class="t-h2">{c.name}</h3>
-              <p class="mt-4 grow leading-relaxed text-graphite">{c.is}</p>
-              <p class="mt-6 flex flex-wrap gap-2">
-                {c.by.map((b) => (
-                  <a href={b.href} class="t-label group inline-flex items-center gap-1 rounded-full border border-transparent bg-ink py-1 pr-2 pl-3 text-ivory transition-opacity hover:opacity-85 pointer-coarse:min-h-11">
-                    {b.name}
-                    <Arrow way="on" class="size-3.5" />
-                  </a>
-                ))}
-              </p>
-            </li>
-          ))
-        }
-        {
-          coming.map((c) => (
-            <li class="flex flex-col rounded-panel border border-dashed border-rule p-7">
-              <h3 class="t-h2 text-graphite">{c.name}</h3>
-              <p class="mt-4 grow leading-relaxed text-graphite">{c.is}</p>
-              <p class="t-label mt-6 self-start rounded-full border border-rule px-3 py-1 text-graphite">WIP</p>
-            </li>
-          ))
-        }
-      </ul>
+  <Section id="components" class="theme-light">
+    <div class="md:ml-margin">
+      <Opener title="Components made to fit together.">
+        Designed from the ground up for agents and people to build
+        software that matters.
+      </Opener>
     </div>
-  </section>
+    <ul class="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {
+        capabilities.map((c) => (
+          <li id={`cap-${c.id}`} data-part={c.id} class="invert-hover flex scroll-mt-24 flex-col rounded-panel border border-rule p-7">
+            <h3 class="t-h2">{c.name}</h3>
+            <p class="mt-4 grow leading-relaxed text-graphite">{c.is}</p>
+            <p class="mt-6 flex flex-wrap gap-2">
+              {c.by.map((b) => (
+                <a href={b.href} class="t-label group inline-flex items-center gap-1 rounded-full border border-transparent bg-ink py-1 pr-2 pl-3 text-ivory transition-opacity hover:opacity-85 pointer-coarse:min-h-11">
+                  {b.name}
+                  <Arrow way="on" class="size-3.5" />
+                </a>
+              ))}
+            </p>
+          </li>
+        ))
+      }
+      {
+        coming.map((c) => (
+          <li class="flex flex-col rounded-panel border border-dashed border-rule p-7">
+            <h3 class="t-h2 text-graphite">{c.name}</h3>
+            <p class="mt-4 grow leading-relaxed text-graphite">{c.is}</p>
+            <p class="t-label mt-6 self-start rounded-full border border-rule px-3 py-1 text-graphite">WIP</p>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
 
   {/* No legend: a hovered concept says what it is and what provides
       it. */}
-  <section id="ontology" class:list={[section, "overflow-x-clip"]}>
-    <div class={inner}>
-      <div class="md:ml-margin">
-        <h2 id="ontology-title" class="t-h1 max-w-3xl">One ontology for people and agents.</h2>
-        <p class="t-lede mt-8 max-w-2xl text-graphite">
-          An explicit model of what a backend is built from: its concepts,
-          what each one means, and how they relate. People and agents work
-          from the same definitions. No one has to guess what a word
-          means.
-        </p>
-      </div>
-      <div class="mt-6 md:mt-8">
-        <Graph labelledby="ontology-title" />
-      </div>
+  <Section id="ontology" class="overflow-x-clip">
+    <div class="md:ml-margin">
+      <Opener id="ontology-title" title="One ontology for people and agents.">
+        An explicit model of what an application is built from: its concepts,
+        what each one means, and how they relate. People and agents work
+        from the same definitions. No one has to guess what a word
+        means.
+      </Opener>
     </div>
-  </section>
+    <div class="mt-6 md:mt-8">
+      <Graph labelledby="ontology-title" />
+    </div>
+  </Section>
 
   {/* The need, the properties that meet it, then OCaml's users,
       labelled as OCaml's. No rules between properties. */}
-  <section id="ocaml" class={section}>
-    <div class={inner}>
-      <div class="md:ml-margin">
-        <h2 class="t-h1 max-w-4xl"><span class="block">What the language cannot say,</span> <span class="block">the system cannot get wrong.</span></h2>
-        <p class="t-lede mt-8 max-w-2xl text-graphite">
-          <a href="https://ocaml.org" class="link-inline group text-ink">OCaml<Arrow way="out" class="ml-0.5 inline size-[0.8em] align-[-0.05em]" /></a> meets every need at once, and
-          the stack is built within its limits. It makes contracts and
-          failure cases explicit, but it does not make an application correct on
-          its own.
-        </p>
-        <dl class="mt-12 grid gap-x-10 gap-y-9 md:grid-cols-2 lg:grid-cols-3">
-          {
-            ocaml.map((o) => (
-              <div>
-                <dt class="t-h3">{o.title}</dt>
-                <dd class="mt-2 leading-relaxed text-graphite">{o.body}</dd>
-              </div>
-            ))
-          }
-        </dl>
-      </div>
-      {/* Stops under keyboard focus; a tap, click, Enter or Space holds
-          it until the next. */}
-      <div
-        class="mt-16 grid items-center gap-6 py-8 md:grid-cols-margin"
-        role="group"
-        aria-labelledby="ocaml-users-label"
-        data-strip
-      >
-        <p id="ocaml-users-label" class="t-label text-graphite">OCaml in production at</p>
-        {/* The hold, as a toggle a screen reader names and reads the state
-            of; the names stay a list beside it. The row draws its focus.
-            Shown by the script, which is what holds it. */}
-        <button type="button" class="sr-only" aria-pressed="false" aria-controls="ocaml-users" hidden data-hold>Hold still</button>
-        <div class="marquee" id="ocaml-users" data-marquee>
-          <div class="marquee-track">
-            {
-              [false, true].map((copy) => (
-                <ul class="flex shrink-0" aria-hidden={copy ? "true" : undefined}>
-                  {users.map((u) => (
-                    <li class="t-h2 px-6 whitespace-nowrap text-graphite md:px-8">{u}</li>
-                  ))}
-                </ul>
-              ))
-            }
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  {/* Run in columns, not cards: read, not compared. No file is named. */}
-  <section id="practices" class={section}>
-    <div class={inner}>
-      <div class="md:ml-margin">
-        <h2 class="t-h1 max-w-3xl">Practices that hold the boundaries.</h2>
-        <p class="t-lede mt-8 max-w-2xl text-graphite">
-          Rules for how the code is written and worked on, the same in every
-          repository and checked on every change.
-        </p>
-      </div>
-      <dl class="columns-run mt-12 md:ml-margin">
+  <Section id="ocaml">
+    <div class="md:ml-margin">
+      <Opener title={["What the language cannot say,", "the system cannot get wrong."]}>
+        <a href="https://ocaml.org" class="link-inline group text-ink">OCaml<Arrow way="out" class="ml-0.5 inline size-[0.8em] align-[-0.05em]" /></a> meets every need at once, and
+        the stack is built within its limits. It makes contracts and
+        failure cases explicit, but it does not make an application correct on
+        its own.
+      </Opener>
+      <dl class="mt-12 grid gap-x-10 gap-y-9 md:grid-cols-2 lg:grid-cols-3">
         {
-          practices.map((p) => (
-            <div class="leading-relaxed text-graphite">
-              <dt>{p.title}.</dt>{" "}
-              <dd>{p.body}</dd>
+          ocaml.map((o) => (
+            <div>
+              <dt class="t-h3">{o.title}</dt>
+              <dd class="mt-2 leading-relaxed text-graphite">{o.body}</dd>
             </div>
           ))
         }
       </dl>
     </div>
-  </section>
-
-  {/* The ways in: a conversation, the code, the Principles. */}
-  <section id="next" class={section}>
-    <div class="mx-auto max-w-page px-4 pt-16 pb-4 sm:px-6 md:pt-20 md:pb-8">
-      <h2 class="t-h1 max-w-3xl md:ml-margin">Build with Hypha.</h2>
-      <Paths paths={ways} />
+    {/* Stops under keyboard focus; a tap, click, Enter or Space holds
+        it until the next. */}
+    <div
+      class="mt-16 grid items-center gap-6 py-8 md:grid-cols-margin"
+      role="group"
+      aria-labelledby="ocaml-users-label"
+      data-strip
+    >
+      <p id="ocaml-users-label" class="t-label text-graphite">OCaml in production at</p>
+      {/* The hold, as a toggle a screen reader names and reads the state
+          of; the names stay a list beside it. The row draws its focus.
+          Shown by the script, which is what holds it. */}
+      <button type="button" class="sr-only" aria-pressed="false" aria-controls="ocaml-users" hidden data-hold>Hold still</button>
+      <div class="marquee" id="ocaml-users" data-marquee>
+        <div class="marquee-track">
+          {
+            [false, true].map((copy) => (
+              <ul class="flex shrink-0" aria-hidden={copy ? "true" : undefined}>
+                {users.map((u) => (
+                  <li class="t-h2 px-6 whitespace-nowrap text-graphite md:px-8">{u}</li>
+                ))}
+              </ul>
+            ))
+          }
+        </div>
+      </div>
     </div>
-  </section>
+  </Section>
+
+  {/* Run in columns, not cards: read, not compared. No file is named. */}
+  <Section id="practices">
+    <div class="md:ml-margin">
+      <Opener title="Practices that hold the boundaries.">
+        Rules for how the code is written and worked on, the same for every
+        part, and checked on every change.
+      </Opener>
+    </div>
+    <dl class="columns-run mt-12 md:ml-margin">
+      {
+        practices.map((p) => (
+          <div class="leading-relaxed text-graphite">
+            <dt>{p.title}.</dt>{" "}
+            <dd>{p.body}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </Section>
+
+  <Closing id="next" />
 </Base>
 
 <script>
+  import { onVisible, reducedMotion } from "../lib/motion";
+
   /* Rests off screen; a tap or click on the row, or the hold button,
      toggles a hold. With reduced motion it is already still, so the
      button stays hidden. */
-  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const still = reducedMotion.matches;
   for (const strip of document.querySelectorAll<HTMLElement>("[data-marquee]")) {
-    new IntersectionObserver(([entry]) => {
-      strip.toggleAttribute("data-paused", !entry?.isIntersecting);
-    }).observe(strip);
+    onVisible(strip, (visible) => strip.toggleAttribute("data-paused", !visible));
     const row = strip.closest<HTMLElement>("[data-strip]");
     const button = row?.querySelector<HTMLButtonElement>("[data-hold]");
     if (!row || !button || still) continue;

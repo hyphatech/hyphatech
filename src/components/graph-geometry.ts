@@ -6,6 +6,9 @@ export type Pt = { x: number; y: number };
 export type Side = "right" | "left" | "below" | "above";
 export type Box = { x0: number; y0: number; x1: number; y1: number };
 
+/* The frame the hand-set places are on. */
+export const FRAME = { w: 1400, h: 870 };
+
 /* Concept ring radius, in viewBox units. */
 export const RING = 7;
 /* Curve bow, as a share of the relation's length. */
@@ -149,6 +152,13 @@ export const hull = (boxes: Box[]) => {
       })
       .join("") + "Z"
   );
+};
+
+/* A capability's ground around `boxes`, with its title's position. */
+export const ground = (boxes: Box[], title: number) => {
+  const x = Math.min(...boxes.map((b) => b.x0));
+  const y = Math.min(...boxes.map((b) => b.y0)) - 12;
+  return { x, y, d: hull([...boxes, { x0: x, y0: y - 10, x1: x + title, y1: y + 3 }]) };
 };
 
 export const ringBox = (p: Pt): Box => ({ x0: p.x - RING - 4, y0: p.y - RING - 4, x1: p.x + RING + 4, y1: p.y + RING + 4 });

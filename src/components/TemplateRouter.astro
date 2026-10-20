@@ -27,8 +27,7 @@ const svg = routeSvg({
 <script>
   import { armSvg, boardMove, boardSolid, chunkD, chunksOf, faceOf, glowSvg, mouthFor, move, passSvg, pocketSvg, postsSvg, sweepSvg } from "./route-geometry";
   import { BOARD, Show } from "./route-model";
-
-  const still = matchMedia("(prefers-reduced-motion: reduce)");
+  import { reducedMotion as still, whileVisible } from "../lib/motion";
 
   for (const root of document.querySelectorAll<HTMLElement>("[data-route]")) {
     const one = (selector: string) => root.querySelector<SVGGElement>(selector)!;
@@ -105,34 +104,26 @@ const svg = routeSvg({
     };
 
     let clock = REST;
-    let last = 0;
-    let frame = 0;
-    let visible = false;
     let ready = false;
-    const tick = (now: number) => {
-      clock += last ? Math.min(now - last, 50) / 1000 : 0;
-      last = now;
-      draw(clock);
-      frame = visible && !still.matches ? requestAnimationFrame(tick) : 0;
-    };
-    const run = () => {
-      if (frame || !visible || still.matches) return;
-      if (!ready) {
-        /* The drawing came from the same passes; read the pockets in. */
-        ready = true;
+    const loop = whileVisible(
+      root,
+      (seconds) => {
+        if (still.matches) return false;
+        clock += seconds;
         draw(clock);
-      }
-      last = 0;
-      frame = requestAnimationFrame(tick);
-    };
-    new IntersectionObserver((entries) => {
-      visible = entries[entries.length - 1]!.isIntersecting;
-      root.toggleAttribute("data-away", !visible);
-      run();
-    }).observe(root);
+      },
+      (visible) => {
+        root.toggleAttribute("data-away", !visible);
+        if (visible && !ready && !still.matches) {
+          /* The drawing came from the same passes; read the pockets in. */
+          ready = true;
+          draw(clock);
+        }
+      },
+    );
     still.addEventListener("change", () => {
       if (still.matches) draw((clock = REST));
-      run();
+      loop.play();
     });
   }
 </script>

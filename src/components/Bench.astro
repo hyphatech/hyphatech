@@ -1,0 +1,102 @@
+---
+import type { Bench } from "../content/components";
+import { formatRate } from "../lib/rate";
+
+/* A benchmark's headline, the component's own bar in gold: scenarios in
+   one unit on one scale, so a bar reads against all the others, and in
+   different units each on its own. Whose run it was is the footnote. */
+
+interface Props {
+  bench: Bench;
+  /* The component's name: its row is named so, or so with how it ran
+     in brackets after, "postgres-eio (pipelined)". */
+  name: string;
+}
+
+const { bench, name } = Astro.props;
+
+const fastest = (rates: { rate: number }[]) => Math.max(...rates.map((r) => r.rate));
+const shared = fastest(bench.scenarios.flatMap((s) => s.rates));
+const scaleOf = (rates: { rate: number }[]) => (bench.scale === "each" ? fastest(rates) : shared);
+const ownRow = (server: string) => server === name || server.startsWith(`${name} (`);
+---
+
+<div class="min-w-0 max-w-4xl" data-bench>
+  <div class:list={["grid gap-x-10 gap-y-12", bench.scenarios.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"]}>
+    {
+      bench.scenarios.map((s) => {
+        const top = scaleOf(s.rates);
+        return (
+          <section>
+            <h3 class="t-control text-ink">{s.name}</h3>
+            <dl class="mt-5 space-y-4">
+              {s.rates.map((r) => {
+                const own = ownRow(r.server);
+                return (
+                  <div>
+                    <div class:list={["flex items-baseline justify-between gap-3 text-sm", own ? "text-ink" : "text-graphite"]}>
+                      <dt>{r.server}</dt>
+                      <dd class="tabular-nums" data-rate={r.rate} data-top={top}>
+                        {formatRate(r.rate)}
+                      </dd>
+                    </div>
+                    <div
+                      class:list={["mt-1.5 h-1.5 min-w-1.5 rounded-full", own ? "bg-accent" : "bg-graphite/45"]}
+                      style={`width: ${(100 * r.rate) / top}%`}
+                      data-rate={r.rate}
+                      data-top={top}
+                      aria-hidden="true"
+                    />
+                  </div>
+                );
+              })}
+            </dl>
+          </section>
+        );
+      })
+    }
+  </div>
+  <p class="t-footnote mt-12 max-w-2xl">{bench.note}</p>
+</div>
+
+<script>
+  import { onceVisible, reducedMotion } from "../lib/motion";
+  import { formatRate } from "../lib/rate";
+
+  /* A benchmark climbs a ladder of offered load until each rival gives
+     out, and the chart replays it: the load rises once the chart is in
+     view, every bar and figure follow it, and each stops at the rate its
+     rival reached. Without the script, or asked for less motion, the bars
+     stand full. */
+  const DURATION = 1800;
+
+  for (const chart of reducedMotion.matches ? [] : document.querySelectorAll<HTMLElement>("[data-bench]")) {
+    const bars = [...chart.querySelectorAll<HTMLElement>("div[data-rate]")];
+    const figures = [...chart.querySelectorAll<HTMLElement>("dd[data-rate]")];
+    const rate = (el: HTMLElement) => Number(el.dataset.rate);
+    /* The load offered to a bar: a share of its scale's full bar, never
+       past its own rate. */
+    const at = (el: HTMLElement, share: number) => Math.min(share * Number(el.dataset.top), rate(el));
+    const draw = (share: number) => {
+      bars.forEach((b) => (b.style.clipPath = `inset(0 ${100 - (100 * at(b, share)) / rate(b)}% 0 0 round 999px)`));
+      figures.forEach((f) => (f.textContent = formatRate(at(f, share))));
+    };
+    draw(0);
+
+    onceVisible(
+      chart,
+      () => {
+        const start = performance.now();
+        const tick = (now: number) => {
+          const t = Math.min((now - start) / DURATION, 1);
+          /* Quick off the mark, settling as the fastest reaches its own. */
+          draw(1 - (1 - t) ** 3);
+          if (t < 1) requestAnimationFrame(tick);
+          else bars.forEach((b) => (b.style.clipPath = ""));
+        };
+        requestAnimationFrame(tick);
+      },
+      { threshold: 0.35 },
+    );
+  }
+</script>

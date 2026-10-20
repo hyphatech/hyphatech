@@ -2,13 +2,13 @@
 /* The ontology map: concepts, grouped by capability, and the named
    relations between them. Concepts with an `entry` are open code: drawn
    brighter and linked to their capability; the rest are fainter, unlinked.
-   Places are hand-set on a 2:1 frame. Wide screens show the whole map;
+   Places are hand-set on a wide frame. Wide screens show the whole map;
    tablets stack capabilities in two columns, phones in one. Names keep
    their size. Without JavaScript or with reduced motion it is static.
    Screen readers get each concept and the relations as sentences; the
    keyboard tabs in once and moves between concepts with the arrows. */
 
-import { bow, box, hull, ringBox, set, sides, type Box } from "./graph-geometry";
+import { FRAME, bow, box, ground, ringBox, set, sides } from "./graph-geometry";
 import { groups, relations, things, type Group } from "../content/ontology";
 
 interface Props {
@@ -19,54 +19,58 @@ const { labelledby } = Astro.props;
 
 const thing = (id: string) => things.find((t) => t.id === id)!;
 
-/* Hand-set places on the FW x FH frame, grouped by capability. */
-const FW = 1400;
-const FH = 740;
+/* Hand-set places on the frame, grouped by capability. */
 const at: Record<string, [number, number]> = {
-  tenant: [70, 185],
-  identity: [70, 315],
-  audit: [70, 445],
-  permission: [215, 150],
-  ratelimit: [225, 285],
-  session: [225, 425],
+  page: [600, 55],
+  component: [760, 70],
+  form: [900, 60],
+  query: [690, 160],
+  state: [830, 150],
 
-  refusal: [425, 105],
-  response: [455, 215],
-  route: [535, 305],
-  request: [435, 435],
-  handler: [735, 385],
+  tenant: [70, 315],
+  identity: [70, 445],
+  audit: [70, 575],
+  permission: [215, 280],
+  ratelimit: [225, 415],
+  session: [225, 555],
 
-  spec: [665, 100],
-  shape: [835, 210],
-  client: [915, 100],
+  refusal: [425, 235],
+  response: [455, 345],
+  route: [535, 435],
+  request: [435, 565],
+  handler: [735, 515],
 
-  secret: [1175, 70],
-  config: [1110, 175],
-  flag: [1265, 190],
+  spec: [735, 240],
+  shape: [835, 340],
+  client: [915, 230],
 
-  webhook: [1295, 300],
-  event: [1035, 350],
-  queue: [1165, 385],
-  schedule: [1310, 440],
-  job: [1175, 475],
+  secret: [1175, 200],
+  config: [1110, 305],
+  flag: [1265, 320],
 
-  statement: [745, 535],
-  row: [955, 545],
-  database: [690, 650],
-  migration: [580, 710],
-  pool: [820, 715],
-  transaction: [890, 640],
+  webhook: [1295, 430],
+  event: [1035, 480],
+  queue: [1165, 515],
+  schedule: [1310, 570],
+  job: [1175, 605],
 
-  log: [110, 640],
-  metric: [230, 705],
-  trace: [290, 585],
-  span: [450, 620],
-  health: [420, 710],
+  statement: [745, 665],
+  row: [955, 675],
+  database: [690, 780],
+  migration: [580, 840],
+  pool: [820, 845],
+  transaction: [890, 770],
 
-  cache: [1100, 700],
-  file: [1140, 610],
-  email: [1225, 715],
-  notification: [1270, 635],
+  log: [110, 770],
+  metric: [230, 835],
+  trace: [290, 715],
+  span: [450, 750],
+  health: [420, 840],
+
+  cache: [1100, 830],
+  file: [1140, 740],
+  email: [1225, 845],
+  notification: [1270, 765],
 };
 const placed = things.map((t) => ({ ...t, x: at[t.id]![0], y: at[t.id]![1] }));
 
@@ -74,16 +78,12 @@ const placed = things.map((t) => ({ ...t, x: at[t.id]![0], y: at[t.id]![1] }));
    here; the script measures them. */
 const points = new Map(placed.map((t) => [t.id, { x: t.x, y: t.y }]));
 const widths = new Map(placed.map((t) => [t.id, t.name.length * 8.3]));
-const side = sides(points, widths, relations, { w: FW, h: FH });
-const classAt = (g: Group) => {
-  const boxes: Box[] = placed
-    .filter((t) => t.group === g.id)
-    .flatMap((t) => [ringBox(t), box(t, widths.get(t.id)!, side.get(t.id)!)]);
-  const x = Math.min(...boxes.map((b) => b.x0));
-  const y = Math.min(...boxes.map((b) => b.y0)) - 12;
-  boxes.push({ x0: x, y0: y - 10, x1: x + g.name.length * 7.4, y1: y + 3 });
-  return { x, y, ground: hull(boxes) };
-};
+const side = sides(points, widths, relations, FRAME);
+const classAt = (g: Group) =>
+  ground(
+    placed.filter((t) => t.group === g.id).flatMap((t) => [ringBox(t), box(t, widths.get(t.id)!, side.get(t.id)!)]),
+    g.name.length * 7.4,
+  );
 ---
 
 {/* Without the script the map keeps its one wide layout: narrower than
@@ -102,7 +102,7 @@ const classAt = (g: Group) => {
   <div class="paper dotted" aria-hidden="true"></div>
   <div class="field relative px-4 sm:px-6 md:px-10">
     <svg
-      viewBox={`0 0 ${FW} ${FH}`}
+      viewBox={`0 0 ${FRAME.w} ${FRAME.h}`}
       class="graph block h-auto w-full overflow-visible select-none"
       data-graph
       data-things={JSON.stringify(placed)}
@@ -112,7 +112,7 @@ const classAt = (g: Group) => {
       aria-labelledby={labelledby}
     >
       <g class="grounds" aria-hidden="true">
-        {groups.map((g) => <path class="ground" data-ground={g.id} d={classAt(g).ground} />)}
+        {groups.map((g) => <path class="ground" data-ground={g.id} d={classAt(g).d} />)}
       </g>
       <g class="classes" aria-hidden="true">
         {
@@ -352,13 +352,14 @@ const classAt = (g: Group) => {
 </style>
 
 <script>
-  import { bow, box, hull, ringBox, set, sides, type Box } from "./graph-geometry";
+  import { FRAME, bow, box, ground, ringBox, set, sides } from "./graph-geometry";
+  import { onceVisible, reducedMotion, whileVisible } from "../lib/motion";
 
   type Thing = { id: string; name: string; group: string; is: string; x: number; y: number; entry?: string };
   type Group = { id: string; name: string };
   type Relation = { from: string; to: string; label: string };
 
-  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const still = reducedMotion.matches;
   /* Idle float: amplitude in px, period in seconds. */
   const FLOAT = 3.5;
   const PERIOD = 9;
@@ -367,14 +368,11 @@ const classAt = (g: Group) => {
   const LEAN = 7;
   const STIFF = 140;
   const DAMP = 19;
-  /* Wide frame the places are set on. */
-  const FW = 1400;
-  const FH = 740;
   /* Stacked layout: capability order, top to bottom. In px: EDGE is the
      side margin, NAMES the width kept for names, HEAD the room above a
      band for its title, BAND the gap between bands. SQUEEZE scales each
      band's height. */
-  const STACK = ["identity", "http", "contracts", "observe", "data", "config", "messaging", "notify"];
+  const STACK = ["ui", "identity", "http", "contracts", "observe", "data", "config", "messaging", "notify"];
   const EDGE = 16;
   const NAMES = 110;
   const HEAD = 44;
@@ -481,10 +479,10 @@ const classAt = (g: Group) => {
       } else {
         const w = Math.min(W, WIDEST);
         const left = (W - w) / 2;
-        H = (w * FH) / FW;
+        H = (w * FRAME.h) / FRAME.w;
         for (const n of nodes.values()) {
-          n.hx = left + (n.t.x / FW) * w;
-          n.hy = (n.t.y / FH) * H;
+          n.hx = left + (n.t.x / FRAME.w) * w;
+          n.hy = (n.t.y / FRAME.h) * H;
         }
       }
       svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
@@ -499,15 +497,13 @@ const classAt = (g: Group) => {
         n.name.setAttribute("text-anchor", s.anchor);
       }
       for (const c of classes) {
-        const boxes: Box[] = [...nodes.values()]
-          .filter((n) => n.t.group === c.g.id)
-          .flatMap((n) => [ringBox(points.get(n.t.id)!), box(points.get(n.t.id)!, widths.get(n.t.id)!, side.get(n.t.id)!)]);
-        const x = Math.min(...boxes.map((b) => b.x0));
-        const y = Math.min(...boxes.map((b) => b.y0)) - 12;
-        boxes.push({ x0: x, y0: y - 10, x1: x + (c.el.getComputedTextLength() || c.g.name.length * 7.4), y1: y + 3 });
+        const { x, y, d } = ground(
+          band(c.g.id).flatMap((n) => [ringBox(points.get(n.t.id)!), box(points.get(n.t.id)!, widths.get(n.t.id)!, side.get(n.t.id)!)]),
+          c.el.getComputedTextLength() || c.g.name.length * 7.4,
+        );
         c.el.setAttribute("x", x.toFixed(1));
         c.el.setAttribute("y", y.toFixed(1));
-        c.ground.setAttribute("d", hull(boxes));
+        c.ground.setAttribute("d", d);
       }
       for (const e of edges) {
         const len = Math.hypot(e.b.hx - e.a.hx, e.b.hy - e.a.hy);
@@ -542,10 +538,7 @@ const classAt = (g: Group) => {
 
     /* Animates only while on screen: floats unless focus holds it, and
        runs until every lean settles. */
-    let visible = false;
     let held = false;
-    let frame = 0;
-    let last = 0;
     const lean = (dt: number) => {
       let moving = false;
       for (const n of nodes.values()) {
@@ -557,26 +550,14 @@ const classAt = (g: Group) => {
       }
       return moving;
     };
-    const tick = (now: number) => {
-      frame = 0;
-      if (!visible || document.hidden) return;
-      const dt = Math.min(1 / 30, (now - last) / 1000);
-      last = now;
-      if (!held) time += dt;
-      const moving = lean(dt);
-      draw();
-      if (!held || moving) frame = requestAnimationFrame(tick);
-    };
-    const play = () => {
-      if (still || frame || !visible || document.hidden) return;
-      last = performance.now();
-      frame = requestAnimationFrame(tick);
-    };
-    new IntersectionObserver(([entry]) => {
-      visible = Boolean(entry?.isIntersecting);
-      play();
-    }).observe(svg);
-    document.addEventListener("visibilitychange", play);
+    const loop = still
+      ? null
+      : whileVisible(svg, (dt) => {
+          if (!held) time += dt;
+          const moving = lean(dt);
+          draw();
+          return !held || moving;
+        });
 
     /* One-time draw-in on scroll, outward from the request by graph
        distance; grounds last. STEP is the delay per step, in ms. */
@@ -588,6 +569,9 @@ const classAt = (g: Group) => {
         if (b === d && a === undefined) depth.set(e.a, d + 1);
       }
     }
+    /* Concepts unreachable from the request come in last. */
+    const last = Math.max(...depth.values()) + 1;
+    for (const n of nodes.values()) if (!depth.has(n)) depth.set(n, last);
     const STEP = 180;
     const glide = "cubic-bezier(0.16, 1, 0.3, 1)";
     const drawIn = () => {
@@ -624,15 +608,7 @@ const classAt = (g: Group) => {
     };
     if (!still && svg.getBoundingClientRect().top > innerHeight * 0.5) {
       svg.setAttribute("data-veiled", "");
-      const watch = new IntersectionObserver(
-        ([entry]) => {
-          if (!entry?.isIntersecting) return;
-          watch.disconnect();
-          drawIn();
-        },
-        { rootMargin: "0px 0px -30% 0px" },
-      );
-      watch.observe(svg);
+      onceVisible(svg, drawIn, { rootMargin: "0px 0px -30% 0px" });
     }
 
     /* Lights the picked concepts (level 0) and two steps of neighbours,
@@ -679,7 +655,7 @@ const classAt = (g: Group) => {
         }
       }
       held = !!pick;
-      play();
+      loop?.play();
     };
     let forward: N | null = null;
     const enter = (n: N) => {

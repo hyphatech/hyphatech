@@ -3,6 +3,8 @@
    clock that runs only while the band is visible and its tab open, and
    one settled frame with reduced motion. */
 
+import { reducedMotion, whileVisible } from "../lib/motion";
+
 export interface Scene {
   /* Called on first measure and each resize: start over at this size. */
   resize(width: number, height: number): void;
@@ -93,7 +95,7 @@ export function stage(host: HTMLElement, scene: Scene, fade: Fade) {
   const content = host.parentElement?.querySelector<HTMLElement>("[data-content]");
   const context = canvas?.getContext("2d");
   if (!canvas || !content || !context) return;
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduce = reducedMotion.matches;
   /* The fade, drawn once per size and cut out of each frame. */
   const mask = document.createElement("canvas");
 
@@ -217,29 +219,10 @@ export function stage(host: HTMLElement, scene: Scene, fade: Fade) {
     }).observe(host);
     if (reduce) return;
 
-    let visible = false;
-    let raf = 0;
-    let last = 0;
-    const tick = (now: number) => {
-      raf = 0;
-      if (!visible || document.hidden) return;
-      /* A frame's time can precede the start of play: never step
-         backward. */
-      scene.step(Math.min(1 / 30, Math.max(0, (now - last) / 1000)));
+    whileVisible(host, (seconds) => {
+      scene.step(seconds);
       render();
-      last = now;
-      raf = requestAnimationFrame(tick);
-    };
-    const play = () => {
-      if (!visible || raf || document.hidden) return;
-      last = performance.now();
-      raf = requestAnimationFrame(tick);
-    };
-    new IntersectionObserver(([entry]) => {
-      visible = Boolean(entry?.isIntersecting);
-      play();
-    }).observe(host);
-    document.addEventListener("visibilitychange", play);
+    });
   };
 
   void start();

@@ -335,12 +335,12 @@
   text-wrap: pretty;
 }
 
-/* Running columns: items flow across columns, never split, each opening
-   on run-in serif words instead of a heading. */
+/* Two columns of items, row by row so each pair opens on one line, each
+   item opening on run-in serif words instead of a heading. */
 @utility columns-run {
+  display: grid;
   column-gap: 3rem;
   & > * {
-    break-inside: avoid;
     padding-bottom: 1.75rem;
   }
   & dt {
@@ -354,7 +354,7 @@
     display: inline;
   }
   @media (width >= 48rem) {
-    column-count: 2;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

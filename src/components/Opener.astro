@@ -1,0 +1,21 @@
+---
+/* A section heading, one line per entry, and its lede if given. */
+
+interface Props {
+  title: string | string[];
+  id?: string;
+}
+const { title, id } = Astro.props;
+const lines = typeof title === "string" ? [title] : title;
+---
+
+<h2 id={id} class="t-h1 max-w-4xl">
+  {lines.length === 1 ? lines[0] : lines.map((l) => <span class="block">{l}</span>)}
+</h2>
+{
+  Astro.slots.has("default") && (
+    <p class="t-lede mt-8 max-w-2xl text-graphite">
+      <slot />
+    </p>
+  )
+}

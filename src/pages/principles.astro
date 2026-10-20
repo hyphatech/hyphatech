@@ -1,5 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
+import TitleBand from "../components/TitleBand.astro";
 import { propositions, depth, type Proposition } from "../content/principles";
 
 /* The seven hang their numerals in the margin; propositions sit on the
@@ -30,12 +31,7 @@ for (const p of propositions) {
 >
   {/* The title alone on the dotted ground Stack's title stands on; the
       propositions on paper. */}
-  <section class="relative overflow-hidden">
-    <div class="dotted pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_70%_75%_at_50%_50%,black_30%,transparent_100%)]" aria-hidden="true"></div>
-    <div class="relative mx-auto max-w-page px-4 pt-16 pb-16 sm:px-6 md:pt-20 md:pb-20">
-      <h1 class="t-display max-w-2xl md:ml-margin">Principles</h1>
-    </div>
-  </section>
+  <TitleBand title="Principles" />
 
   <section class="theme-light">
     <div class="mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20">

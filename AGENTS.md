@@ -25,12 +25,3 @@ copied from its README, and `version`, its latest release's tag. The
 site reads nothing from GitHub, so a component's release is not on its
 page until that entry is changed: after releasing, set `version`, and
 whatever the README changed that the entry copies.
-
-## Git
-
-How work becomes a commit -- its format, where it happens, what is pushed
--- is [GIT.md](GIT.md), the same in every Hypha repository and changed in
-all of them together, never in one. It is imported here, so it is read
-with this file:
-
-@GIT.md

@@ -1,0 +1,18 @@
+---
+/* The "Build with Hypha." section that ends a page. */
+
+import Paths from "./Paths.astro";
+import { ways } from "../content/ways";
+
+interface Props {
+  id?: string;
+}
+const { id } = Astro.props;
+---
+
+<section id={id} class="scroll-mt-8 border-t border-rule">
+  <div class="mx-auto max-w-page px-4 pt-16 pb-4 sm:px-6 md:pt-20 md:pb-8">
+    <h2 class="t-h1 max-w-4xl md:ml-margin">Build with Hypha.</h2>
+    <Paths paths={ways} />
+  </div>
+</section>

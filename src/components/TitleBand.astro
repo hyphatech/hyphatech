@@ -1,0 +1,22 @@
+---
+/* A page title on the dotted background; `above` holds a back link. */
+
+import Ground from "./Ground.astro";
+
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+const above = Astro.slots.has("above");
+---
+
+<section class="relative overflow-hidden">
+  <Ground />
+  <div class:list={["relative mx-auto max-w-page px-4 pb-16 sm:px-6 md:pb-20", above ? "pt-12 md:pt-16" : "pt-16 md:pt-20"]}>
+    <div class="md:ml-margin">
+      <slot name="above" />
+      <h1 class:list={["t-display max-w-3xl", above && "mt-6"]}>{title}</h1>
+      <slot />
+    </div>
+  </div>
+</section>
