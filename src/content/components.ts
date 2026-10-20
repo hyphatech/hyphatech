@@ -43,7 +43,7 @@ export const install = (c: Component) => opam(c.packages);
 export const components: Component[] = [
   {
     slug: "spindle",
-    version: "0.8.0",
+    version: "0.9.0",
     name: "Spindle",
     repo: "spindle",
     tagline: "The Eio-native web framework for modern OCaml.",
@@ -90,7 +90,7 @@ let routes =
 let () =
   Spindle.Log.setup ();
   Eio_main.run @@ fun env ->
-  Spindle.serve env (routes @ Spindle.Openapi.docs routes)`,
+  Spindle.serve env (routes @ Spindle.Openapi.routes routes)`,
       },
       {
         caption: "Called. Interactive docs for every route are at /docs, generated from the same routes.",
