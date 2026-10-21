@@ -22,6 +22,7 @@ hyphatech.io on every push to `main`.
 Each open component has a page at `/stack/<slug>`, drawn from its entry
 in `src/content/components.ts`: its words, install lines and snippets
 copied from its README, and `version`, its latest release's tag. The
+same entry gives its line in `/llms.txt`, the site for agents. The
 site reads nothing from GitHub, so a component's release is not on its
 page until that entry is changed: after releasing, set `version`, and
 whatever the README changed that the entry copies.
