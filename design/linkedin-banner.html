@@ -14,6 +14,7 @@
     .company  { width: 1128px; height: 191px; }
     /* The link preview every page shares (public/og.jpg): 1200 × 630. */
     .og       { width: 1200px; height: 630px; }
+    .reddit   { width: 1920px; height: 640px; }
 
     .banner .wordmark, .banner .hero { position: absolute; }
     /* A banner is seen at about half its size, and the grain with it. */
@@ -30,6 +31,7 @@
        hero sets them. */
     .og .wordmark { --size: 24px; top: 64px; left: 80px; }
     .og .hero { font-size: 80px; left: 80px; bottom: 80px; }
+
   </style>
 </head>
 <body>
@@ -62,6 +64,11 @@
   <div>
     <div class="name">Link preview · 1200 × 630 · Horizon</div>
     <div class="image banner og horizon" id="og-horizon"><div class="grain"></div><div class="halftone"></div><div class="wordmark"><img src="../public/brand/hypha-white-shaded.svg" alt="">hypha</div><div class="hero">The missing foundation<br><span>for agentic engineering.</span></div></div>
+  </div>
+
+  <div>
+    <div class="name">Reddit profile · 1920 × 640 · Horizon</div>
+    <div class="image banner reddit horizon" id="reddit-horizon" data-size="1920,640"><div class="grain"></div><div class="halftone"></div></div>
   </div>
 
 <script>
