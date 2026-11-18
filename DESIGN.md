@@ -17,7 +17,7 @@ typography:
     fontFamily: "Roboto Slab Variable, ui-serif, Georgia, serif"
     fontSize: "clamp(2.75rem, 5.5vw, 5rem)"
     fontWeight: 400
-    lineHeight: 0.98
+    lineHeight: 1.05
     letterSpacing: "-0.025em"
   statement:
     fontFamily: "Roboto Slab Variable, ui-serif, Georgia, serif"
@@ -236,7 +236,7 @@ the grain: fine dots, halftone or sand, never two, and never lines.
 reads easily at any size.
 
 ### Hierarchy
-- **Hero** (400, `clamp(2.75rem, 5.5vw, 5rem)`, 0.98): a page's first
+- **Hero** (400, `clamp(2.75rem, 5.5vw, 5rem)`, 1.05): a page's first
   heading, in two lines, the second in gold.
 - **Statement** (400, `clamp(3rem, 7.5vw, 6.5rem)`, 1): the one line a
   page stands on, over the sand. Once a page.

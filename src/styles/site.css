@@ -367,7 +367,7 @@
   font-family: var(--font-serif);
   font-weight: 400;
   font-size: clamp(2.75rem, 5.5vw, 5rem);
-  line-height: 0.98;
+  line-height: 1.05;
   letter-spacing: -0.025em;
 }
 
@@ -378,7 +378,7 @@
   font-family: var(--font-serif);
   font-weight: 400;
   font-size: clamp(2.75rem, 5.5vw, 5rem);
-  line-height: 0.98;
+  line-height: 1.05;
   letter-spacing: -0.025em;
 }
 
