@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hypha Icons</title>
+  <!-- The site's icons, from the mark in public/brand, each on a
+       superellipse tile with clear corners. ./render.sh icons.html
+       icons 1 takes them; each is then copied into public/ under its
+       id. -->
+  <link rel="stylesheet" href="social.css">
+  <style>
+    body.only { background: transparent; }
+    .icon { background: #f9f8f8; }
+    .icon img { position: absolute; inset: 0; margin: auto; display: block; height: 78%; width: auto; }
+    /* At 16 and 32 pixels the shading is lost, so the plain mark, and
+       larger in its tile. */
+    #favicon-16 img, #favicon-32 img { height: 84%; }
+    #favicon-16 { width: 16px; height: 16px; }
+    #favicon-32 { width: 32px; height: 32px; }
+    #apple-touch-icon { width: 180px; height: 180px; }
+    #apple-touch-icon img { height: 70%; }
+  </style>
+</head>
+<body>
+  <div>
+    <div class="name">Favicon · 16</div>
+    <div class="image icon" id="favicon-16" data-size="16,16"><img src="../public/brand/hypha-black.svg" alt=""></div>
+  </div>
+  <div>
+    <div class="name">Favicon · 32</div>
+    <div class="image icon" id="favicon-32" data-size="32,32"><img src="../public/brand/hypha-black.svg" alt=""></div>
+  </div>
+  <div>
+    <div class="name">Touch icon · 180</div>
+    <div class="image icon" id="apple-touch-icon" data-size="180,180"><img src="../public/brand/hypha-black-shaded.svg" alt=""></div>
+  </div>
+  <script>
+    /* The tile: a superellipse, |x|^5 + |y|^5 = 1, as a polygon. */
+    const n = 5;
+    const points = [];
+    for (let i = 0; i < 360; i++) {
+      const a = (i / 360) * 2 * Math.PI;
+      const c = Math.cos(a), s = Math.sin(a);
+      const x = Math.sign(c) * Math.abs(c) ** (2 / n), y = Math.sign(s) * Math.abs(s) ** (2 / n);
+      points.push(`${(50 + 50 * x).toFixed(3)}% ${(50 + 50 * y).toFixed(3)}%`);
+    }
+    for (const el of document.querySelectorAll(".icon")) el.style.clipPath = `polygon(${points.join(",")})`;
+
+    const only = new URLSearchParams(location.search).get("only");
+    if (only) {
+      document.body.classList.add("only");
+      for (const el of document.querySelectorAll(".image")) if (el.id !== only) el.parentElement.remove();
+    }
+  </script>
+</body>
+</html>

@@ -1,11 +1,12 @@
 ---
 import Base from "../layouts/Base.astro";
+import Hero from "../components/Hero.astro";
+import Closing from "../components/Closing.astro";
 import Icon from "../components/Icon.astro";
 import House from "@lucide/astro/icons/house";
-import Layers from "@lucide/astro/icons/layers";
-import Compass from "@lucide/astro/icons/compass";
 
-/* The host serves this for any address it cannot find. */
+/* The host serves this for any address it cannot find. It opens as
+   every page does, on the hero's Ember, and ends as every page does. */
 ---
 
 <Base
@@ -13,15 +14,12 @@ import Compass from "@lucide/astro/icons/compass";
   description="There is no page at this address."
   lost
 >
-  <section class="mx-auto max-w-page px-4 pt-16 pb-16 sm:px-6 md:pt-20 md:pb-20">
-    <div class="max-w-2xl md:ml-margin">
-      <h1 class="t-display"><span class="block">Nothing at</span> <span class="block text-accent">this address.</span></h1>
-      <p class="t-lede mt-8 text-graphite">The page may have moved.</p>
-      <div class="mt-10 flex flex-wrap gap-3 md:mt-12">
-        <a href="/" class="btn-primary"><Icon icon={House} />Home</a>
-        <a href="/stack" class="btn"><Icon icon={Layers} />Hypha Stack</a>
-        <a href="/principles" class="btn"><Icon icon={Compass} />Principles</a>
-      </div>
-    </div>
-  </section>
+  <Hero slot="band" title={["Nothing at", "this address."]}>
+    The page may have moved.
+    <Fragment slot="actions">
+      <a href="/" class="btn-primary"><Icon icon={House} />Home</a>
+    </Fragment>
+  </Hero>
+
+  <Closing />
 </Base>

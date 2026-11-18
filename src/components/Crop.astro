@@ -1,0 +1,232 @@
+---
+/* A region of one of HAF's own screens, cut from the frames in
+   src/content/haf-screens (the demo's, written by HAF, and the
+   snapshots' as scripts/haf-snapshots.mjs writes them): the rows and
+   columns named, drawn cell for cell in HAF's colours, its type sized so
+   the region fills its column. Nothing here draws HAF by hand. */
+
+interface Props {
+  screen: string;
+  /* First row and the row after the last, 0-based. */
+  rows?: [number, number];
+  /* First column and the column after the last; the whole width when
+     left out. */
+  cols?: [number, number];
+  label: string;
+  /* The largest its type may be, in pixels. */
+  max?: number;
+  /* The whole screen instead, each of these regions marked on it and the
+     rest dimmed round them. */
+  focus?: { rows: [number, number]; cols?: [number, number] }[];
+  class?: string;
+}
+const { screen, cols: given, label, max = 14, focus, class: className } = Astro.props;
+
+type Run = [string, string | null, string | null, boolean];
+type Frame = { cols: number; rows: number; lines: Run[][] };
+const files = import.meta.glob<{ default: Frame }>("../content/haf-screens/*.json", { eager: true });
+const frame = files[`../content/haf-screens/${screen}.json`]?.default;
+if (!frame) throw new Error(`Crop: no screen ${screen}`);
+const rows: [number, number] = focus ? [0, frame.rows] : (Astro.props.rows ?? [0, frame.rows]);
+const [c0, c1] = focus ? [0, frame.cols] : (given ?? [0, frame.cols]);
+const width = c1 - c0;
+/* A region's place on the screen, in the type's own units: a cell is
+   0.6em by 1.3em. */
+/* In focus, a run of blank rows (spaces and a pane's divider only) is
+   cut to one, so a screen that is mostly empty keeps its head and its
+   foot and loses only its silence. Each kept row's place is noted, so
+   the marks move with it. */
+const blank = (line: Run[]) => /^[\s│┃]*$/u.test(line.map((r) => r[0]).join(""));
+const kept: number[] = [];
+frame.lines.forEach((line, i) => {
+  if (!focus || !blank(line) || !blank(frame.lines[i - 1] ?? [])) kept.push(i);
+});
+const shown = focus ? kept.map((i) => frame.lines[i]!) : frame.lines.slice(rows[0], rows[1]);
+const place = (row: number) => {
+  const at = kept.findIndex((i) => i >= row);
+  return at < 0 ? kept.length : at;
+};
+const boxes = (focus ?? []).map(({ rows: [q0, q1], cols: [m0, m1] = [0, frame.cols] }) => ({ r0: place(q0), r1: place(q1), m0, m1 })).map(({ r0, r1, m0, m1 }) => ({
+  x0: `${(m0 * 0.6 - 0.5).toFixed(2)}em`,
+  y0: `${(r0 * 1.3 - 0.35).toFixed(2)}em`,
+  x1: `${(m1 * 0.6 + 0.5).toFixed(2)}em`,
+  y1: `${(r1 * 1.3 + 0.35).toFixed(2)}em`,
+}));
+/* The veil over the rest: the whole screen, each mark cut out of it. */
+const veil = `clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0${boxes.map(({ x0, y0, x1, y1 }) => `,${x0} ${y0},${x1} ${y0},${x1} ${y1},${x0} ${y1},${x0} ${y0},0 0`).join("")})`;
+
+/* A row's runs cut to the columns, each run kept whole where it fits. */
+const cut = (line: Run[]): Run[] => {
+  const out: Run[] = [];
+  let at = 0;
+  for (const run of line) {
+    const chars = [...run[0]];
+    const from = Math.max(c0, at);
+    const to = Math.min(c1, at + chars.length);
+    if (from < to) out.push([chars.slice(from - at, to - at).join(""), run[1], run[2], run[3]]);
+    at += chars.length;
+  }
+  return out;
+};
+
+/* Spaces kept as the terminal's cells; a frame's sides stretched to the
+   row, as a terminal draws them. */
+const tall = /^[┃█▀▄▌▐]$/;
+const blocks = "█▀▄▌▐";
+/* The glyphs HAF Mono lacks (the pause, the pencil, the spinner), each
+   held to one cell so a fallback face never moves its row. */
+const lacking = /^[⏸⏵✎⠋⠙⠹]$/u;
+/* HAF's frames drawn as strokes that meet cell to cell, where font glyphs
+   would overlap at their joins. */
+const strokes: Record<string, string> = { "│": "v", "╭": "tl", "╮": "tr", "╰": "bl", "╯": "br", "├": "l", "┤": "r", "┼": "x" };
+const box = (part: string) => (part[0] === "─" ? "h" : strokes[part]);
+const cells = (t: string) =>
+  t
+    .split(/(─+|[│┃╭╮╰╯├┤┼█▀▄▌▐⏸⏵✎⠋⠙⠹])/u)
+    .filter((part) => part !== "")
+    .map((part) => ({ part, box: box(part), tall: tall.test(part), cell: lacking.test(part), block: part.length === 1 && blocks.includes(part) }));
+const style = ([, fg, bg]: Run) => `${fg ? `color:${fg};` : ""}${bg && bg !== "#1c1e20" ? `background:${bg};` : ""}`;
+---
+
+<figure class:list={["crop", className]} style={`--cols:${width};--max:${max}px`} aria-label={label}>
+  <div class:list={["crop-term", boxes.length && "relative"]} aria-hidden="true">
+    {boxes.length > 0 && <div class="crop-dim" style={veil} />}
+    
+    {
+      shown.map((line, k) => {
+        const at = focus ? kept[k]! : rows[0] + k;
+        const runs = cut(line);
+        return (
+        <p>
+          {runs.map((run) => (
+            <span style={style(run)} class:list={[run[3] && "b"]}>
+              {cells(run[0]).map(({ part, box, tall, cell, block }) => (box ? <span class={`bx bx-${box}`} style={box === "h" ? `width:${part.length}ch` : undefined} /> : block ? <span class:list={["glyph-block", `glyph-block-${blocks.indexOf(part)}`]} /> : tall || cell ? <span class:list={[tall && "tall", cell && "cell"]}>{part}</span> : part))}
+            </span>
+          ))}
+        </p>
+        );
+      })
+    }
+  </div>
+</figure>
+
+<style>
+  .crop {
+    container-type: inline-size;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px #414346;
+    background: #1c1e20;
+  }
+  /* Its type sized so the region's columns fill the figure: a cell is
+     0.6em wide. */
+  .crop-term {
+    font-family: "HAF Mono", var(--font-mono);
+    font-size: min(var(--max), calc(100cqw / (var(--cols) * 0.6)));
+    line-height: 1.3;
+    color: #c7cdd6;
+    font-variant-ligatures: none;
+  }
+  /* The screen round its point, dimmed: one veil over the whole, each
+     region cut out of it, so two never dim each other. No frame: HAF
+     draws its own boxes, and a second edge round them is noise. */
+  .crop-dim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: rgb(28 30 32 / 0.62);
+  }
+  .crop-term p {
+    height: 1.3em;
+    white-space: pre;
+  }
+  /* A run's fill covers its whole row, as a terminal fills a cell. */
+  .crop-term p > span {
+    display: inline-block;
+    height: 1.3em;
+    vertical-align: top;
+  }
+  .crop-term :global(.bx) {
+    --t: max(1px, 0.08em);
+    position: relative;
+    display: inline-block;
+    width: 1ch;
+    height: 1.3em;
+    vertical-align: top;
+  }
+  .crop-term :global(.bx::before),
+  .crop-term :global(.bx::after) {
+    content: "";
+    position: absolute;
+    border: 0 solid currentColor;
+  }
+  .crop-term :global(.bx-h::before),
+  .crop-term :global(.bx-l::after),
+  .crop-term :global(.bx-r::after),
+  .crop-term :global(.bx-x::after) {
+    left: 0;
+    right: 0;
+    top: calc(50% - var(--t) / 2);
+    border-top-width: var(--t);
+  }
+  .crop-term :global(.bx-l::after) { left: 50%; }
+  .crop-term :global(.bx-r::after) { right: 50%; }
+  .crop-term :global(.bx-v::before),
+  .crop-term :global(.bx-l::before),
+  .crop-term :global(.bx-r::before),
+  .crop-term :global(.bx-x::before) {
+    top: 0;
+    bottom: 0;
+    left: calc(50% - var(--t) / 2);
+    border-left-width: var(--t);
+  }
+  .crop-term :global(.bx-tl::before),
+  .crop-term :global(.bx-tr::before),
+  .crop-term :global(.bx-bl::before),
+  .crop-term :global(.bx-br::before) {
+    --r: 0.45em;
+  }
+  .crop-term :global(.bx-tl::before) {
+    left: calc(50% - var(--t) / 2); top: calc(50% - var(--t) / 2); right: 0; bottom: 0;
+    border-top-width: var(--t); border-left-width: var(--t); border-top-left-radius: var(--r);
+  }
+  .crop-term :global(.bx-tr::before) {
+    right: calc(50% - var(--t) / 2); top: calc(50% - var(--t) / 2); left: 0; bottom: 0;
+    border-top-width: var(--t); border-right-width: var(--t); border-top-right-radius: var(--r);
+  }
+  .crop-term :global(.bx-bl::before) {
+    left: calc(50% - var(--t) / 2); bottom: calc(50% - var(--t) / 2); right: 0; top: 0;
+    border-bottom-width: var(--t); border-left-width: var(--t); border-bottom-left-radius: var(--r);
+  }
+  .crop-term :global(.bx-br::before) {
+    right: calc(50% - var(--t) / 2); bottom: calc(50% - var(--t) / 2); left: 0; top: 0;
+    border-bottom-width: var(--t); border-right-width: var(--t); border-bottom-right-radius: var(--r);
+  }
+  .crop-term :global(.b) {
+    font-weight: 600;
+  }
+  .crop-term :global(.glyph-block) {
+    display: inline-block;
+    width: 1ch;
+    height: 1.3em;
+    vertical-align: top;
+    background: currentColor;
+  }
+  /* ▀ and ▄ fill the top and the bottom half of their cell, ▌ and ▐ the
+     left and the right. */
+  .crop-term :global(.glyph-block-1) { background: linear-gradient(currentColor 50%, transparent 50%); }
+  .crop-term :global(.glyph-block-2) { background: linear-gradient(transparent 50%, currentColor 50%); }
+  .crop-term :global(.glyph-block-3) { background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
+  .crop-term :global(.glyph-block-4) { background: linear-gradient(90deg, transparent 50%, currentColor 50%); }
+  .crop-term :global(.tall) {
+    display: inline-block;
+    transform: scaleY(1.45);
+  }
+  /* A glyph HAF Mono lacks, centred in one cell whatever its face. */
+  .crop-term :global(.cell) {
+    display: inline-flex;
+    justify-content: center;
+    width: 1ch;
+    overflow: visible;
+  }
+</style>

@@ -1,0 +1,35 @@
+---
+/* A screen of the Factory, drawn in type rather than shown as a
+   picture: its window, its title, and what it shows, set in mono. Lines
+   use `text-graphite` for what supports them and a gold frame only for
+   the choice the keys are on, as the Factory draws its own. */
+
+interface Props {
+  title: string;
+  class?: string;
+}
+const { title, class: className } = Astro.props;
+---
+
+<figure class:list={["overflow-hidden rounded-panel border border-rule bg-panel", className]}>
+  <div class="flex items-center gap-2 border-b border-rule px-4 py-3" aria-hidden="true">
+    <span class="size-2.5 rounded-full border border-rule" />
+    <span class="size-2.5 rounded-full border border-rule" />
+    <span class="size-2.5 rounded-full border border-rule" />
+    <span class="t-caption ml-3 text-graphite">{title}</span>
+  </div>
+  <div class="screen overflow-x-auto font-mono text-[0.875rem] leading-[1.7]">
+    <slot />
+  </div>
+</figure>
+
+<style>
+  .screen :global(.choice) {
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-control);
+    padding: 0.75rem 1rem;
+  }
+  .screen :global(.chosen) {
+    background: var(--color-raised);
+  }
+</style>

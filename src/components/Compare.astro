@@ -1,0 +1,60 @@
+---
+/* One thing two ways: the way it is and the way it is with Hypha as two
+   panels of the same rows, each with its name and note on its head and
+   its story in its footer, then, unless the heading above already says
+   it, one outcome under both after the gold tick. Only the Hypha
+   panel's edge and name, and the tick, are gold, and the Hypha panel is
+   night on any ground, so on paper it keeps its gold. */
+
+import Icon from "./Icon.astro";
+import Check from "@lucide/astro/icons/check";
+
+interface Side {
+  name: string;
+  /* A Lucide icon, before the name. */
+  icon?: any;
+  note?: string;
+  values: string[];
+  story?: string;
+}
+interface Props {
+  rows: string[];
+  before: Side;
+  after: Side;
+  outcome?: string;
+  class?: string;
+}
+const { rows, before, after, outcome, class: className } = Astro.props;
+---
+
+<div class={className}>
+  <ul class="k-compare grid gap-5 md:grid-cols-2">
+    {
+      [before, after].map((side, i) => (
+        <li class:list={["k-panel", i === 1 && "k-panel-hypha theme-dark"]}>
+          <p class="k-panel-head">
+            <span class="k-panel-name inline-flex items-center gap-2">{side.icon && <Icon icon={side.icon} />}{side.name}</span>
+            {side.note && <span>{side.note}</span>}
+          </p>
+          <dl class="k-panel-well">
+            {rows.map((r, j) => (
+              <div class="k-panel-row k-compare-row">
+                <dt>{r}</dt>
+                <dd>{side.values[j]}</dd>
+              </div>
+            ))}
+          </dl>
+          {side.story && <p class="k-panel-foot">{side.story}</p>}
+        </li>
+      ))
+    }
+  </ul>
+  {
+    outcome && (
+      <p class="k-compare-outcome">
+        <span class="k-tick"><Icon icon={Check} /></span>
+        <span>{outcome}</span>
+      </p>
+    )
+  }
+</div>

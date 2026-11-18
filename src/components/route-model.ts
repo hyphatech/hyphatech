@@ -52,7 +52,7 @@ const field = ([x, y]: Plane) => {
 
 /* The opening's edge, traced from the centre and resampled every
    millimetre, counter-clockwise. */
-function trace(): Plane[] {
+function trace(field: (at: Plane) => number, [cx, cy]: Plane = [0, 0]): Plane[] {
   const rays: Plane[] = [];
   for (let i = 0; i < 1440; i++) {
     const angle = (i / 1440) * Math.PI * 2;
@@ -60,10 +60,10 @@ function trace(): Plane[] {
     let [lo, hi] = [0, 140];
     for (let step = 0; step < 40; step++) {
       const mid = (lo + hi) / 2;
-      if (field([dx * mid, dy * mid]) < 0) lo = mid;
+      if (field([cx + dx * mid, cy + dy * mid]) < 0) lo = mid;
       else hi = mid;
     }
-    rays.push([dx * lo, dy * lo]);
+    rays.push([cx + dx * lo, cy + dy * lo]);
   }
   const lengths = [0];
   for (let i = 1; i <= rays.length; i++) {
@@ -84,10 +84,28 @@ function trace(): Plane[] {
   return out;
 }
 
-export const OPENING = trace();
+/* An opening, and what the router needs of it: the signed distance to
+   its edge, where the bit may be, and the cells its pocket covers. Any
+   field whose edge `centre` sees all round makes one; the factory's
+   templates are made of these. */
+export interface Shape {
+  opening: Plane[];
+  nearest(at: Plane): { distance: number; point: Plane };
+  hold(at: Plane): { at: Plane; edge: Plane | null };
+  cells: number[];
+}
 
-/* The signed distance to the opening's edge, exact: negative inside. */
-export function nearest([x, y]: Plane) {
+export function shapeOf(field: (at: Plane) => number, centre: Plane = [0, 0]): Shape {
+  const opening = trace(field, centre);
+  const near = (at: Plane) => nearestOn(opening, at);
+  const cells: number[] = [];
+  for (let column = 0; column < GRID.columns; column++)
+    for (let row = 0; row < GRID.rows; row++) if (near(cellAt(column, row)).distance <= -OFFSET - 0.8) cells.push(column * GRID.rows + row);
+  return { opening, nearest: near, hold: (at) => holdIn(near, at), cells };
+}
+
+/* The signed distance to an opening's edge, exact: negative inside. */
+function nearestOn(OPENING: Plane[], [x, y]: Plane) {
   let best = Infinity;
   let point: Plane = [0, 0];
   let inside = false;
@@ -111,7 +129,7 @@ export function nearest([x, y]: Plane) {
 
 /* Where the bit's axis may be: the bushing inside the opening. A point
    past that is held at the nearest place it may be. */
-export function hold(at: Plane): { at: Plane; edge: Plane | null } {
+function holdIn(nearest: Shape["nearest"], at: Plane): { at: Plane; edge: Plane | null } {
   const { distance, point } = nearest(at);
   if (distance <= -BUSH) return { at, edge: null };
   const [dx, dy] = [at[0] - point[0], at[1] - point[1]];
@@ -126,13 +144,21 @@ export function hold(at: Plane): { at: Plane; edge: Plane | null } {
 const CELL = 2;
 const GRID = { x: -80, y: -50, columns: 81, rows: 61 };
 const cellAt = (column: number, row: number): Plane => [GRID.x + column * CELL, GRID.y + row * CELL];
-const CELLS: number[] = [];
-for (let column = 0; column < GRID.columns; column++)
-  for (let row = 0; row < GRID.rows; row++) if (nearest(cellAt(column, row)).distance <= -OFFSET - 0.8) CELLS.push(column * GRID.rows + row);
 const cellOf = (index: number) => cellAt(Math.floor(index / GRID.rows), index % GRID.rows);
 
+/* An outline `grow` outside a field's edge, or inside it when less
+   than 0: an insert's, a little inside its pocket. */
+export const outlineOf = (field: (at: Plane) => number, centre: Plane, grow: number) => trace((at) => field(at) - grow, centre);
+
+/* The router figure's template. */
+export const SHAPE = shapeOf(field);
+export const OPENING = SHAPE.opening;
+/* A finished pocket's edge: the opening offset in by the bushing, the
+   bit's reach at its widest. */
+export const POCKET = outlineOf(field, [0, 0], -OFFSET);
+
 /* A run's random numbers. */
-function random(seed: number) {
+export function random(seed: number) {
   let state = (seed * 2654435761) >>> 0 || 1;
   return () => {
     state ^= state << 13;
@@ -145,6 +171,8 @@ function random(seed: number) {
 export interface Sample {
   /* The bit's axis, and where the arm would have it. */
   at: Plane;
+  /* How far the router is lifted off the template, between openings. */
+  lift?: number;
   arm: Plane;
   /* Where the bushing bears on the edge, and how hard. */
   edge: Plane | null;
@@ -168,7 +196,8 @@ const TURN = 9;
    one time in three for a place past the edge; its heading wanders as
    it goes. Wherever it pushes past, the bushing holds the bit at the
    edge and the wrist floats. The pass ends when the whole pocket is cut. */
-export function runOf(seed: number, start: Plane): Run {
+export function runOf(seed: number, start: Plane, shape = SHAPE): Run {
+  const { opening: OPENING, nearest, hold, cells: CELLS } = shape;
   const next = random(seed + 1);
   const open = new Set(CELLS);
   const samples: Sample[] = [];
@@ -374,14 +403,22 @@ export interface Scene {
 export class Show {
   runs: Run[] = [];
   starts: number[] = [0];
-  constructor(readonly first = 0) {}
+  constructor(
+    readonly first = 0,
+    readonly index = INDEX,
+  ) {}
+  /* Pass n, from where the last one ended. */
+  runFor(n: number, start: Plane): Run {
+    return runOf(this.first + n, start);
+  }
   run(n: number): Run {
     while (this.runs.length <= n) {
-      const previous = this.runs[this.runs.length - 1];
+      const m = this.runs.length;
+      const previous = this.runs[m - 1];
       const start = previous ? previous.samples[previous.samples.length - 1]!.at : ([0, 0] as Plane);
-      const run = runOf(this.first + this.runs.length, start);
+      const run = this.runFor(m, start);
       this.runs.push(run);
-      this.starts.push(this.starts[this.starts.length - 1]! + run.samples.length / RATE + INDEX);
+      this.starts.push(this.starts[this.starts.length - 1]! + run.samples.length / RATE + this.index);
     }
     return this.runs[n]!;
   }

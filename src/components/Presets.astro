@@ -1,0 +1,141 @@
+---
+/* HAF's presets, as hypha-haf's docs/how/models.md states them: a
+   preset names three models, one for the questions and the PRD, one
+   for building each item, one for review, each from any provider. One
+   preset is drawn, mixing providers, each model beside its provider's
+   mark; under it the providers, those HAF calls today and those it
+   will (said so, since the Factory is coming soon). Marks from Simple
+   Icons, in the text colour; none is gold, so no provider is sold. */
+
+import Icon from "./Icon.astro";
+import MessagesSquare from "@lucide/astro/icons/messages-square";
+import Hammer from "@lucide/astro/icons/hammer";
+import ScanSearch from "@lucide/astro/icons/scan-search";
+import Route from "@lucide/astro/icons/route";
+import { marks } from "../content/marks";
+
+const rows = [
+  { icon: MessagesSquare, work: "Questions and the PRD", model: "Claude Opus", provider: "Anthropic", mark: "anthropic" },
+  { icon: Hammer, work: "Building each item", model: "Your local model", provider: "Ollama", mark: "ollama" },
+  { icon: ScanSearch, work: "Reviewing each change", model: "Claude Sonnet", provider: "Anthropic", mark: "anthropic" },
+];
+const today = [
+  { name: "Anthropic", mark: "anthropic" },
+  { name: "Ollama", mark: "ollama" },
+];
+const soon = [
+  { name: "OpenAI", mark: "openai" },
+  { name: "Gemini", mark: "gemini" },
+  { name: "OpenRouter", mark: "openrouter" },
+  { name: "Hopscotch", icon: Route },
+];
+---
+
+<div class="presets">
+  <div class="k-panel k-panel-card pt-[0.3rem]">
+    <ul class="k-panel-well">
+      {
+        rows.map((r) => (
+          <li class="k-panel-row flex items-center gap-3">
+            <span class="row-icon"><Icon icon={r.icon} /></span>
+            <span class="min-w-0 flex-1">
+              <span class="block text-ink">{r.model}</span>
+              <span class="block text-[0.875rem] text-graphite">{r.work}</span>
+            </span>
+            <span class="provider">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d={marks[r.mark]} /></svg>
+              {r.provider}
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+  <div class="strip">
+    <ul>
+      {
+        today.map((p) => (
+          <li class="chip">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d={marks[p.mark]} /></svg>
+            {p.name}
+          </li>
+        ))
+      }
+    </ul>
+    <ul>
+      {
+        soon.map((p) => (
+          <li class="chip chip-soon">
+            {p.mark ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d={marks[p.mark]} /></svg> : <Icon icon={p.icon!} />}
+            {p.name}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</div>
+
+<style>
+  .presets {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .row-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 9px;
+    color: var(--color-ink);
+    background: color-mix(in oklab, var(--color-ink) 6%, transparent);
+  }
+  .row-icon :global(svg) {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+  .provider {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.875rem;
+    color: var(--color-graphite);
+  }
+  .provider svg,
+  .chip svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    fill: currentColor;
+    flex: none;
+  }
+  /* Two rows of chips, those served today above those coming, which
+     stay quieter in their own style; no label over either. */
+  .strip {
+    display: grid;
+    gap: 0.875rem;
+  }
+  .strip ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    color: var(--color-ink);
+    box-shadow: 0 0 0 1px var(--color-rule);
+  }
+  .chip :global(svg) {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+  .chip-soon {
+    color: var(--color-graphite);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-rule) 70%, transparent);
+    border: 1px dashed transparent;
+  }
+</style>

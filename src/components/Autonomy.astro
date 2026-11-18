@@ -1,0 +1,391 @@
+---
+/* A piece of work from your side and the Factory's, as hypha-haf's
+   docs/how/lifecycle.md and ladder.md tell it: you answer and sign, and
+   nothing is asked of you until you try what was released. Between, the
+   Factory maps, scaffolds and composes item by item: a refused change
+   is tried again and passes while the rest pass at once, then it
+   validates and releases. A piece set aside would hold the release, so
+   this run, which is released, has none.
+   Drawn as two lanes over time; the signature and the release in gold.
+   Below a laptop's width the run is told down the page instead, the
+   same tiles as a stepper, so nothing scrolls sideways.
+
+   Its one motion is the scroll as the clock: as the figure rises up the
+   screen the work advances along its route, an ink trace over the plan
+   drawn faint, the gold token at its head, each mark lit and staying lit
+   once passed, the pieces passed at once drawn in along the lane from
+   where Composition splits. Your lane stays still until "Ship"
+   lights at the end. The
+   trace eases toward the scroll, so a flick glides. With reduced motion,
+   or no script, the drawing stands whole. */
+
+import MessageSquareText from "@lucide/astro/icons/message-square-text";
+import Signature from "@lucide/astro/icons/signature";
+import Send from "@lucide/astro/icons/send";
+import MapIcon from "@lucide/astro/icons/map";
+import Blocks from "@lucide/astro/icons/blocks";
+import Check from "@lucide/astro/icons/check";
+import X from "@lucide/astro/icons/x";
+import RotateCcw from "@lucide/astro/icons/rotate-ccw";
+import ListChecks from "@lucide/astro/icons/list-checks";
+import Tag from "@lucide/astro/icons/tag";
+import User from "@lucide/astro/icons/user";
+import Factory from "@lucide/astro/icons/factory";
+
+/* The run turned to run down the page, for a phone or a tablet: the
+   same two lanes as columns, You on the left and the Factory on the
+   right, each headed by its pill over a dashed axis; the work's route in
+   gold through the hand-over, the refusal's branch and back to you. */
+const V = { you: 40, branch: 184, factory: 300 };
+const vNodes: { x: number; y: number; icon: any; label: string; side: "right" | "left"; gold?: boolean; fail?: boolean; strong?: boolean; aside?: boolean }[] = [
+  { x: V.you, y: 110, icon: MessageSquareText, label: "Answer", side: "right" },
+  { x: V.you, y: 180, icon: Signature, label: "Sign", side: "right", gold: true, strong: true },
+  { x: V.factory, y: 280, icon: MapIcon, label: "Mapping", side: "left" },
+  { x: V.factory, y: 350, icon: Blocks, label: "Scaffold", side: "left" },
+  { x: V.branch, y: 470, icon: X, label: "Refused", side: "left", fail: true },
+  { x: V.factory, y: 470, icon: Check, label: "Passed", side: "left", aside: true },
+  { x: V.branch, y: 540, icon: RotateCcw, label: "Tried again", side: "left" },
+  { x: V.branch, y: 610, icon: Check, label: "Passed", side: "left" },
+  { x: V.factory, y: 610, icon: Check, label: "Passed", side: "left", aside: true },
+  { x: V.factory, y: 720, icon: ListChecks, label: "Validation", side: "left" },
+  { x: V.factory, y: 790, icon: Tag, label: "Release", side: "left", gold: true, strong: true },
+  { x: V.you, y: 890, icon: Send, label: "Ship", side: "right" },
+];
+const vRoute = `M${V.you} 110 V180 C ${V.you} 235, ${V.factory} 215, ${V.factory} 270 V410 C ${V.factory} 440, ${V.branch} 425, ${V.branch} 460 V620 C ${V.branch} 655, ${V.factory} 640, ${V.factory} 675 V790 C ${V.factory} 850, ${V.you} 830, ${V.you} 890`;
+
+/* The stages named under the Factory's lane. */
+const stages: [number, string][] = [
+  [390, "Mapping"],
+  [480, "Scaffold"],
+  [560, "Composition"],
+  [960, "Validation"],
+  [1045, "Release"],
+];
+
+/* Each step a small raised tile carrying what it is: the signature and
+   the release edged in gold, the rest in the rule. */
+/* A refusal's edge is dashed: the verdict by form. */
+const nodes: { x: number; y: number; icon: any; gold?: boolean; aside?: boolean; tone?: "pass" | "fail" }[] = [
+  { x: 180, y: 70, icon: MessageSquareText },
+  { x: 270, y: 70, icon: Signature, gold: true },
+  { x: 1120, y: 70, icon: Send },
+  { x: 390, y: 210, icon: MapIcon },
+  { x: 480, y: 210, icon: Blocks },
+  { x: 651, y: 210, icon: Check, tone: "pass", aside: true },
+  { x: 821, y: 210, icon: Check, tone: "pass", aside: true },
+  { x: 651, y: 150, icon: X, tone: "fail" },
+  { x: 736, y: 150, icon: RotateCcw },
+  { x: 821, y: 150, icon: Check, tone: "pass" },
+  { x: 960, y: 210, icon: ListChecks },
+  { x: 1045, y: 210, icon: Tag, gold: true },
+];
+---
+
+<figure class="run-v mx-auto max-w-[360px] lg:hidden" aria-label="A piece of work over time. You answer and sign. The Factory maps, scaffolds and composes: one piece is refused, tried again and passes while the rest pass at once. It validates and releases, and you ship it.">
+  <svg viewBox="0 0 360 930" role="img" aria-hidden="true">
+    <defs><filter id="auv-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="7" /></filter></defs>
+    <!-- The lanes' heads and their dotted axes. -->
+    <g class="lane-name">
+      <rect x={V.you - 33} y="8" width="66" height="28" rx="14" />
+      <User x={V.you - 21} y="15" width="14" height="14" stroke-width="1.6" />
+      <text x={V.you - 1} y="26.5">You</text>
+      <rect x={V.factory - 59} y="8" width="118" height="28" rx="14" />
+      <Factory x={V.factory - 47} y="15" width="14" height="14" stroke-width="1.6" />
+      <text x={V.factory - 27} y="26.5">The Factory</text>
+    </g>
+    <path class="line quiet" d={`M${V.you} 36 V90`} />
+    <path class="line quiet" d={`M${V.factory} 36 V260`} />
+    <!-- Your lane, waiting; the pieces passed at once down the Factory's. -->
+    <path class="line quiet" d={`M${V.you} 200 V870`} />
+    <path class="line" d={`M${V.factory} 410 V675`} />
+    <text class="label" x={V.factory - 30} y="414" text-anchor="end">Composition</text>
+    <!-- The work's route, gold. -->
+    <path class="route-v" d={vRoute} />
+    <path class="route" data-route d={vRoute} />
+    <path class="route" data-aside d={`M${V.factory} 410 V675`} />
+    <circle class="token" r="4" cx={V.you} cy="110" opacity="0" data-token />
+    <circle class="token" r="4" cx={V.factory} cy="410" opacity="0" data-token-aside />
+    {vNodes.map((n) => (
+      <g class:list={["node", n.gold && "gold", n.fail && "fail"]} data-node data-at={`${n.x},${n.y}`} data-aside-node={n.aside ? "" : undefined}>
+        {n.gold && <rect class="halo" x={n.x - 15} y={n.y - 15} width="30" height="30" rx="7" filter="url(#auv-glow)" />}
+        <rect class="slab" x={n.x - 15} y={n.y - 12.5} width="30" height="30" rx="7" />
+        <rect class="ring" x={n.x - 15} y={n.y - 15} width="30" height="30" rx="7" />
+        <n.icon class="glyph" x={n.x - 7.5} y={n.y - 7.5} width="15" height="15" stroke-width="1.6" />
+        <text class:list={["label", n.strong && "strong"]} x={n.side === "right" ? n.x + 25 : n.x - 25} y={n.y + 4.5} text-anchor={n.side === "right" ? "start" : "end"}>{n.label}</text>
+      </g>
+    ))}
+  </svg>
+</figure>
+
+<figure class="autonomy hidden lg:block" aria-label="A piece of work over time. You answer the Factory's questions and sign. Then the Factory maps, scaffolds and composes item by item: one change is refused, tried again and passes, while the rest pass at once. It validates and releases, and you ship it.">
+  <div class="autonomy-scroll">
+    <svg viewBox="0 0 1200 268" role="img" aria-hidden="true">
+      <defs><filter id="au-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="7" /></filter></defs>
+      <!-- Each lane named in the map's pill, its icon before its name. -->
+      <g class="lane-name">
+        <rect x="0" y="56" width="66" height="28" rx="14" />
+        <User x="12" y="63" width="14" height="14" stroke-width="1.6" />
+        <text x="32" y="74.5">You</text>
+        <rect x="0" y="196" width="118" height="28" rx="14" />
+        <Factory x="12" y="203" width="14" height="14" stroke-width="1.6" />
+        <text x="32" y="214.5">The Factory</text>
+      </g>
+
+      <!-- Each pill's axis, dashed as your lane waits, out to where its lane begins. -->
+      <path class="line quiet" d="M66 70 H130" />
+      <path class="line quiet" d="M118 210 H340" />
+
+      <!-- Your lane: two answers, the signature, then nothing until the release. -->
+      <path class="line" d="M130 70 H290" />
+      <path class="line quiet" d="M300 70 H1090" />
+      <text class="label" x="180" y="40" text-anchor="middle">Answer</text>
+      <text class="label strong" x="270" y="40" text-anchor="middle">Sign</text>
+      <text class="label" x="1120" y="40" text-anchor="middle">Ship</text>
+
+      <!-- Handed over, and handed back. -->
+      <path class="line" d="M270 70 C 300 140, 300 210, 340 210" />
+      <path class="line" d="M1045 210 C 1085 210, 1080 70, 1120 70" />
+
+      <!-- The Factory's lane. -->
+      <path class="line" d="M340 210 H1045" />
+
+      <!-- Composition: one item refused, tried again, passed. -->
+      <path class="line" d="M560 210 C 590 210, 590 150, 620 150 H840 C 870 150, 870 210, 900 210" />
+      <text class="label" x="651" y="122" text-anchor="middle">Refused</text>
+      <text class="label" x="736" y="122" text-anchor="middle">Tried again</text>
+      <text class="label" x="821" y="122" text-anchor="middle">Passed</text>
+
+      <!-- And the rest, passed at once. -->
+      <text class="label" x="651" y="248" text-anchor="middle">Passed</text>
+      <text class="label" x="821" y="248" text-anchor="middle">Passed</text>
+
+      {stages.map(([x, name]) => (
+        <g>
+          <text class:list={["label", name === "Release" && "strong"]} x={x} y="248" text-anchor="middle">{name}</text>
+        </g>
+      ))}
+
+      <!-- The work travelling: its routes, unseen, and its two tokens,
+           under the badges, which cover the trace where it passes. -->
+      <path class="route" fill="none" stroke="none" data-route d="M180 70 H270 C 300 140, 300 210, 340 210 H560 C 590 210, 590 150, 620 150 H840 C 870 150, 870 210, 900 210 H1045 C 1085 210, 1080 70, 1120 70" />
+      <path class="route" fill="none" stroke="none" data-aside d="M560 210 H900" />
+      <circle class="token" r="4.5" cx="180" cy="70" opacity="0" data-token />
+      <circle class="token" r="4.5" cx="560" cy="210" opacity="0" data-token-aside />
+      {nodes.map((n) => (
+        <g class:list={["node", n.gold && "gold", n.tone]} data-node data-at={`${n.x},${n.y}`} data-aside-node={n.aside ? "" : undefined}>
+          {n.gold && <rect class="halo" x={n.x - 17} y={n.y - 17} width="34" height="34" rx="8" filter="url(#au-glow)" />}
+          <rect class="slab" x={n.x - 17} y={n.y - 14} width="34" height="34" rx="8" />
+          <rect class="ring" x={n.x - 17} y={n.y - 17} width="34" height="34" rx="8" />
+          <n.icon class="glyph" x={n.x - 9} y={n.y - 9} width="18" height="18" stroke-width="1.6" />
+        </g>
+      ))}
+
+    </svg>
+  </div>
+</figure>
+
+<style>
+  .autonomy-scroll {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .autonomy svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    font-family: var(--font-sans);
+  }
+  .lane-name rect {
+    fill: var(--color-ivory);
+    stroke: var(--color-rule);
+    stroke-width: 1;
+  }
+  .lane-name :global(svg) {
+    color: var(--color-graphite);
+  }
+  .lane-name text {
+    font-size: 13px;
+    font-weight: 500;
+    fill: var(--color-ink);
+  }
+  /* The run down the page: its route gold. */
+  .run-v svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    font-family: var(--font-sans);
+  }
+  .run-v .label { font-size: 13px; }
+  .route-v {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 1.75;
+  }
+  .clocked .route-v {
+    stroke: var(--color-graphite);
+    stroke-width: 1.25;
+    opacity: 0.35;
+  }
+  .line {
+    fill: none;
+    stroke: var(--color-graphite);
+    stroke-width: 1.25;
+  }
+  .line.quiet {
+    stroke-dasharray: 3 6;
+    opacity: 0.7;
+  }
+  /* A step is a tile, as the decisions' diagrams set them: a raised
+     dark top edged in the rule, a darker slab under it, its icon in
+     paper. The signature and the release are edged in gold, their icons
+     gold. A refusal's edge is dashed, so a verdict reads by form, never
+     by a colour outside the palette. */
+  .halo {
+    fill: var(--color-accent);
+    opacity: 0.35;
+  }
+  .slab {
+    fill: color-mix(in oklab, #000 55%, var(--color-ivory));
+  }
+  .ring {
+    fill: color-mix(in oklab, var(--color-ink) 9%, var(--color-ivory));
+    stroke: color-mix(in oklab, var(--color-ink) 22%, var(--color-ivory));
+    stroke-width: 1;
+  }
+  .glyph {
+    color: var(--color-ink);
+  }
+  .gold .ring {
+    stroke: var(--color-accent);
+    stroke-width: 1.5;
+  }
+  .gold .glyph {
+    color: var(--color-accent);
+  }
+  .fail .ring {
+    stroke: var(--color-graphite);
+    stroke-dasharray: 3 3;
+  }
+  .fail .glyph {
+    color: var(--color-graphite);
+  }
+  .label {
+    font-size: 14px;
+    fill: var(--color-graphite);
+  }
+  .label.strong {
+    fill: var(--color-ink);
+    font-weight: 500;
+  }
+  /* The work: the trace and the token are hidden until the script runs,
+     so a page without it, or with reduced motion, shows the drawing as
+     it stands. While it runs, the plan is drawn faint under the trace. */
+  .route {
+    fill: none;
+    stroke: none;
+  }
+  .clocked .route {
+    stroke: var(--color-accent);
+    stroke-width: 1.75;
+  }
+  .clocked .line {
+    opacity: 0.35;
+  }
+  .token {
+    fill: var(--color-accent);
+    filter: drop-shadow(0 0 4px var(--color-accent)) drop-shadow(0 0 9px color-mix(in oklab, var(--color-accent) 60%, transparent));
+    opacity: 0;
+    transition: opacity 200ms ease-out;
+  }
+  .token.on {
+    opacity: 1;
+  }
+  [data-node] :is(.ring, .glyph) {
+    transition: fill 300ms ease-out, stroke 300ms ease-out, color 300ms ease-out;
+  }
+  /* Before the trace reaches it, a step waits dimmed. */
+  .clocked .node:not(.gold):not(.lit) .ring {
+    stroke: var(--color-rule);
+  }
+  .clocked .node:not(.gold):not(.lit) .glyph {
+    color: color-mix(in oklab, var(--color-graphite) 70%, transparent);
+  }
+</style>
+
+<script>
+  import { onceVisible, whileVisible } from "../lib/motion";
+
+  /* The scroll is the clock: the figure's way up the screen, from its
+     top at 85% of the screen to its foot at 40%, is the run, eased toward
+     so a flick glides. Each mark lights once the trace has passed it, and
+     stays. It runs only while the figure is on screen and catching up.
+     Never with reduced motion: the drawing then stands whole. */
+  const clockFigure = (fig: HTMLElement) => {
+    const svg = fig.querySelector<SVGSVGElement>("svg")!;
+    const route = fig.querySelector<SVGPathElement>("[data-route]")!;
+    const aside = fig.querySelector<SVGPathElement>("[data-aside]")!;
+    const token = fig.querySelector<SVGCircleElement>("[data-token]")!;
+    const spare = fig.querySelector<SVGCircleElement>("[data-token-aside]")!;
+    const total = route.getTotalLength();
+    const asideLength = aside.getTotalLength();
+
+    /* Where along the route each point lies: the nearest of its samples. */
+    const samples: { l: number; x: number; y: number }[] = [];
+    for (let l = 0; l <= total; l += 2) {
+      const p = route.getPointAtLength(l);
+      samples.push({ l, x: p.x, y: p.y });
+    }
+    const along = (x: number, y: number) => samples.reduce((best, s) => (Math.hypot(s.x - x, s.y - y) < Math.hypot(best.x - x, best.y - y) ? s : best)).l;
+    const start = aside.getPointAtLength(0);
+    const split = along(start.x, start.y);
+    const nodes = [...fig.querySelectorAll<SVGGraphicsElement>("[data-node]")].map((el) => {
+      const [x, y] = (el.dataset.at ?? "0,0").split(",").map(Number) as [number, number];
+      const onAside = el.hasAttribute("data-aside-node");
+      return { el, onAside, at: onAside ? split + Math.hypot(x - start.x, y - start.y) : along(x, y) };
+    });
+
+    for (const path of [route, aside]) {
+      const l = path.getTotalLength();
+      path.style.strokeDasharray = `${l}`;
+      path.style.strokeDashoffset = `${l}`;
+    }
+    svg.classList.add("clocked");
+
+    const target = () => {
+      const r = fig.getBoundingClientRect();
+      const from = innerHeight * 0.85;
+      const to = innerHeight * 0.4 - r.height;
+      return Math.min(1, Math.max(0, (from - r.top) / (from - to)));
+    };
+    let shown = target();
+    const draw = (p: number) => {
+      const traced = p * total;
+      route.style.strokeDashoffset = `${total - traced}`;
+      const sided = Math.min(asideLength, Math.max(0, traced - split));
+      aside.style.strokeDashoffset = `${asideLength - sided}`;
+      const head = route.getPointAtLength(traced);
+      token.setAttribute("cx", String(head.x));
+      token.setAttribute("cy", String(head.y));
+      token.classList.toggle("on", p > 0.002 && p < 0.998);
+      const tip = aside.getPointAtLength(sided);
+      spare.setAttribute("cx", String(tip.x));
+      spare.setAttribute("cy", String(tip.y));
+      spare.classList.toggle("on", sided > 0 && sided < asideLength);
+      for (const n of nodes) n.el.classList.toggle("lit", (n.onAside ? split + sided : traced) >= n.at - 1);
+    };
+    const clock = whileVisible(fig, () => {
+      const goal = target();
+      shown += (goal - shown) * 0.12;
+      if (Math.abs(goal - shown) < 0.0005) shown = goal;
+      draw(shown);
+      return shown !== goal;
+    });
+    draw(shown);
+    addEventListener("scroll", clock.play, { passive: true });
+    addEventListener("resize", clock.play, { passive: true });
+  };
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
+    for (const fig of document.querySelectorAll<HTMLElement>(".autonomy, .run-v")) onceVisible(fig, () => clockFigure(fig), { rootMargin: "50% 0px" });
+</script>

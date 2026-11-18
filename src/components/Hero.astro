@@ -1,0 +1,43 @@
+---
+/* A page's hero, the same on every product page, in one column on the
+   page's edge: the headline in two lines, the second in gold, its words
+   under it, then the buttons. Whatever follows in the band, as the
+   Factory's demo, comes under them in `after`. On Ember, lit warm from
+   its corners, with the grain over it and the halftone growing toward
+   its foot; from a tablet up it runs under the masthead, as the
+   landing's sand does. */
+
+interface Props {
+  title: [string, string];
+  /* What follows runs wider than the page and starts closer under the
+     buttons, the figure being the hero, as the Factory's demo is. */
+  wide?: boolean;
+  /* Its name on the page's rail of sections. */
+  rail?: string;
+}
+const { title, wide = false, rail } = Astro.props;
+const after = Astro.slots.has("after");
+---
+
+<section id="top" data-rail-name={rail} class="theme-ember relative isolate overflow-hidden md:-mt-16 md:pt-16">
+  <div class="k-grain" aria-hidden="true"></div>
+  <div class="k-halftone" aria-hidden="true"></div>
+  <div class:list={["relative mx-auto w-full max-w-page px-4 pt-24 sm:px-6 md:pt-32", !after && "pb-20 md:pb-28"]}>
+    <div>
+      <h1 class="t-hero max-w-5xl">
+        {title[0]}
+        <br />
+        <span class="text-accent">{title[1]}</span>
+      </h1>
+      <p class="t-lede mt-8 max-w-2xl"><slot /></p>
+      <div class="mt-10 flex flex-wrap gap-3"><slot name="actions" /></div>
+    </div>
+  </div>
+  {
+    after && (
+      <div class:list={["relative mx-auto px-4 pb-16 sm:px-6 md:pb-20", wide ? "mt-12 max-w-[86rem] md:mt-14" : "mt-16 max-w-page md:mt-20"]}>
+        <slot name="after" />
+      </div>
+    )
+  }
+</section>

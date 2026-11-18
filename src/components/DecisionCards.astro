@@ -1,0 +1,334 @@
+---
+/* The Factory's design, as the decisions it is built on: a card each,
+   its top an isometric diagram of the decision (decisions-geometry.ts)
+   -- tiles over a gridded base, each with its icon laid on its top,
+   dashed links and gold on the tile the decision lands on, with no
+   label or pill: the icons and the drawing say it -- and the decision
+   under it, what it is
+   and what it gives you. Never rows. Every drawing is what hypha-haf's
+   docs say (server.md, journal.md, tools.md, gates.md, build.md,
+   models.md, vaults.md, connectors.md). On a phone the cards stack. */
+
+import Server from "@lucide/astro/icons/server";
+import Monitor from "@lucide/astro/icons/monitor";
+import SquareTerminal from "@lucide/astro/icons/square-terminal";
+import Plug from "@lucide/astro/icons/plug";
+import Check from "@lucide/astro/icons/check";
+import X from "@lucide/astro/icons/x";
+import Zap from "@lucide/astro/icons/zap";
+import RotateCcw from "@lucide/astro/icons/rotate-ccw";
+import FileCode from "@lucide/astro/icons/file-code";
+import Globe from "@lucide/astro/icons/globe";
+import KeyRound from "@lucide/astro/icons/key-round";
+import Ban from "@lucide/astro/icons/ban";
+import Factory from "@lucide/astro/icons/factory";
+import Sparkles from "@lucide/astro/icons/sparkles";
+import MessageSquareText from "@lucide/astro/icons/message-square-text";
+import Hammer from "@lucide/astro/icons/hammer";
+import Eye from "@lucide/astro/icons/eye";
+import GitCommit from "@lucide/astro/icons/git-commit-horizontal";
+import Tag from "@lucide/astro/icons/tag";
+import ListChecks from "@lucide/astro/icons/list-checks";
+import FolderGit from "@lucide/astro/icons/folder-git";
+import CircleDot from "@lucide/astro/icons/circle-dot";
+import Mail from "@lucide/astro/icons/mail";
+import Ticket from "@lucide/astro/icons/ticket";
+import { marks } from "../content/marks";
+import { WIDTH, HEIGHT, tileOf, iconMatrix, baseOf, gridOf, linkOf, pointOf, boundOf, byDepth, type Scene, type Tile, type IconName } from "./decisions-geometry";
+
+const icons: Partial<Record<IconName, any>> = {
+  server: Server, monitor: Monitor, terminal: SquareTerminal, plug: Plug, check: Check, x: X, zap: Zap, resume: RotateCcw,
+  code: FileCode, globe: Globe, key: KeyRound, ban: Ban, factory: Factory, sparkles: Sparkles, questions: MessageSquareText,
+  hammer: Hammer, eye: Eye, commit: GitCommit, tag: Tag, repo: FolderGit, gates: ListChecks, issue: CircleDot, mail: Mail, ticket: Ticket,
+};
+
+/* Links run on the base, along its grid lines: `on` lifts a path of
+   plan points to just over it. */
+const on = (...points: [number, number][]) => points.map(([x, y]) => [x, y, 0.5] as [number, number, number]);
+const line = (...points: [number, number][]) => { const p = on(...points); return { from: p[0]!, via: p.slice(1, -1), to: p[p.length - 1]! }; };
+
+const cards: { title: string; body: string; scene: Scene }[] = [
+  {
+    title: "A harness built for autonomy",
+    body: "A borrowed agent brings its own tools and its own idea of done. Here every tool keeps to the paths the plan gave each piece, and only the gates decide when the work is done.",
+    /* The loop that runs itself: HAF gives the model its piece, the
+       work meets the gates, a refusal goes back round the back of the
+       board, and a pass goes on to done; only the verdicts are named. */
+    scene: {
+      tiles: [
+        { at: [-32, 32, 3], icon: "factory", gold: true },
+        { at: [-32, -32, 3], icon: "sparkles" },
+        { at: [32, -32, 3], icon: "gates" },
+        { at: [32, 32, 3], icon: "check" },
+      ],
+      links: [
+        line([-32, 18], [-32, -18]),
+        line([-18, -32], [18, -32]),
+        line([32, -46], [32, -56], [-32, -56], [-32, -46]),
+        { ...line([32, -18], [32, 18]), gold: true, solid: true },
+      ],
+    },
+  },
+  {
+    title: "Isolated by default",
+    body: "No permission prompts to answer. Whatever a model runs stays in a Podman container of its own, away from your secrets and your machine.",
+    /* Every way out of a model's commands ends at the red plate's edge. */
+    scene: {
+      bound: { x: -24, y: -24, w: 48, d: 48 },
+      tiles: [
+        { at: [0, 0, 3], icon: "terminal", gold: true },
+        { at: [48, 0, 3], icon: "globe" },
+        { at: [0, 48, 3], icon: "key" },
+      ],
+      links: [line([14, 0], [24, 0]), line([0, 14], [0, 24])],
+    },
+  },
+  {
+    title: "Modular by design",
+    body: "Built to grow. Every part speaks MCP, so whatever comes next plugs straight in.",
+    /* Three clients on one line, MCP, into the one socket of the server. */
+    scene: {
+      tiles: [
+        { at: [-32, -16, 3], icon: "monitor" },
+        { at: [0, -16, 3], icon: "terminal" },
+        { at: [32, -16, 3], icon: "plug" },
+        { at: [0, 32, 3], icon: "server", gold: true },
+      ],
+      links: [
+        line([-32, -2], [-32, 16], [-14, 16]),
+        line([32, -2], [32, 16], [14, 16]),
+        line([0, -2], [0, 18]),
+      ],
+    },
+  },
+  {
+    title: "Your system as one whole",
+    body: "However many repositories it spans, a feature is built as one change, each part in the repository that owns it.",
+    /* One intent at the hub, a spoke to each repository it changes, on
+       all four sides so the board is whole. */
+    scene: {
+      tiles: [
+        { at: [0, 0, 3], icon: "questions", gold: true },
+        { at: [-48, 0, 3], icon: "github" },
+        { at: [0, -48, 3], icon: "github" },
+        { at: [48, 0, 3], icon: "github" },
+        { at: [0, 48, 3], icon: "github" },
+      ],
+      links: [line([-14, 0], [-34, 0]), line([0, -14], [0, -34]), line([14, 0], [34, 0]), line([0, 14], [0, 34])],
+    },
+  },
+  {
+    title: "Never a black box",
+    body: "Your team hears about the work in its own tools: a message when a person is needed, a report when a change lands, and a pull request to read it the familiar way, with nothing to approve.",
+    /* HAF at the back, the work reaching down to the team's tools. */
+    scene: {
+      tiles: [
+        { at: [0, -32, 3], icon: "factory", gold: true },
+        { at: [-32, 32, 3], icon: "github" },
+        { at: [0, 32, 3], icon: "slack" },
+        { at: [32, 32, 3], icon: "mail" },
+      ],
+      links: [
+        line([0, -18], [0, 18]),
+        line([0, 0], [-32, 0], [-32, 18]),
+        line([0, 0], [32, 0], [32, 18]),
+      ],
+    },
+  },
+];
+
+/* The whole factory on one board, every part the decisions draw alone
+   assembled round HAF: the model and the gates behind, a model's
+   commands on their red plate, your repositories and your team's tools
+   in front. Drawn alone, with no words, when `whole` is set. */
+const whole: Scene = {
+  bound: { x: -62, y: 34, w: 28, d: 28 },
+  tiles: [
+    { at: [0, 0, 3], icon: "factory", gold: true },
+    { at: [-48, -48, 3], icon: "sparkles" },
+    { at: [48, -48, 3], icon: "gates" },
+    { at: [-48, 0, 3], icon: "mail" },
+    { at: [48, 0, 3], icon: "slack" },
+    { at: [-48, 48, 3], icon: "terminal", size: 20 },
+    { at: [0, 48, 3], icon: "github" },
+  ],
+  links: [
+    line([-14, 0], [-34, 0]),
+    line([14, 0], [34, 0]),
+    line([0, 14], [0, 34]),
+    line([0, -14], [0, -48], [-34, -48]),
+    line([0, -48], [34, -48]),
+    line([-8, 14], [-8, 24], [-48, 24], [-48, 33]),
+  ],
+};
+
+interface Props {
+  whole?: boolean;
+}
+const list = Astro.props.whole ? [{ title: "", body: "", scene: whole }] : cards;
+
+/* What a scene draws, in order: what stands behind the tiles first. */
+const base = baseOf();
+const grid = gridOf();
+const draw = (s: Scene) => {
+  const focus = s.tiles.find((t) => t.gold)!;
+  return {
+    focus: pointOf(focus.at),
+    bound: s.bound ? boundOf(s.bound) : null,
+    tiles: byDepth(s.tiles).map((t: Tile) => ({ t, paths: tileOf(t) })),
+    links: s.links.map((l) => ({ l, d: linkOf(l) })),
+  };
+};
+---
+
+<ul class:list={["decisions", { whole: Astro.props.whole }]}>
+  {
+    list.map((c, i) => {
+      const d = draw(c.scene);
+      const n = Astro.props.whole ? 100 + i : i;
+      return (
+        <li class:list={["decision", { flip: Math.floor(i / 2) % 2 === 1, right: i % 2 === 1 }]} style={`--row:${Math.floor(i / 2) + 1};--one:${i + 1}`}>
+          <span class="mark" aria-hidden="true"></span>
+          <div class="stage" aria-hidden="true">
+            <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} class="dg">
+              <defs>
+                <filter id="dg-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7" /></filter>
+                <filter id="dg-soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.5" /></filter>
+                <radialGradient id={`dg-light-${n}`} gradientUnits="userSpaceOnUse" cx={d.focus[0]} cy={d.focus[1]} r="120">
+                  <stop offset="0" stop-color="var(--accent-on-night)" stop-opacity="0.22" />
+                  <stop offset="1" stop-color="var(--accent-on-night)" stop-opacity="0" />
+                </radialGradient>
+                <radialGradient id={`dg-fade-${n}`} gradientUnits="userSpaceOnUse" cx={d.focus[0]} cy={d.focus[1]} r="90">
+                  <stop offset="0" stop-color="#fff" stop-opacity="1" />
+                  <stop offset="1" stop-color="#fff" stop-opacity="0" />
+                </radialGradient>
+                <mask id={`dg-near-${n}`} maskUnits="userSpaceOnUse" x="0" y="0" width={WIDTH} height={HEIGHT}><rect width={WIDTH} height={HEIGHT} fill={`url(#dg-fade-${n})`} /></mask>
+              </defs>
+              <path class="base-side" d={base.fill} />
+              <path class="base-top" d={base.top} />
+              <path d={base.top} fill={`url(#dg-light-${n})`} />
+              <path class="grid" d={grid} />
+              <path class="grid grid-lit" d={grid} mask={`url(#dg-near-${n})`} />
+              <path class="edge" d={base.outline} />
+              {d.bound && <g class="bound"><path class="side" d={d.bound.fill} /><path class="top" d={d.bound.top} /><path class="edge" d={d.bound.outline} /></g>}
+              {d.links.map(({ l, d: dd }) => <path class:list={["link", { gold: l.gold, solid: l.solid }]} d={dd} />)}
+              {d.tiles.map(({ t, paths }) => (
+                <g class:list={["tile", { gold: t.gold }]}>
+                  {t.gold && <path class="glow" d={paths.top} filter="url(#dg-glow)" />}
+                  <path class="side" d={paths.fill} />
+                  <path class="top" d={paths.top} />
+                  <path class="edge" d={paths.outline} />
+                  <g class="icon" transform={iconMatrix(t)}>{marks[t.icon] ? <svg viewBox="0 0 24 24" width="20" height="20" x="2" y="2"><path d={marks[t.icon]} fill="currentColor" /></svg> : (() => { const I = icons[t.icon]; return <I size={24} stroke-width={2} />; })()}</g>
+                </g>
+              ))}
+            </svg>
+          </div>
+          {c.title && (
+            <div class="words">
+              <h3 class="t-h2">{c.title}</h3>
+              <p class="t-lede">{c.body}</p>
+            </div>
+          )}
+        </li>
+      );
+    })
+  }
+</ul>
+
+<style>
+  /* A chess grid on the section's own ground, no frame and no cells,
+     one rule across between decisions: each decision a drawing cell
+     and a words cell, two decisions a row, every other row starting
+     with its words, so drawings and words alternate both ways. One
+     decision a row on a tablet, alternating; on a phone, the drawing
+     over its words. No cell is filled. */
+  /* On a phone each decision stands its drawing over its words, ruled
+     from the next by the same hairline the chessboard draws, so a
+     drawing is never read with the words of the decision under it. */
+  /* Each decision opens on a mark: a hairline fading out at both ends,
+     a small gold registration cross at its middle, as the plate's
+     corners are marked. The first opens on one too, so the set stands
+     apart from the opener; the section's edge closes it. */
+  .decisions { display: grid; }
+  .decision:last-child .words { padding-bottom: 0; }
+  .mark {
+    display: block; position: relative; height: 1px; grid-column: 1 / -1;
+    background: linear-gradient(90deg, transparent, var(--color-rule) 20%, var(--color-rule) 80%, transparent);
+  }
+  .mark::before, .mark::after {
+    content: ""; position: absolute; left: 50%; top: 50%; background: var(--accent-on-night);
+    transform: translate(-50%, -50%);
+  }
+  .mark::before { width: 13px; height: 1.5px; }
+  .mark::after { width: 1.5px; height: 13px; }
+  .stage { padding: 2rem 0.75rem 0.25rem; display: grid; place-items: center; }
+  .words { padding: 0.5rem 0.25rem 2rem; display: flex; flex-direction: column; justify-content: center; }
+  /* From a tablet up: a decision a row, a large drawing beside its
+     words, the drawing on alternate sides, so the frame reads as a
+     chessboard of drawings and words. */
+  @media (width >= 48rem) {
+    .decisions { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 0; column-gap: 0; }
+    .mark { grid-row: calc(var(--one) * 2 - 1); }
+    .decision { display: contents; }
+    .stage, .words { padding-block: 2.5rem; }
+    /* The last decision ends on the section's own padding. */
+    .decision:last-child .stage, .decision:last-child .words { padding-bottom: 0; }
+    .stage, .words { grid-row: calc(var(--one) * 2); }
+    .stage { grid-column: 1; padding-inline: 0; } .words { grid-column: 2; padding-inline: 0; }
+    /* Flush with the page's content edges; the gutter between the halves
+       sits in the middle. */
+    .decision:not(.right) .stage, .right .words { padding-right: 2.5rem; }
+    .decision:not(.right) .words, .right .stage { padding-left: 2.5rem; }
+    .right .stage { grid-column: 2; } .right .words { grid-column: 1; }
+    .decision .words { margin-top: 0; }
+    .stage :global(svg) { max-width: 30rem; margin-inline: auto; }
+    .decision .words p { max-width: 28rem; }
+  }
+  /* The whole factory: one board, no mark, no chessboard. */
+  .decisions.whole { display: block; }
+  .whole .decision { display: block; }
+  .whole .mark { display: none; }
+  .whole .stage { padding: 0; border: 0; }
+  .whole .stage :global(svg) { max-width: none; }
+  .dg { display: block; width: 100%; height: auto; overflow: visible; }
+
+  /* The base: a plate of night, its grid barely there. */
+  .dg .base-side { fill: color-mix(in oklab, #000 30%, var(--color-ivory)); }
+  .dg .base-top { fill: color-mix(in oklab, var(--color-graphite) 7%, var(--color-ivory)); }
+  .dg .grid { fill: none; stroke: color-mix(in oklab, var(--color-graphite) 18%, transparent); stroke-width: 0.6; }
+  .dg .edge { fill: none; stroke: color-mix(in oklab, var(--color-graphite) 55%, transparent); stroke-width: 0.8; stroke-linejoin: round; }
+
+  /* A tile: its sides a step darker than its top; gold where it lands. */
+  .dg .side { fill: color-mix(in oklab, #000 25%, var(--color-ivory)); }
+  .dg .top { fill: color-mix(in oklab, var(--color-graphite) 14%, var(--color-ivory)); }
+  .dg .icon :global(svg) { color: color-mix(in oklab, var(--color-ink) 85%, transparent); overflow: visible; }
+  .dg .gold .top { fill: color-mix(in oklab, var(--accent-on-night) 14%, var(--color-ivory)); }
+  .dg .gold .edge { stroke: var(--accent-on-night); stroke-width: 1; }
+  .dg .gold .icon :global(svg) { color: var(--accent-on-night); }
+  .dg .glow { fill: var(--accent-on-night); opacity: 0.35; }
+  /* A boundary, a thin red plate under what it holds: what it stops
+     needs no word, and the links that reach it end at its edge. */
+  .dg .bound .top { fill: color-mix(in oklab, #d0574a 22%, var(--color-ivory)); }
+  .dg .bound .side { fill: color-mix(in oklab, #d0574a 40%, var(--night)); }
+  .dg .bound .edge { fill: none; stroke: #d0574a; stroke-width: 1.2; stroke-linejoin: round; }
+
+  .dg .grid-lit { stroke: color-mix(in oklab, var(--accent-on-night) 45%, transparent); }
+  .dg .shadow { fill: #000; opacity: 0.45; }
+
+  /* Links carry their dashes toward what they reach; the gold tile's
+     light breathes. Still under reduced motion. */
+  .dg .link { fill: none; stroke: color-mix(in oklab, var(--color-graphite) 80%, transparent); stroke-width: 1; stroke-dasharray: 2.5 3; stroke-linejoin: round; animation: dg-flow 1.4s linear infinite; }
+  .dg .link.solid { stroke-dasharray: none; animation: none; }
+  .dg .link.gold { stroke: var(--accent-on-night); stroke-width: 1.3; }
+  .dg .glow { animation: dg-breathe 3.2s ease-in-out infinite; }
+  @keyframes dg-flow { to { stroke-dashoffset: -11; } }
+  @keyframes dg-breathe { 0%, 100% { opacity: 0.28; } 50% { opacity: 0.55; } }
+  @media (prefers-reduced-motion: reduce) { .dg .link, .dg .glow { animation: none; } }
+
+
+  .words { margin-top: 0.25rem; }
+  /* A decision's words in the page's own roles: the title a step's
+     claim takes, and the lede. */
+  .words h3 { color: var(--color-ink); }
+  .words p { margin-top: 0.75rem; }
+</style>

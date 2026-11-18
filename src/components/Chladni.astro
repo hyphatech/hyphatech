@@ -5,7 +5,7 @@
    A plate in a mode shakes its grains where it moves; they wander until
    they rest on its nodal lines. The simulation does only that.
 
-   Sand under the words is kept faint. Without JavaScript the band is its
+   Sand keeps off the letters themselves. Without JavaScript the band is its
    ground; with reduced motion one settled frame is held. */
 ---
 
@@ -29,16 +29,15 @@
   /* Modes in play order: [n, m, sign], n and m half-waves across the
      plate, the two standing waves added (1) or cancelled (-1). Both odd
      or both even, so each figure is centre-symmetric. Kept low so a
-     figure never becomes a lattice on a large band. */
+     figure never becomes a lattice on a large band. Left out: (2, 6),
+     whose frame the band cuts at its head and foot, and anything finer
+     than (4, 8), where the sand clumps instead of drawing lines. */
   const MODES: [number, number, 1 | -1][] = [
     [0, 2, -1],
     [2, 4, 1],
     [3, 5, 1],
-    [2, 6, 1],
     [4, 6, 1],
     [4, 8, 1],
-    [6, 8, 1],
-    [7, 9, 1],
   ];
 
   /* Seconds each mode is held, and over which the shaking eases from
@@ -164,6 +163,6 @@
 
   for (const host of document.querySelectorAll<HTMLElement>("[data-chladni]")) {
     const sand = new Sand(tone("--color-ink"), GRAIN, CURVE);
-    stage(host, chladni(sand), { underWords: 0.08, feather: 28, head: 90, foot: 160 });
+    stage(host, chladni(sand), { underWords: 0.08, feather: 14, head: 90, foot: 160 });
   }
 </script>

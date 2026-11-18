@@ -5,17 +5,6 @@
 
 export type Snippet = { caption: string; lang: string; code: string };
 
-/* A benchmark's headline: per scenario, the rate each rival reaches,
-   copied from a run's summary.md, and a note of whose run it was. The
-   component's own row is the one named as it is, or as it is with how
-   it ran in brackets after: "postgres-eio (pipelined)". Scenarios in
-   one unit share a scale; in different units, each has its own. */
-export type Bench = {
-  note: string;
-  scale?: "shared" | "each";
-  scenarios: { name: string; rates: { server: string; rate: number }[] }[];
-};
-
 export type Component = {
   slug: string;
   name: string;
@@ -30,27 +19,27 @@ export type Component = {
   dune: string;
   entries: string[];
   snippets: Snippet[];
-  bench?: Bench;
 };
 
 export const repoUrl = (c: Component) => `https://github.com/hyphatech/${c.repo}`;
-export const releaseUrl = (c: Component) => `${repoUrl(c)}/releases/tag/${c.version}`;
 
 const opam = (packages: string[]) =>
-  ["opam repo add hypha https://github.com/hyphatech/opam-repository.git", `opam install ${packages.join(" ")}`].join("\n");
+  ["opam repo add open-opam https://github.com/open-opam/opam-repository.git", `opam install ${packages.join(" ")}`].join("\n");
 export const install = (c: Component) => opam(c.packages);
+/* Its first package's page in open-opam's catalogue. */
+export const opamUrl = (c: Component) => `https://open-opam.org/packages/${c.packages[0]}/`;
 
 export const components: Component[] = [
   {
     slug: "spindle",
-    version: "0.9.0",
+    version: "0.15.0",
     name: "Spindle",
     repo: "spindle",
-    tagline: "The Eio-native web framework for modern OCaml.",
+    tagline: "The web framework for modern OCaml.",
     about: [
-      "Build typed APIs and web applications, simple to start and ready for production. Handlers are straight-line OCaml, and JSON is derived from your types and validated on the way in, with every mistake reported at once.",
-      "Your routes give you interactive OpenAPI docs, served by Scalar. Your types become your front end's schemas, Zod included, so a changed type changes both ends.",
-      "Multicore by design. Every HTTP requirement it meets is backed by a test, with secure defaults, bounded waits and clean shutdowns. Postgres, WebSockets, live updates, sessions, logging, traces and metrics are included.",
+      "Build typed APIs and web applications, fast and ergonomic. Handlers are straight-line OCaml on Eio, multicore by design, and JSON is derived from your types with every input validated.",
+      "Your routes give you interactive OpenAPI docs, served by Scalar. Your types become your front end's schemas, Zod or Melange, so a changed type changes both ends.",
+      "RFC-strict, on its own HTTP/1.1 engine: every requirement it meets is a test, for HTTP, WebSockets, forms and Structured Fields. SQLite and Postgres, WebSockets, server-sent events, sessions, logging, traces and metrics are included.",
     ],
     docs: "https://hyphatech.github.io/spindle/",
     packages: ["spindle"],
@@ -99,39 +88,16 @@ let () =
 {"each":33}`,
       },
     ],
-    bench: {
-      note: "Sustained RPS on one core, request log on. Apple M4 Pro, Spindle 0.6.0, median of three runs.",
-      scenarios: [
-        {
-          name: "Plaintext",
-          rates: [
-            { server: "Spindle", rate: 78_800 },
-            { server: "Dream", rate: 51_800 },
-            { server: "NestJS", rate: 42_500 },
-            { server: "FastAPI", rate: 16_500 },
-          ],
-        },
-        {
-          name: "JSON",
-          rates: [
-            { server: "Spindle", rate: 61_200 },
-            { server: "Dream", rate: 46_800 },
-            { server: "NestJS", rate: 32_500 },
-            { server: "FastAPI", rate: 13_500 },
-          ],
-        },
-      ],
-    },
   },
   {
     slug: "wiretype",
-    version: "0.6.0",
+    version: "0.7.0",
     name: "Wiretype",
     repo: "wiretype",
-    tagline: "JSON contracts for OCaml.",
+    tagline: "JSON contracts for modern OCaml.",
     about: [
-      "Define your JSON once and share it across your backend, front end and AI agents. The contract is derived from your OCaml type, with its bounds and docs.",
-      "Invalid input is rejected with every mistake reported at once, each with its path and a code a client can act on. The same contract prints as JSON Schema and as Zod, so every side reads the same rules.",
+      "Define your JSON once and share it across your backend, front end and AI agents. Your records, variants and recursive types are the contract, their bounds and docs included.",
+      "Invalid input is refused with every mistake at once, each at its path with a code a client can act on. One walk prints JSON Schema, Zod and a Melange module, held to the server's verdict on every test run, so a form finds what is wrong before it sends.",
     ],
     docs: "https://hyphatech.github.io/wiretype/",
     packages: ["wiretype", "ppx_wiretype"],
@@ -142,20 +108,15 @@ let () =
       {
         caption: "A type, its bounds and its docs, derived as one description.",
         lang: "ocaml",
-        code: `module J = Wiretype
-
-(** A line of an order. *)
-type line = {
+        code: `type line = {
   sku : string;
   quantity : int; [@min 1] [@max 99]  (** how many *)
   note : string option; [@max_length 200]
-} [@@deriving wiretype]
+}
+[@@deriving wiretype]
+(** A line of an order. *)
 
-let () =
-  match J.decode line_json {|{"sku": "A1", "quantity": 120, "note": 7}|} with
-  | Ok _ -> ()
-  | Error problems ->
-      List.iter (fun p -> print_endline (J.Problem.to_string p)) problems`,
+Wiretype.decode line_json {|{"sku": "A1", "quantity": 120, "note": 7}|}`,
       },
       {
         caption: "Every problem in one pass, each with its path and a code a client branches on.",
@@ -179,13 +140,13 @@ export type Line = z.infer<typeof LineSchema>;`,
   },
   {
     slug: "rowtype",
-    version: "0.8.1",
+    version: "0.10.2",
     name: "Rowtype",
     repo: "rowtype",
-    tagline: "Typed Postgres queries and migrations for OCaml 5.",
+    tagline: "SQL queries and migrations for modern OCaml.",
     about: [
-      "Write your queries in plain SQL and run them typed. Every query is checked against your database's schema before you deploy, so your app never sends one that no longer matches it.",
-      "Runs on postgres-eio, a native driver with TLS, pooling and failover.",
+      "Write your queries in plain SQL, with no ORM, no query DSL and no ppx, and run them typed. Every statement is described by your database from a test, without running it, so a renamed column fails a test instead of a request.",
+      "The same statements run on Postgres and SQLite. Migrations come in the box as plain SQL files and one command, a library's own included. A refused write names its constraint and a lost write is told from one never sent, and rows of any size are read in the memory of one, with loads through COPY.",
     ],
     docs: "https://hyphatech.github.io/rowtype/",
     packages: ["rowtype", "rowtype-postgres", "rowtype-migrate"],
@@ -226,12 +187,13 @@ Pg.run db find_user id`,
   },
   {
     slug: "postgres-eio",
-    version: "0.5.1",
+    version: "0.5.2",
     name: "postgres-eio",
     repo: "postgres-eio",
-    tagline: "A native Postgres driver for OCaml 5 and Eio.",
+    tagline: "The Postgres driver for modern OCaml.",
     about: [
-      "Feature-complete: TLS with SCRAM and client certificates, a connection pool, failover and load balancing across hosts, streamed COPY, and LISTEN/NOTIFY that reconnects by itself. Errors and logs never contain your parameters or passwords.",
+      "Fast, secure and feature-complete. TLS, SCRAM-SHA-256 with channel binding and client certificates, and a connection that crosses a network is encrypted unless its string says otherwise. One pool serves every domain, across several hosts, with failover and load balancing.",
+      "Statement caching, pipelining and batches keep work to one round trip. COPY streams in and out, rows are folded as they arrive, and LISTEN/NOTIFY reconnects by itself. Every failure says whether the statement may have run, so a retry is never blind.",
     ],
     docs: "https://hyphatech.github.io/postgres-eio/",
     packages: ["postgres-eio"],
@@ -255,86 +217,58 @@ Pg.run db find_user id`,
 host=db user=app sslmode=require`,
       },
     ],
-    bench: {
-      note: "Operations per second on one connection, Postgres 18.6 in Docker on an Apple M4 Pro, postgres-eio 0.5.1, median of three runs. A query is one round trip, rows are read 100,000 a query, and postgres-eio pipelines its 1,000 inserts into one round trip, which libpq and postgres_async cannot. libpq, in C, spends about a third of the CPU a query.",
-      scale: "each",
-      scenarios: [
-        {
-          name: "Queries",
-          rates: [
-            { server: "libpq", rate: 4_090 },
-            { server: "postgres-eio", rate: 3_510 },
-            { server: "postgres_async", rate: 2_040 },
-          ],
-        },
-        {
-          name: "Rows read",
-          rates: [
-            { server: "postgres-eio", rate: 7_190_000 },
-            { server: "postgres_async", rate: 6_910_000 },
-            { server: "libpq", rate: 5_600_000 },
-          ],
-        },
-        {
-          name: "Inserts",
-          rates: [
-            { server: "postgres-eio (pipelined)", rate: 396_900 },
-            { server: "libpq", rate: 3_970 },
-            { server: "postgres_async", rate: 1_840 },
-          ],
-        },
-      ],
-    },
   },
   {
     slug: "spool",
-    version: "0.4.0",
+    version: "0.7.0",
     name: "Spool",
     repo: "spool",
-    tagline: "A durable job queue in your own Postgres, for OCaml 5 and Eio.",
+    tagline: "Durable jobs for modern OCaml, backed by Postgres.",
     about: [
-      "Fewer moving parts: jobs live in the database you already run, commit or roll back with your own changes, and are backed up with your data. Anything from a quick email to long-running work, scheduled, prioritised and retried with backoff.",
+      "Jobs live in the database you already run. A job is a row written with the work that made it owed, so a rollback leaves no job, and several processes share one queue with claims that never wait on each other, under leases a heartbeat renews.",
+      "Retried with backoff or after what an upstream said, scheduled, prioritised and recurring, and a second request for the same job folds into the one already waiting. A job may wait for others, and a queue's limits hold across every runner. Tests never sleep: one call runs every job due at the test's own clock.",
+      "A live dashboard comes as routes of your own Spindle server, open to whom you say and for what: watch the queue, retry, cancel or delete a job, pause a queue and set its limits.",
     ],
     docs: "https://hyphatech.github.io/spool/",
-    packages: ["spool"],
+    packages: ["spool", "rowtype-migrate"],
     dune: "(libraries spool rowtype-postgres eio_main)",
     entries: ["spool"],
     snippets: [
       {
-        caption: "A kind: its name, its payload's Wiretype description and its queue. Enqueued in the caller's transaction.",
+        caption: "A kind, enqueued with the order it is owed for: a rollback leaves neither.",
         lang: "ocaml",
-        code: `let receipt =
-  Spool.Kind.make ~queue:"mail" ~timeout:Mtime.Span.min "receipt.send"
-    order
+        code: `let receipt = Spool.Kind.make ~queue:"mail" "receipt.send" order
 
-(* in the caller's transaction, through its own connection *)
-Spool.enqueue conn ~now ~unique:order_id receipt order_id`,
+let take_order conn ~now email =
+  Pg.Transaction.within conn @@ fun conn ->
+  let* order = Pg.run conn insert_order email in
+  Spool.enqueue conn ~now ~unique:(string_of_int order) receipt order`,
       },
       {
-        caption: "A runner, with two workers on the mail queue.",
+        caption: "A runner, two workers on the mail queue.",
         lang: "ocaml",
-        code: `let runner =
-  Spool.Runner.create ~sw ~net ~mono_clock ~now
+        code: `let runner ~sw env conninfo =
+  Spool.Runner.create ~sw ~net:(Eio.Stdenv.net env)
+    ~mono_clock:(Eio.Stdenv.mono_clock env)
+    ~now:Ptime_clock.now
     ~queues:[ ("mail", 2) ]
-    [ Spool.handle receipt (fun _job order_id -> send_receipt order_id) ]
-    conninfo
-in
-Spool.Runner.start runner`,
+    [ Spool.handle receipt (fun _job order -> send_receipt order) ]
+    conninfo`,
       },
     ],
   },
   {
     slug: "solidtype",
-    version: "0.1.0",
+    version: "0.11.1",
     name: "Solidtype",
     repo: "solidtype",
-    tagline: "Typed OCaml front ends on SolidJS and Kobalte.",
+    tagline: "SolidJS for modern OCaml.",
     about: [
-      "Write your components in OCaml's JSX, and the browser gets the same code Solid's own compiler emits. A reactive read in the wrong place does not compile, and neither does a prop left out, an attribute an element does not take, or a missed case.",
-      "[Solid](https://www.solidjs.com) and [Kobalte](https://kobalte.dev) are bound whole, server rendering included, with every element's attributes typed from Solid's own JSX types.",
+      "Write your components in OCaml's JSX, and the browser gets the same code Solid's own compiler emits. Fast, accessible and reactivity-safe: a reactive read in the wrong place does not compile, and neither does a prop left out or an attribute an element does not take.",
+      "[Solid](https://www.solidjs.com) is bound whole, with [Kobalte](https://kobalte.dev), [HeroUI](https://www.heroui.com), Gravity UI's icons, rhp's charts and @internationalized/date's dates included.",
     ],
     docs: "https://hyphatech.github.io/solidtype/",
-    packages: ["solidtype", "ppx_solidtype", "mlx"],
+    packages: ["solidtype"],
     dune: `(library
  (name app)
  (modes melange)
@@ -351,7 +285,7 @@ module Solid = Solidtype.Solid
 let make () =
   let count, set_count = Solid.create_signal 0 in
   <button type_=\`button on_click=(fun _ -> Solid.update set_count succ)>
-    "Clicked " (fun () -> Jsx.int (Solid.get count))
+    "Clicked " (Jsx.int (Solid.get count))
   </button>`,
       },
       {
@@ -367,5 +301,3 @@ export default defineConfig({ plugins: [solidtype(), solid()] });`,
   },
 ];
 
-/* The page that provides an ontology entry, if one does. */
-export const byEntry = (entry: string) => components.find((c) => c.entries.includes(entry));

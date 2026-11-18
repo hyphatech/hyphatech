@@ -1,19 +1,20 @@
 ---
-/* A page section; `ground` adds the dotted background. */
-
-import Ground from "./Ground.astro";
+/* A page section: its ground is its class; `grain` lays Ember's grain
+   under what it holds. */
 
 interface Props {
   id?: string;
   class?: string;
-  ground?: boolean;
+  grain?: boolean;
+  /* Its name on the page's rail of sections. */
+  rail?: string;
 }
-const { id, class: className, ground = false } = Astro.props;
+const { id, class: className, grain = false, rail } = Astro.props;
 ---
 
-<section id={id} class:list={["scroll-mt-8 border-t border-rule", ground && "relative overflow-hidden", className]}>
-  {ground && <Ground />}
-  <div class:list={["mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20", ground && "relative"]}>
+<section id={id} data-rail-name={rail} class:list={["scroll-mt-8 border-t border-rule", { "relative": grain }, className]}>
+  {grain && <div class="k-grain" aria-hidden="true"></div>}
+  <div class:list={["mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20", { "relative": grain }]}>
     <slot />
   </div>
 </section>

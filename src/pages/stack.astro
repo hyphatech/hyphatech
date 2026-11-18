@@ -1,25 +1,41 @@
 ---
 import Base from "../layouts/Base.astro";
-import TitleBand from "../components/TitleBand.astro";
+import Hero from "../components/Hero.astro";
 import Section from "../components/Section.astro";
 import Opener from "../components/Opener.astro";
 import Closing from "../components/Closing.astro";
-import Graph from "../components/Graph.astro";
 import Arrow from "../components/Arrow.astro";
+import Icon from "../components/Icon.astro";
+import Globe from "@lucide/astro/icons/globe";
+import Braces from "@lucide/astro/icons/braces";
+import Database from "@lucide/astro/icons/database";
+import Activity from "@lucide/astro/icons/activity";
+import KeyRound from "@lucide/astro/icons/key-round";
+import ListTodo from "@lucide/astro/icons/list-todo";
+import AppWindow from "@lucide/astro/icons/app-window";
+import ChartColumn from "@lucide/astro/icons/chart-column";
+import Webhook from "@lucide/astro/icons/webhook";
+import ArrowDown from "@lucide/astro/icons/arrow-down";
+import CodeXml from "@lucide/astro/icons/code-xml";
+import Shapes from "@lucide/astro/icons/shapes";
+import Lock from "@lucide/astro/icons/lock";
+import ScanText from "@lucide/astro/icons/scan-text";
+import FileCode from "@lucide/astro/icons/file-code";
 
-/* The only page that says how; the landing says why.
+/* Hypha Stack, the open half of Hypha: what anyone can read and build
+   on. The ontology and the practices are the factory's, and on its
+   page.
 
-   title         the name alone on the map's dotted ground
+   top           what it is in two lines, its name in the lede, the
+                 ways in
    components    capabilities, each with the libraries that provide it
-   ontology      the map of what an application is built from
-   language      OCaml, the outermost boundary, not the thing sold
-   practices     the rules every repository keeps
-   next          the ways in
+   ocaml         OCaml, the outermost boundary, not the thing sold
+   build         the ways in
 
    Claim only what the repositories bear out; where a thing holds only
    once turned on, say so. No promises, dates, roadmap or private links. */
 
-const page = (slug: string) => `/stack/${slug}`;
+const page = (slug: string) => `/stack/${slug}/`;
 
 /* The map's capabilities that open code provides; a library may serve
    several, and each has its own page. The map links its concepts to
@@ -28,42 +44,49 @@ const spindle = { name: "Spindle", href: page("spindle") };
 const capabilities = [
   {
     id: "http",
+    icon: Globe,
     name: "HTTP and APIs",
     is: "An RFC-strict web framework, typed end to end, fast and multi-core by design. OpenAPI docs via Scalar.",
     by: [spindle],
   },
   {
     id: "contracts",
+    icon: Braces,
     name: "Data contracts",
     is: "Unified JSON contracts, strict by the standard, for backend, frontend and agents. Printed as JSON Schema and Zod.",
     by: [{ name: "Wiretype", href: page("wiretype") }, spindle],
   },
   {
     id: "data",
+    icon: Database,
     name: "Data and persistence",
     is: "Typed Postgres queries, checked against the database schema. Migrations built in, on a native driver with TLS, pooling and failover.",
     by: [{ name: "Rowtype", href: page("rowtype") }, spindle, { name: "Postgres driver", href: page("postgres-eio") }],
   },
   {
     id: "observe",
+    icon: Activity,
     name: "Observability",
     is: "OpenTelemetry-compatible logs, traces and metrics, from the first request into every query. Health checks for any orchestrator, and no secret ever logged.",
     by: [spindle],
   },
   {
     id: "identity",
+    icon: KeyRound,
     name: "Identity and access",
     is: "Sessions, CSRF and CORS, secure by default. Standard credentials and per-route rate limits.",
     by: [spindle],
   },
   {
     id: "messaging",
+    icon: ListTodo,
     name: "Jobs",
     is: "A durable job queue in your own Postgres that scales. Scheduled, prioritised and resilient.",
     by: [{ name: "Spool", href: page("spool") }],
   },
   {
     id: "ui",
+    icon: AppWindow,
     name: "Front end",
     is: "Reactive front ends on SolidJS, with accessible components. Same language and shared types, from the browser to the database.",
     by: [{ name: "Solidtype", href: page("solidtype") }],
@@ -72,62 +95,27 @@ const capabilities = [
 
 /* Work in progress, filling the grid's last row. */
 const coming = [
-  { name: "Analytics", is: "Typed dataframes and an embedded OLAP engine." },
-  { name: "Integrations", is: "Webhooks, notifications and SDKs for third-party services." },
+  { name: "Analytics", icon: ChartColumn, is: "Typed dataframes and an embedded OLAP engine." },
+  { name: "Integrations", icon: Webhook, is: "Webhooks, notifications and SDKs for third-party services." },
 ];
 
-const practices = [
-  {
-    title: "A single source of truth",
-    body: "The rules, the practices and the ontology live in a shared Vault. Nothing is copied, so nothing drifts, and code by a person or an agent reads as if one hand wrote it.",
-  },
-  {
-    title: "An architecture that scales",
-    body: "Carefully crafted from years of building complex systems, it brings the best ideas of enterprise software into one solid design that grows with the product.",
-  },
-  {
-    title: "Decided before it is built",
-    body: "Agents question a request until nothing is left to guess, and the work is written as requirements with scenarios, signed before any code.",
-  },
-  {
-    title: "A spec that stays true",
-    body: "What the application is gets written again from what was built, at every landing, so it never falls behind the code.",
-  },
-  {
-    title: "A harness that knows the code",
-    body: "Agents read each module's contract, see every error the compiler raises, and search the code, reading what it means from its types rather than guessing from its text.",
-  },
-  {
-    title: "Computed, not guessed",
-    body: "What can be worked out is worked out: generated, parsed, validated, compiled. A model is asked only where judgement is needed.",
-  },
-];
 
 /* OCaml's properties, each as what the stack uses it for. */
 const ocaml = [
   {
+    icon: Shapes,
     title: "Types that model the domain",
     body: "Variants and records name each state, pattern matching handles each one, and the compiler warns of a case left out.",
   },
   {
+    icon: Lock,
     title: "Boundaries in the language",
     body: "Module signatures and abstract types say what a component exposes, and the compiler holds every caller to it.",
   },
   {
+    icon: ScanText,
     title: "Code that reads as its model",
     body: "Concise, with types inferred, keeping intent and failure cases in plain sight.",
-  },
-  {
-    title: "Feedback while the work is fresh",
-    body: "Builds and tests stay quick enough for the compiler to answer inside the loop an agent works in.",
-  },
-  {
-    title: "Native and managed",
-    body: "Compiled to native code, with a garbage collector and a simple runtime.",
-  },
-  {
-    title: "Effects for I/O",
-    body: "Concurrency without async and await: code reads in order, and every task is bound to the work that started it.",
   },
 ];
 
@@ -138,30 +126,35 @@ const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", 
 
 <Base
   title="Hypha Stack · Hypha"
-  description="Hypha Stack: the missing foundation for agentic engineering. Components, tools, practices and an ontology, built to fit together."
+  description="Hypha Stack: open components made to fit together, in a language that makes their contracts binding."
 >
-  {/* The name alone, as Principles opens, on the ontology map's dotted
-      ground: the landing has already said what it is. */}
-  <TitleBand title="Hypha Stack" />
+  {/* The hero every product page has. */}
+  <Hero slot="band" rail="Components" title={["Components made", "to fit together."]}>
+    Designed from the ground up to build software that lasts.
+    <Fragment slot="actions">
+      <a href="#components" class="btn-primary"><Icon icon={ArrowDown} />See the components</a>
+      <a href="https://github.com/hyphatech" class="btn"><Icon icon={CodeXml} />GitHub</a>
+    </Fragment>
+  </Hero>
 
-  {/* A card per capability; library names come second, as they mean
-      nothing unopened. The dashed last row, labelled WIP, names no date. A hovered
-      card lights its concepts in the map. */}
-  <Section id="components" class="theme-light">
-    <div class="md:ml-margin">
-      <Opener title="Components made to fit together.">
-        Designed from the ground up to build software that matters.
-      </Opener>
-    </div>
-    <ul class="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+  {/* A cell per capability in one ruled grid, its icon bare; library
+      names come second, as links, since they mean nothing unopened. The
+      last row's cells, tagged WIP, name no date. */}
+  <Section id="components" rail="Everything a product needs" class="theme-light">
+    <Opener title="Everything a product needs, built once.">
+      Each capability is made one way, tested together, and shared by
+      every product built on the Stack.
+    </Opener>
+    <ul class="mt-12 grid gap-px overflow-hidden rounded-panel border border-rule bg-rule md:grid-cols-2 lg:grid-cols-3">
       {
         capabilities.map((c) => (
-          <li id={`cap-${c.id}`} data-part={c.id} class="invert-hover flex scroll-mt-24 flex-col rounded-panel border border-rule p-7">
-            <h3 class="t-h2">{c.name}</h3>
-            <p class="mt-4 grow leading-relaxed text-graphite">{c.is}</p>
-            <p class="mt-6 flex flex-wrap gap-2">
+          <li id={`cap-${c.id}`} data-part={c.id} class="flex scroll-mt-24 flex-col bg-ivory p-7">
+            <Icon icon={c.icon} size="lg" />
+            <h3 class="t-h3 mt-5">{c.name}</h3>
+            <p class="mt-2 grow leading-relaxed text-graphite">{c.is}</p>
+            <p class="mt-6 flex flex-wrap gap-x-5 gap-y-2">
               {c.by.map((b) => (
-                <a href={b.href} class="t-label group inline-flex items-center gap-1 rounded-full border border-transparent bg-ink py-1 pr-2 pl-3 text-ivory transition-opacity hover:opacity-85 pointer-coarse:min-h-11">
+                <a href={b.href} class="link group inline-flex items-center gap-1 pointer-coarse:min-h-11">
                   {b.name}
                   <Arrow way="on" class="size-3.5" />
                 </a>
@@ -172,57 +165,61 @@ const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", 
       }
       {
         coming.map((c) => (
-          <li class="flex flex-col rounded-panel border border-dashed border-rule p-7">
-            <h3 class="t-h2 text-graphite">{c.name}</h3>
-            <p class="mt-4 grow leading-relaxed text-graphite">{c.is}</p>
-            <p class="t-label mt-6 self-start rounded-full border border-rule px-3 py-1 text-graphite">WIP</p>
+          <li class="flex flex-col bg-ivory p-7">
+            <Icon class="text-graphite" icon={c.icon} size="lg" />
+            <h3 class="t-h3 mt-5 text-graphite">{c.name}</h3>
+            <p class="mt-2 grow leading-relaxed text-graphite">{c.is}</p>
+            <p class="mt-6"><span class="k-tag ml-0">WIP</span></p>
           </li>
         ))
       }
     </ul>
   </Section>
 
-  {/* No legend: a hovered concept says what it is and what provides
-      it. */}
-  <Section id="ontology" class="overflow-x-clip">
-    <div class="md:ml-margin">
-      <Opener id="ontology-title" title="The Ontology.">
-        An explicit model of what an application is built from: its concepts,
-        what each one means, and how they relate. People and agents work
-        from the same definitions. No one has to guess what a word
-        means.
-      </Opener>
-    </div>
-    <div class="mt-6 md:mt-8">
-      <Graph labelledby="ontology-title" />
-    </div>
-  </Section>
-
-  {/* The need, the properties that meet it, then OCaml's users,
-      labelled as OCaml's. No rules between properties. */}
-  <Section id="ocaml">
-    <div class="md:ml-margin">
-      <Opener title={["What the language cannot say,", "the system cannot get wrong."]}>
-        <a href="https://ocaml.org" class="link-inline group text-ink">OCaml<Arrow way="out" class="ml-0.5 inline size-[0.8em] align-[-0.05em]" /></a> meets every need at once, and
-        the stack is built within its limits. It makes contracts and
-        failure cases explicit, but it does not make an application correct on
-        its own.
-      </Opener>
-      <dl class="mt-12 grid gap-x-10 gap-y-9 md:grid-cols-2 lg:grid-cols-3">
+  {/* The need, then what the language states as three points beside
+      the compiler catching a case left out, and OCaml's users, labelled
+      as OCaml's. The code is an example, not taken from a product. */}
+  <Section id="ocaml" rail="What the language cannot say" class="k-lit">
+    <Opener title={["What the language cannot say,", "the system cannot get wrong."]}>
+      <a href="https://ocaml.org" class="link-inline group text-ink">OCaml<Arrow way="out" class="ml-0.5 inline size-[0.8em] align-[-0.05em]" /></a> meets every need at once, and
+      the stack is built within its limits. It makes contracts and
+      failure cases explicit, but it does not make an application correct on
+      its own.
+    </Opener>
+    <div class="mt-12 grid grid-cols-1 items-center gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+      <ul class="space-y-6">
         {
           ocaml.map((o) => (
-            <div>
-              <dt class="t-h3">{o.title}</dt>
-              <dd class="mt-2 leading-relaxed text-graphite">{o.body}</dd>
-            </div>
+            <li class="k-point">
+              <span class="k-point-icon"><Icon icon={o.icon} /></span>
+              <div><p class="font-medium">{o.title}</p><p class="mt-0.5 text-graphite">{o.body}</p></div>
+            </li>
           ))
         }
-      </dl>
+      </ul>
+      {/* Each state a type, and the signature the only way between
+          them: refunding a draft cannot be written. The error's first
+          two lines as OCaml 5.5 prints them. */}
+      <div class="k-panel [container-type:inline-size]">
+        <p class="k-panel-head"><span class="k-panel-name inline-flex items-center gap-2 font-mono"><Icon icon={FileCode} />invoice.ml</span><span class="font-mono">dune build</span></p>
+        <pre tabindex="0" class="k-panel-well overflow-x-auto px-5 py-4 font-mono text-[0.875rem] leading-[1.7]"><code><span class="text-accent">type</span> draft <span class="text-accent">and</span> sent <span class="text-accent">and</span> paid
+
+<span class="text-accent">module</span> Invoice <span class="text-graphite">:</span> <span class="text-accent">sig</span>
+  <span class="text-accent">type</span> 'state t
+  <span class="text-accent">val</span> send   <span class="text-graphite">:</span> draft t <span class="text-graphite">-&gt;</span> sent t
+  <span class="text-accent">val</span> pay    <span class="text-graphite">:</span> sent t <span class="text-graphite">-&gt;</span> paid t
+  <span class="text-accent">val</span> refund <span class="text-graphite">:</span> paid t <span class="text-graphite">-&gt;</span> sent t
+<span class="text-accent">end</span>
+
+<span class="text-accent">let</span> oops <span class="text-graphite">=</span> Invoice.refund draft</code></pre>
+        <pre class="k-panel-foot font-mono whitespace-pre text-[min(0.875rem,calc((100cqi-2rem)/36.8))]">Error: The value draft has type draft Invoice.t
+       but an expression was expected of type <span class="text-accent">paid Invoice.t</span></pre>
+      </div>
     </div>
     {/* Stops under keyboard focus; a tap, click, Enter or Space holds
         it until the next. */}
     <div
-      class="mt-16 grid items-center gap-6 py-8 md:grid-cols-margin"
+      class="mt-12 grid items-center gap-4 md:gap-6 md:grid-cols-margin"
       role="group"
       aria-labelledby="ocaml-users-label"
       data-strip
@@ -248,27 +245,7 @@ const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", 
     </div>
   </Section>
 
-  {/* Run in columns, not cards: read, not compared. No file is named. */}
-  <Section id="practices">
-    <div class="md:ml-margin">
-      <Opener title="Practices that hold the boundaries.">
-        Rules for how the code is written and worked on, the same for every
-        part, and checked on every change.
-      </Opener>
-    </div>
-    <dl class="columns-run mt-12 md:ml-margin">
-      {
-        practices.map((p) => (
-          <div class="leading-relaxed text-graphite">
-            <dt>{p.title}.</dt>{" "}
-            <dd>{p.body}</dd>
-          </div>
-        ))
-      }
-    </dl>
-  </Section>
-
-  <Closing id="next" />
+  <Closing />
 </Base>
 
 <script>
@@ -290,16 +267,4 @@ const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", 
       button.setAttribute("aria-pressed", String(held));
     });
   }
-
-  /* Where nothing hovers, a tap turns a card as hover would; a tap on it
-     again, or anywhere else, turns it back. Its links stay links. */
-  const touch = matchMedia("(hover: none)");
-  const cards = [...document.querySelectorAll<HTMLElement>(".invert-hover")];
-  document.addEventListener("click", (e) => {
-    if (!touch.matches) return;
-    const target = e.target as Element;
-    if (target.closest("a")) return;
-    const card = target.closest<HTMLElement>(".invert-hover");
-    for (const c of cards) c.toggleAttribute("data-on", c === card && !c.hasAttribute("data-on"));
-  });
 </script>

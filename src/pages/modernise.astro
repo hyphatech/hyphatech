@@ -1,0 +1,406 @@
+---
+import Base from "../layouts/Base.astro";
+import Section from "../components/Section.astro";
+import Opener from "../components/Opener.astro";
+import Hero from "../components/Hero.astro";
+import Closing from "../components/Closing.astro";
+import Cell from "../components/Cell.astro";
+import Icon from "../components/Icon.astro";
+import { modernWays } from "../content/ways";
+import type { Card } from "../content/factory";
+import Mail from "@lucide/astro/icons/mail";
+import ArrowDown from "@lucide/astro/icons/arrow-down";
+import BookOpenText from "@lucide/astro/icons/book-open-text";
+import Split from "@lucide/astro/icons/split";
+import Plug from "@lucide/astro/icons/plug";
+import ServerOff from "@lucide/astro/icons/server-off";
+import Construction from "@lucide/astro/icons/construction";
+import Rocket from "@lucide/astro/icons/rocket";
+import Check from "@lucide/astro/icons/check";
+import UserCheck from "@lucide/astro/icons/user-check";
+import MessagesSquare from "@lucide/astro/icons/messages-square";
+import Signature from "@lucide/astro/icons/signature";
+import Layers from "@lucide/astro/icons/layers";
+import Blocks from "@lucide/astro/icons/blocks";
+import ShieldCheck from "@lucide/astro/icons/shield-check";
+import FileCheck from "@lucide/astro/icons/file-check";
+import Monitor from "@lucide/astro/icons/monitor";
+import Globe from "@lucide/astro/icons/globe";
+import Server from "@lucide/astro/icons/server";
+import Sheet from "@lucide/astro/icons/sheet";
+import Receipt from "@lucide/astro/icons/receipt";
+import User from "@lucide/astro/icons/user";
+import ShoppingCart from "@lucide/astro/icons/shopping-cart";
+import CreditCard from "@lucide/astro/icons/credit-card";
+
+/* For an owner whose business runs on software grown tangled and costly
+   to change, not for an engineer: no git, repositories or stack in its
+   copy. It is about them before it is about Hypha, one story with
+   nothing said twice: their problem and what changes, whether it covers
+   what they run, how it is done, what stays theirs, and how it starts. It never repeats
+   the landing's argument. Each claim is shown in a pattern of the kit
+   (DESIGN.md):
+
+   top     the offer, its second line in gold, on Ember
+   start   the six problems an owner knows, each with what changes, on
+           paper
+   scope   what is modernised: the system behind and what people use to
+           reach it, as the kit's points, on Ember mirrored
+   steps   the engagement's four steps, as hypha-hq's business/model.md
+           sells them, on paper: the business learned once, each part
+           read and moved in turn, all of it kept current. Each with
+           what you keep and one example carried through: Foundation the
+           map of a business, Reading one part's rules, Moving its log
+   people  built with Hypha, and what stays yours: cards, on paper
+   first   it starts with a conversation: the ask and its button beside
+           what happens, in order, as a stepper, on lit night
+   build   the ways in
+
+   Every example (the business, its rules, the log) is illustrative, never
+   a figure an engagement measured. No price, no competitor. */
+
+const subject = (s: string) => `mailto:hello@hyphatech.io?subject=${encodeURIComponent(s)}`;
+const two = (n: number) => String(n).padStart(2, "0");
+
+/* One part as a Reading finds it, an example: a few of invoicing's
+   rules, each with who confirmed it, one that nobody could explain. */
+/* An example business as the Foundation writes it down, in the map's
+   reading order: Customer places Order, Order billed as Invoice, Payment
+   settles Invoice. */
+const concepts = [
+  { icon: User, name: "Customer", rule: "A customer on hold places no order" },
+  { icon: ShoppingCart, name: "Order", rule: "An order ships only when it is paid" },
+  { icon: CreditCard, name: "Payment", rule: "A refund never exceeds the payment" },
+  { icon: Receipt, name: "Invoice", rule: "A paid invoice is never sent again" },
+];
+
+const rules = [
+  { rule: "A paid invoice is never sent again", by: "Finance" },
+  { rule: "An invoice is raised only once its order ships", by: "Operations" },
+  { rule: "A refund never exceeds what was paid", by: "Finance" },
+  { rule: "Late fees stop after 90 days", by: "Nobody knew why, kept by the owner" },
+];
+
+/* One part moving, as its log reads: an example. */
+const log = [
+  ["Mon 09:10", "Reading finished", "every rule written down"],
+  ["Tue 11:00", "New invoicing running", "beside the old one, on the same work"],
+  ["Wed 18:30", "Every invoice compared", "the two agree on each one"],
+  ["Thu 07:00", "Switched over", "the old invoicing retired"],
+];
+
+/* The engagement's four steps: a fact and its payoff, its line, and what
+   you keep. Foundation is done once, Reading and Moving for each part in
+   turn, the costliest first, and Care has no end. Nothing of price. */
+const steps: { title: string; claim: [string, string]; body: string; keep: string[] }[] = [
+  {
+    title: "Foundation",
+    claim: ["How your business works, written down.", "Nothing left to guess."],
+    body: "Its areas, words, rules, processes and decisions, learned from your team and your documents and written down for you to keep. Then the first part to move is chosen.",
+    keep: ["Your business, written down", "The first part chosen"],
+  },
+  {
+    title: "Reading",
+    claim: ["What it really does, found.", "What it should do, decided."],
+    body: "Everything one part of your system does, read rule by rule from the system itself. Where nobody knows why a rule exists, you decide whether it stays.",
+    keep: ["Every rule, written down", "Honest advice on what to move"],
+  },
+  {
+    title: "Moving",
+    claim: ["Built beside the old one.", "Switched when every case matches."],
+    body: "Your business keeps working on the old one while the new one takes the same work alongside it. The day the two agree on every case, the old one is retired, and the next part begins.",
+    keep: ["The new part, running", "The old one retired"],
+  },
+  {
+    title: "Care",
+    claim: ["Kept current.", "Changed as the business asks."],
+    body: "The engineer who moved it keeps it up to date, fixes it and changes it as your business needs, with a response time agreed in advance.",
+    keep: ["No one new to hire", "A response time agreed"],
+  },
+];
+
+/* What is modernised: what a business has, in its owner's words, and
+   what it becomes. No phones yet. */
+const scope = [
+  { icon: Monitor, title: "Desktop apps", body: "A program the office depends on, in Access, Delphi or Visual Basic, becomes a modern app for Windows, macOS and Linux, on the same data as everything else." },
+  { icon: Globe, title: "Web apps", body: "A website or portal your staff and customers rely on becomes a modern web app that works on any screen and grows with the business." },
+  { icon: Server, title: "The system behind it", body: "A server, a database and scripts that grew together, or a prototype that grew fast, become one system behind it all, its rules written down for good." },
+  { icon: Sheet, title: "Connections", body: "Spreadsheets and exports holding it together give way to direct connections with the tools you already use, with nothing copied by hand." },
+];
+
+/* Why Hypha, then what stays the owner's whoever works on it next:
+   four cards, the heading naming the two halves. Hypha whole, never
+   a person or the Factory alone. */
+const people: Card[] = [
+  { icon: Blocks, title: "Built on Hypha", body: "Language, components and method designed as one, with checks no agent can skip." },
+  { icon: FileCheck, title: "Delivered with its proof", body: "Every change arrives with its tests, its documents and the record of how it was built." },
+  { icon: UserCheck, title: "Everything in your name", body: "Code and your business written down, in your accounts for any engineer to carry on." },
+  { icon: ShieldCheck, title: "Runs where you choose", body: "Your cloud or your own machines, with your data and its privacy under your control." },
+];
+
+/* Where a company starts: its pain, in its own words, and what changes. */
+const starts: Card[] = [
+  { icon: BookOpenText, title: "Only a few people understand it", body: "Everything it does is written down with them, and stays with the business." },
+  { icon: Split, title: "Every change breaks something", body: "The part that breaks is rebuilt first, and stops breaking from then on." },
+  { icon: Plug, title: "It can't reach the tools you use now", body: "It is opened up to them safely, in a way any engineer can follow." },
+  { icon: ServerOff, title: "Its technology is no longer supported", body: "What matters moves to a modern foundation, kept current from then on." },
+  { icon: Construction, title: "A rewrite stalled halfway through", body: "What was built is compared with the old system and finished." },
+  { icon: Rocket, title: "A prototype customers now depend on", body: "What it proved is kept, and the rest is rebuilt to hold as it grows." },
+];
+
+/* How it starts, in the order it happens: a call, then a clear plan
+   to start, agreed before any work, then one step at a time.
+   Each a promise, never the doubt behind it. */
+const first: Card[] = [
+  { icon: MessagesSquare, title: "One call about your business", body: "What it runs on, what holds it back, and where it should start." },
+  { icon: Signature, title: "A clear plan to start", body: "What is done first and what it gives you, agreed up front." },
+  { icon: Layers, title: "One step at a time", body: "Each part is its own decision, and everything made stays yours." },
+];
+---
+
+<Base
+  title="Modernise · Hypha"
+  description="Modernise the system your business runs on. Whether it is old code nobody dares touch or a prototype that breaks with every change, Hypha rebuilds it at the speed of agents to last for years, while your business keeps running."
+>
+  <Hero slot="band" rail="Modernise the system" title={["Modernise the system", "your business runs on."]}>
+    Whether it is old code nobody dares touch or a prototype that breaks
+    with every change, Hypha rebuilds it at the speed of agents to last
+    for years, while your business keeps running.
+    <Fragment slot="actions">
+      <a href={subject("Our system")} class="btn-primary"><Icon icon={Mail} />Talk about your system</a>
+      <a href="#steps" class="btn"><Icon icon={ArrowDown} />See how it moves</a>
+    </Fragment>
+  </Hero>
+
+  {/* Where a company starts, first: the owner finds their situation
+      before anything about Hypha. */}
+  <Section id="start" rail="It starts where it costs you most" class="theme-light">
+    <Opener title="It starts where it costs you most.">
+      Most businesses know one of these well. The one that costs most is
+      dealt with first, as a piece of work with a clear end.
+    </Opener>
+    <ul class="mt-12 grid gap-px overflow-hidden rounded-panel border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-3">
+      {starts.map((c) => <Cell card={c} />)}
+    </ul>
+  </Section>
+
+  {/* What is modernised, as the kit's points: a bare icon on the
+      title's line, the title, and what a business has becoming what it
+      gets, two by two on open ground. On Ember mirrored, so it never
+      repeats the hero's light. */}
+  <section id="scope" data-rail-name="Whatever your business runs on" class="theme-ember k-mirrored relative scroll-mt-8 overflow-hidden border-t border-rule">
+    <div class="k-grain" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20">
+      <Opener title="Whatever your business runs on.">
+        From the program on the office desk to the system behind it,
+        everything moves to one modern foundation and works as one.
+      </Opener>
+      <ul class="mt-14 grid gap-x-16 gap-y-12 md:grid-cols-2">
+        {
+          scope.map((c) => (
+            <li class="k-point border-t border-rule pt-6">
+              <span class="k-point-icon"><Icon icon={c.icon} /></span>
+              <div>
+                <h3 class="t-h3">{c.title}</h3>
+                <p class="mt-2 max-w-md leading-relaxed text-graphite">{c.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {/* The four steps, an index beside them marking
+      the one in view, on plain paper: the sheet is for drawings,
+      never under a narrative. Foundation carries the map of an example
+      business, Reading the rules of one of its parts, invoicing, and
+      Moving the log of that part switching over. */}
+  <Section id="steps" rail="Learned once" class="theme-light">
+    <Opener title={["Learned once.", "Moved part\u00a0by\u00a0part. Kept current."]}>
+      Never rewritten whole, and never stopped. The part that costs most
+      moves first, then the next.
+    </Opener>
+    <div class="mt-12 grid gap-12 lg:grid-cols-[13rem_minmax(0,1fr)]">
+      <nav class="sticky top-8 hidden self-start lg:block" aria-label="The steps">
+        <ol class="border-l border-rule">
+          {
+            steps.map((st, i) => (
+              <li>
+                <a href={`#step-${i + 1}`} class="-ml-px flex items-baseline gap-2.5 border-l-2 font-sans text-[0.875rem] leading-tight border-transparent py-2.5 pl-5 text-graphite transition-colors hover:text-ink aria-[current]:border-ink aria-[current]:text-ink" data-step-link>
+                  <span class="tabular-nums">{two(i + 1)}</span>
+                  {st.title}
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+      <ol>
+        {
+          steps.map((st, i) => (
+            <li id={`step-${i + 1}`} class="scroll-mt-8 border-rule py-12 first:pt-0 last:pb-0 not-first:border-t" data-step>
+              <p class="t-control flex items-baseline gap-2.5 text-graphite">
+                <span class="tabular-nums">{two(i + 1)}</span>
+                <span>{st.title}</span>
+              </p>
+              <h3 class="t-h2 mt-3">
+                {st.claim.map((l) => <span class="block">{l}</span>)}
+              </h3>
+              <p class="t-lede mt-4 max-w-2xl">{st.body}</p>
+              <ul class="mt-7 flex flex-wrap gap-x-8 gap-y-2">
+                {
+                  st.keep.map((k) => (
+                    <li class="flex items-center gap-2.5">
+                      <span class="k-tick !size-4"><Check size={10} stroke-width={3.5} /></span>
+                      {k}
+                    </li>
+                  ))
+                }
+              </ul>
+              {st.title === "Foundation" && (
+                <div class="mt-10 max-w-3xl">
+                  <div class="k-map">
+                    {
+                      concepts.map((c, i) => (
+                        <Fragment>
+                          <div class="k-panel k-panel-card k-panel-stone">
+                            <p class="k-panel-head max-sm:flex-col max-sm:items-start max-sm:gap-0.5"><span class="k-panel-name inline-flex items-center gap-2"><Icon icon={c.icon} />{c.name}</span></p>
+                            <p class="k-panel-well k-panel-row flex-1">{c.rule}</p>
+                          </div>
+                          {i === 0 && <div class="k-relation k-relation-h"><span>places</span></div>}
+                          {i === 1 && (
+                            <Fragment>
+                              <div />
+                              <div />
+                              <div class="k-relation k-relation-v"><span>billed as</span></div>
+                            </Fragment>
+                          )}
+                          {i === 2 && <div class="k-relation k-relation-h"><span>settles</span></div>}
+                        </Fragment>
+                      ))
+                    }
+                  </div>
+                </div>
+              )}
+              {st.title === "Reading" && (
+                <div class="mt-10 max-w-3xl">
+                  <div class="k-panel k-panel-stone">
+                    <p class="k-panel-head"><span class="k-panel-name inline-flex items-center gap-2"><Icon icon={Receipt} />Invoicing</span></p>
+                    <ol class="k-panel-well">
+                      {
+                        rules.map((r) => (
+                          <li class="k-panel-row grid gap-x-6 gap-y-0.5 sm:grid-cols-[minmax(0,1fr)_auto]">
+                            <span class="text-ink">{r.rule}</span>
+                            <span class="text-graphite">{r.by}</span>
+                          </li>
+                        ))
+                      }
+                    </ol>
+                  </div>
+                </div>
+              )}
+              {st.title === "Moving" && (
+                <div class="mt-10 max-w-3xl">
+                  <div class="k-panel k-panel-stone">
+                    <p class="k-panel-head"><span class="k-panel-name inline-flex items-center gap-2"><Icon icon={Receipt} />Invoicing</span></p>
+                    <ol class="k-panel-well">
+                      {
+                        log.map(([when, what, detail], i) => (
+                          <li class="k-panel-row grid grid-cols-[5.5rem_1.4rem_1fr] items-start gap-x-3">
+                            <span class="pt-0.5 tabular-nums text-graphite">{when}</span>
+                            <span class:list={["k-tick mt-0.5", i < log.length - 1 && "k-tick-quiet"]}><Check size={12} stroke-width={3} /></span>
+                            <p><span class:list={["text-ink", i === log.length - 1 && "font-medium"]}>{what}</span><span class="block text-graphite">{detail}</span></p>
+                          </li>
+                        ))
+                      }
+                    </ol>
+                  </div>
+                </div>
+              )}
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </Section>
+
+  {/* Why Hypha, and what stays the owner's: built on its foundation,
+      delivered with proof, theirs, run where they choose. Four stone
+      cards on paper, in one row, their lines of one length. */}
+  <Section id="people" rail="Built with Hypha" class="theme-light">
+    <Opener title={["Built with Hypha.", "Yours to keep."]}>
+      Every part stands on Hypha's foundation, and everything made stays
+      yours, whoever works on it next.
+    </Opener>
+    <ul class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        people.map((c) => (
+          <li class="k-panel k-panel-card k-panel-stone">
+            <p class="k-panel-head items-center !justify-start"><Icon icon={c.icon} /><span class="k-panel-name">{c.title}</span></p>
+            <div class="k-panel-well flex-1">
+              <div class="k-panel-row !p-5">
+                <p class="leading-relaxed text-graphite">{c.body}</p>
+                {c.link && <a href={c.link.href} class="link mt-3 inline-block">{c.link.text}</a>}
+              </div>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  {/* How it starts: the ask and its button beside the three things
+      that happen, in order, on lit night, its gold answering the
+      footer's; the first, the call, ringed
+      and named in gold, where to begin. */}
+  <section id="first" data-rail-name="It starts with a conversation" class="k-lit relative scroll-mt-8 overflow-hidden border-t border-rule">
+    <div class="relative mx-auto grid max-w-page items-center gap-14 px-4 py-16 sm:px-6 md:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div>
+        <Opener title="It starts with a\u00a0conversation.">
+          No commitment, and nothing technical to prepare.
+        </Opener>
+        <div class="mt-9 flex flex-wrap gap-3">
+          <a href={subject("Our system")} class="btn-primary"><Icon icon={Mail} />Talk about your system</a>
+        </div>
+      </div>
+      <ol class="relative">
+        {
+          first.map((f, i) => (
+            <li class="relative grid grid-cols-[2.75rem_1fr] gap-x-5 pb-10 last:pb-0">
+              {i < first.length - 1 && <span class="absolute top-12 bottom-2 left-[1.375rem] w-px bg-rule" aria-hidden="true"></span>}
+              <span class:list={["k-point-icon !size-11 justify-center rounded-full border", i === 0 ? "border-accent !text-accent" : "border-rule"]}><Icon icon={f.icon} /></span>
+              <div class="pt-2">
+                <p class:list={["font-medium", { "text-accent": i === 0 }]}>{f.title}</p>
+                <p class="mt-1 text-balance text-graphite">{f.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <Closing paths={modernWays} />
+</Base>
+
+<script>
+  import { assembleMaps } from "../lib/map";
+  assembleMaps();
+
+  /* The index marks the step crossing the middle of the screen. */
+  const links = [...document.querySelectorAll<HTMLAnchorElement>("[data-step-link]")];
+  const watch = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        for (const a of links) {
+          if (a.hash === `#${e.target.id}`) a.setAttribute("aria-current", "step");
+          else a.removeAttribute("aria-current");
+        }
+      }
+    },
+    { rootMargin: "-45% 0px -50% 0px" },
+  );
+  for (const step of document.querySelectorAll("[data-step]")) watch.observe(step);
+</script>

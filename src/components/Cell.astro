@@ -1,0 +1,21 @@
+---
+/* A cell of a ruled grid: a bare icon, a title and its line,
+   the one card form a set of things takes, and a link where a card
+   names another page. The grid's rules are the
+   gaps between cells, so each cell paints its own ground. */
+
+import Icon from "./Icon.astro";
+import type { Card } from "../content/factory";
+
+interface Props {
+  card: Card;
+}
+const { card } = Astro.props;
+---
+
+<li class="bg-ivory p-7">
+  <Icon icon={card.icon} size="lg" />
+  <h3 class="t-h3 mt-5">{card.title}</h3>
+  <p class="mt-2 leading-relaxed text-graphite">{card.body}</p>
+  {card.link && <a href={card.link.href} class="link mt-4 inline-block">{card.link.text}</a>}
+</li>

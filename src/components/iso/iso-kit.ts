@@ -79,6 +79,21 @@ export function pathOf(points: Flat[], closed = false) {
 
 export const joinPaths = (paths: string[]) => paths.filter(Boolean).join("");
 
+/* The convex hull of points on screen. */
+export function screenHull(points: Flat[]): Flat[] {
+  const sorted = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cross = (o: Flat, a: Flat, b: Flat) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const half = (list: Flat[]) => {
+    const out: Flat[] = [];
+    for (const point of list) {
+      while (out.length >= 2 && cross(out[out.length - 2]!, out[out.length - 1]!, point) <= 0) out.pop();
+      out.push(point);
+    }
+    return out.slice(0, -1);
+  };
+  return [...half(sorted), ...half([...sorted].reverse())];
+}
+
 export function roundedPlan({ x, y, w, d, r }: Plan, steps = 8): Plane[] {
   const radius = Math.max(0, Math.min(r, w / 2, d / 2));
   const corners: [number, number, number][] = [

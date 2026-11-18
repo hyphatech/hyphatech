@@ -2,7 +2,7 @@
 
 PORT_DEV ?= 4321
 
-.PHONY: help setup dev build preview stop check clean
+.PHONY: help setup dev build serve stop check clean
 
 help: ## list the targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
@@ -16,7 +16,7 @@ dev: ## run the site with live reload on http://localhost:$(PORT_DEV)
 build: ## build the static site into dist/
 	npx astro build
 
-preview: build ## serve the built site in the background, as Pages will
+serve: build ## the built site, served in the background as Pages will
 	npx astro preview --port $(PORT_DEV)
 
 check: ## type-check the pages and components
@@ -25,5 +25,5 @@ check: ## type-check the pages and components
 clean: ## remove what a build leaves
 	rm -rf dist .astro
 
-stop: ## stop the background preview server
+stop: ## stop the background server
 	npx astro preview stop

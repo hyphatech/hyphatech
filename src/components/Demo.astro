@@ -1,0 +1,414 @@
+---
+/* The Factory's demo: HAF's own screens, as HAF draws them, through the
+   run hypha-haf keeps as examples/task-tracker/journal.jsonl, from its
+   projects to trying what it released in the Workbench. Each frame is a screen HAF wrote
+   cell by cell at 137 columns by 34 rows, a wide
+   screen (src/content/haf-screens, and its
+   README for writing them again as HAF changes); nothing here draws HAF by
+   hand. The chapters are a line under it, each as long as its chapter: the
+   line fills in gold as the demo plays, the chapter playing named in
+   ink, and a chapter chosen plays on from there. It plays only
+   while it is in view, each frame drawn from its template as it shows;
+   with reduced motion each chapter shows its last frame.
+
+   The screen is drawn at one size and scaled to the page's width, as a
+   video is, so its rows never wrap differently on a phone. */
+
+interface Props {
+  label: string;
+}
+const { label } = Astro.props;
+
+type Run = [string, string | null, string | null, boolean];
+type Frame = { cols: number; rows: number; lines: Run[][] };
+const files = import.meta.glob<{ default: Frame }>("../content/haf-screens/*.json", { eager: true });
+const frame = (name: string) => files[`../content/haf-screens/${name}.json`]!.default;
+
+/* The build, a frame for each item started, each call to the model and
+   each gate's verdict, in the order the journal has them: quick, as a
+   build's log runs. */
+const build = Object.keys(files)
+  .map((f) => f.match(/build-(\d+)\.json$/)?.[1])
+  .filter((n): n is string => n !== undefined)
+  .sort()
+  .map((n) => [`build-${n}`, 0.42] as [string, number]);
+
+/* Each chapter: its name, and its frames with how long each shows. The
+   moments between screens are HAF's own frames too: the model's thinking
+   streaming in, an answer typed, the spend rising call by call. */
+const chapters: { title: string; frames: [string, number][] }[] = [
+  { title: "Projects", frames: [["projects", 3], ["project", 3]] },
+  {
+    title: "Decisions",
+    frames: [
+      ["question-0", 3.5],
+      ["thinking-0", 1.1],
+      ["thinking-1", 1.3],
+      ["thinking-2", 2.2],
+      ["question-1", 3],
+      ["question-2", 3],
+      ["question-3", 2.5],
+      ["own-words", 1.2],
+      ["own-words-typed-0", 0.7],
+      ["own-words-typed-1", 0.8],
+      ["own-words-typed-2", 2],
+      ["question-4", 3],
+      ["decided", 2.5],
+    ],
+  },
+  { title: "PRD", frames: [["signing", 7]] },
+  { title: "Build", frames: build },
+  { title: "Release", frames: [["done", 6]] },
+  { title: "Workbench", frames: [["workbench", 5]] },
+];
+/* The demo opens on the decisions, its busiest screens; the projects
+   come round again at its end. */
+const first = 1;
+const lens = chapters.map((c) => c.frames.reduce((s, [, d]) => s + d, 0));
+
+/* A run's text with its spaces kept as the terminal's cells, split where
+   a glyph must reach the row's full height to join the next: a frame's
+   sides and corners, and the scroll bar's blocks. */
+const tall = /^[┃█▀▄▌▐]$/;
+const blocks = "█▀▄▌▐";
+/* The glyphs HAF Mono lacks (the pause, the pencil, the spinner), each
+   held to one cell so a fallback face never moves its row. A spinner's
+   turn and the status bar's working dots are marked, so they move as
+   HAF moves them in a terminal. */
+const lacking = /^[⏸⏵✎⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏]$/u;
+const turn = /^[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏]$/u;
+/* HAF's frames drawn as strokes that meet cell to cell, where font glyphs
+   would overlap at their joins. */
+const strokes: Record<string, string> = { "│": "v", "╭": "tl", "╮": "tr", "╰": "bl", "╯": "br", "├": "l", "┤": "r", "┼": "x" };
+const box = (part: string) => (part[0] === "─" ? "h" : strokes[part]);
+const cells = (t: string) =>
+  t
+    .split(/(─+|[│┃╭╮╰╯├┤┼█▀▄▌▐⏸⏵✎⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏•])/u)
+    .filter((part) => part !== "")
+    .map((part) => ({ part, box: box(part), tall: tall.test(part), cell: lacking.test(part), spin: turn.test(part), dot: part === "•", block: part.length === 1 && blocks.includes(part) }));
+const style = ([, fg, bg]: Run) => `${fg ? `color:${fg};` : ""}${bg && bg !== "#1c1e20" ? `background:${bg};` : ""}`;
+---
+
+<figure class="demo" aria-label={label} data-first={first} style={`--cols:${frame("projects").cols};--rows:${frame("projects").rows}`}>
+  <noscript><style>.demo .term { opacity: 1; }</style></noscript>
+  <div class="window overflow-hidden">
+    <div class="stage relative overflow-hidden bg-[#1c1e20]">
+      <div class="term absolute top-0 left-0 origin-top-left" aria-hidden="true">
+        {
+          chapters.map((c, i) => (
+            <section class="scene" data-len={lens[i]} hidden={i !== first}>
+              {c.frames.map(([name, d], k) => {
+                const from = c.frames.slice(0, k).reduce((s, [, x]) => s + x, 0);
+                const lines = frame(name).lines.map((line) => (
+                  <p>
+                    {line.map((run) => (
+                      <span style={style(run)} class:list={[run[3] && "b"]}>
+                        {cells(run[0]).map(({ part, box, tall, cell, spin, dot, block }) => (box ? <span class={`bx bx-${box}`} style={box === "h" ? `width:${part.length}ch` : undefined} /> : block ? <span class:list={["glyph-block", `glyph-block-${blocks.indexOf(part)}`]} /> : dot ? <span class="dot">{part}</span> : tall || cell ? <span class:list={[tall && "tall", cell && "cell", spin && "spin"]}>{part}</span> : part))}
+                      </span>
+                    ))}
+                  </p>
+                ));
+                /* The first frame drawn, so the demo stands before any
+                   script runs; every other kept in a template, inert
+                   until it plays, so the page holds one frame at a time
+                   and not seventy. */
+                return (
+                  <div class="frame" data-t={from} data-until={from + d} data-last={k === c.frames.length - 1 ? "" : undefined}>
+                    {i === first && k === 0 ? lines : <template>{lines}</template>}
+                  </div>
+                );
+              })}
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+  {/* Each chapter a bar as long as it plays, its name under it. On a
+      phone the six names cannot stand side by side, so the bars stand
+      alone, tall enough to tap, and the one playing is named once under
+      them. */}
+  <div class="mt-5 flex min-w-0 gap-1.5" role="group" aria-label="Chapters">
+    {
+      chapters.map((c, i) => (
+        <button type="button" aria-current={i === first ? "true" : undefined} aria-label={c.title} class="tab group min-w-6 py-3 text-left sm:min-w-20 sm:pt-1 sm:pb-2" style={`flex:${lens[i]} 1 0`}>
+          <span class="relative block h-0.5 overflow-hidden rounded-full bg-rule"><span class="fill absolute inset-y-0 left-0 w-0 bg-accent" /></span>
+          <span class="t-control mt-3 hidden text-graphite transition-colors group-hover:text-ink group-aria-[current]:text-ink sm:block" aria-hidden="true">{c.title}</span>
+        </button>
+      ))
+    }
+  </div>
+  <p class="t-control text-ink sm:hidden" aria-hidden="true" data-now>{chapters[first]!.title}</p>
+</figure>
+
+<style>
+  /* HAF's terminal: one cell a character, one row a line, its colours
+     those HAF wrote; the ground and ink its own. The app stands on the
+     page as itself, square, with no window chrome, framed by a hairline
+     in HAF's own rule as a terminal pane is, and lifted by a shadow. */
+  /* The window's size is known before a line is drawn: a cell of HAF
+     Mono at 13px is 7.8px by 16.9px, edge to edge as a terminal draws. So
+     the page keeps its room from the first paint, as an image with its
+     size does, and the screen appears in it once the script has scaled
+     it to the room, rather than the page opening round it. */
+  .demo {
+    --w: calc(var(--cols) * 7.8px);
+    width: min(100%, var(--w));
+  }
+  .stage {
+    aspect-ratio: calc(var(--cols) * 7.8) / calc(var(--rows) * 16.9);
+  }
+  .term {
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+  }
+  .demo[data-fit] .term {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .term { transition: none; }
+  }
+  .window {
+    box-shadow: 0 0 0 1px #414346, 0 28px 64px -24px rgb(0 0 0 / 0.7);
+  }
+  .term {
+    box-sizing: content-box;
+    width: calc(var(--cols) * 1ch);
+    height: calc(var(--rows) * 1.3em);
+    font-family: "HAF Mono", var(--font-mono);
+    font-size: 13px;
+    line-height: 1.3;
+    color: #c7cdd6;
+    background: #1c1e20;
+    transform: scale(var(--s, 1));
+    font-variant-ligatures: none;
+  }
+  /* A scene sits inside the terminal's padding, as a terminal's text
+     sits inside its window; its frames fill it. */
+  .scene {
+    position: absolute;
+    inset: 0;
+  }
+  .frame {
+    position: absolute;
+    inset: 0;
+  }
+  .term p {
+    height: 1.3em;
+    white-space: pre;
+  }
+  /* A run's fill covers its whole row, as a terminal fills a cell, so
+     HAF's zones meet with no seam between rows. */
+  .term p > span {
+    display: inline-block;
+    height: 1.3em;
+    vertical-align: top;
+  }
+  .term :global(.bx) {
+    --t: max(1px, 0.08em);
+    position: relative;
+    display: inline-block;
+    width: 1ch;
+    height: 1.3em;
+    vertical-align: top;
+  }
+  .term :global(.bx::before),
+  .term :global(.bx::after) {
+    content: "";
+    position: absolute;
+    border: 0 solid currentColor;
+  }
+  .term :global(.bx-h::before),
+  .term :global(.bx-l::after),
+  .term :global(.bx-r::after),
+  .term :global(.bx-x::after) {
+    left: 0;
+    right: 0;
+    top: calc(50% - var(--t) / 2);
+    border-top-width: var(--t);
+  }
+  .term :global(.bx-l::after) { left: 50%; }
+  .term :global(.bx-r::after) { right: 50%; }
+  .term :global(.bx-v::before),
+  .term :global(.bx-l::before),
+  .term :global(.bx-r::before),
+  .term :global(.bx-x::before) {
+    top: 0;
+    bottom: 0;
+    left: calc(50% - var(--t) / 2);
+    border-left-width: var(--t);
+  }
+  .term :global(.bx-tl::before),
+  .term :global(.bx-tr::before),
+  .term :global(.bx-bl::before),
+  .term :global(.bx-br::before) {
+    --r: 0.45em;
+  }
+  .term :global(.bx-tl::before) {
+    left: calc(50% - var(--t) / 2); top: calc(50% - var(--t) / 2); right: 0; bottom: 0;
+    border-top-width: var(--t); border-left-width: var(--t); border-top-left-radius: var(--r);
+  }
+  .term :global(.bx-tr::before) {
+    right: calc(50% - var(--t) / 2); top: calc(50% - var(--t) / 2); left: 0; bottom: 0;
+    border-top-width: var(--t); border-right-width: var(--t); border-top-right-radius: var(--r);
+  }
+  .term :global(.bx-bl::before) {
+    left: calc(50% - var(--t) / 2); bottom: calc(50% - var(--t) / 2); right: 0; top: 0;
+    border-bottom-width: var(--t); border-left-width: var(--t); border-bottom-left-radius: var(--r);
+  }
+  .term :global(.bx-br::before) {
+    right: calc(50% - var(--t) / 2); bottom: calc(50% - var(--t) / 2); left: 0; top: 0;
+    border-bottom-width: var(--t); border-right-width: var(--t); border-bottom-right-radius: var(--r);
+  }
+  .term :global(.b) {
+    font-weight: 600;
+  }
+  /* Stretched to the row, as a terminal draws box glyphs edge to edge. */
+  .term :global(.glyph-block) {
+    display: inline-block;
+    width: 1ch;
+    height: 1.3em;
+    vertical-align: top;
+    background: currentColor;
+  }
+  /* ▀ and ▄ fill the top and the bottom half of their cell, ▌ and ▐ the
+     left and the right. */
+  .term :global(.glyph-block-1) { background: linear-gradient(currentColor 50%, transparent 50%); }
+  .term :global(.glyph-block-2) { background: linear-gradient(transparent 50%, currentColor 50%); }
+  .term :global(.glyph-block-3) { background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
+  .term :global(.glyph-block-4) { background: linear-gradient(90deg, transparent 50%, currentColor 50%); }
+  /* Centred by flex, which centres a glyph wider than its cell too,
+     where text-align would let it hang off the right. */
+  .term :global(.cell) {
+    display: inline-flex;
+    justify-content: center;
+    width: 1ch;
+    height: 1.3em;
+    vertical-align: top;
+    overflow: visible;
+    white-space: pre;
+  }
+  .term :global(.tall) {
+    display: inline-block;
+    transform: scaleY(1.45);
+  }
+</style>
+
+<script>
+  /* One clock for the whole demo: the chapter playing and how far into
+     it. A frame shows from its `data-t` until its `data-until`; with
+     reduced motion a chapter shows its last frame. */
+  for (const demo of document.querySelectorAll<HTMLElement>(".demo")) {
+    const stage = demo.querySelector<HTMLElement>(".stage")!;
+    const term = demo.querySelector<HTMLElement>(".term")!;
+    const scenes = [...demo.querySelectorAll<HTMLElement>(".scene")];
+    const frames = scenes.map((s) => [...s.querySelectorAll<HTMLElement>(".frame")]);
+    const tabs = [...demo.querySelectorAll<HTMLButtonElement>(".tab")];
+    const now = demo.querySelector<HTMLElement>("[data-now]")!;
+    const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let at = Number(demo.dataset.first ?? 0);
+    let t = 0;
+    let seen = false;
+    let last = 0;
+
+    /* A real terminal: its type at its own size and its window as wide as
+       its cells. Only where the page is narrower than the window is it
+       scaled, down, as a screenshot is. */
+    const fit = () => {
+      const w = term.offsetWidth;
+      const s = Math.min(1, stage.clientWidth / w);
+      term.style.setProperty("--s", String(s));
+      demo.setAttribute("data-fit", "");
+    };
+    new ResizeObserver(fit).observe(stage);
+    document.fonts?.ready.then(fit);
+
+    const draw = () => {
+      scenes.forEach((s, i) => (s.hidden = i !== at));
+      const scene = scenes[at]!;
+      const len = Number(scene.dataset.len);
+      /* A frame is drawn from its template as it shows, and cleared as
+         it goes. */
+      frames.forEach((fs, i) => {
+        for (const f of fs) {
+          const on = i === at && (still ? f.dataset.last !== undefined : t >= Number(f.dataset.t) && t < Number(f.dataset.until));
+          f.hidden = !on;
+          const kept = f.firstElementChild instanceof HTMLTemplateElement ? f.firstElementChild : null;
+          if (!kept) continue;
+          if (on && f.childElementCount === 1) f.append(kept.content.cloneNode(true));
+          else if (!on && f.childElementCount > 1) while (f.lastElementChild !== kept) f.lastElementChild!.remove();
+        }
+      });
+      now.textContent = tabs[at]!.getAttribute("aria-label");
+      tabs.forEach((tab, i) => {
+        if (i === at) tab.setAttribute("aria-current", "true");
+        else tab.removeAttribute("aria-current");
+        tab.querySelector<HTMLElement>(".fill")!.style.width = i < at ? "100%" : i === at ? `${Math.min(100, ((still ? len : t) / len) * 100)}%` : "0";
+      });
+    };
+
+    const go = (i: number) => {
+      at = (i + scenes.length) % scenes.length;
+      t = 0;
+      draw();
+    };
+    /* The clock runs only while the demo is on screen. */
+    let running = false;
+    const start = () => {
+      if (!seen || running || still) return;
+      running = true;
+      last = 0;
+      requestAnimationFrame(tick);
+    };
+
+    tabs.forEach((tab, i) =>
+      tab.addEventListener("click", () => {
+        go(i);
+        start();
+      }),
+    );
+
+    new IntersectionObserver(([e]) => {
+      seen = e!.isIntersecting;
+      start();
+    }).observe(stage);
+
+    /* HAF's spinner turns through its ten frames, one each 80ms, and the
+       status bar's three working dots light one at a time, as HAF draws
+       them in a terminal: the lit one in HAF's working blue, the rest in
+       its frame's grey. */
+    const turns = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏";
+    const live = (ms: number) => {
+      const frame = scenes[at]!.querySelector<HTMLElement>(".frame:not([hidden])");
+      if (!frame) return;
+      const beat = Math.floor(ms / 80);
+      for (const s of frame.querySelectorAll<HTMLElement>(".spin")) s.textContent = turns[beat % turns.length]!;
+      for (const row of frame.querySelectorAll<HTMLElement>("p")) {
+        const dots = [...row.querySelectorAll<HTMLElement>(".dot")];
+        const lit = Math.floor(ms / 320) % (dots.length || 1);
+        dots.forEach((d, i) => (d.style.color = i === lit ? "#7993cb" : "#414346"));
+      }
+    };
+
+    const tick = (ms: number) => {
+      const dt = last ? Math.min(0.1, (ms - last) / 1000) : 0;
+      last = ms;
+      if (!seen) {
+        running = false;
+        return;
+      }
+      if (!document.hidden) {
+        t += dt;
+        const len = Number(scenes[at]!.dataset.len);
+        if (t >= len) go(at + 1);
+        else {
+          t = Math.min(t, len - 0.001);
+          draw();
+        }
+        live(ms);
+      }
+      requestAnimationFrame(tick);
+    };
+    draw();
+  }
+</script>

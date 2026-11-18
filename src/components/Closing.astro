@@ -1,18 +1,20 @@
 ---
-/* The "Build with Hypha." section that ends a page. */
+/* The section that ends a page: "Build with Hypha." and three ways in,
+   the site's own unless a page brings its title and its three. */
 
-import Paths from "./Paths.astro";
+import Paths, { type Path } from "./Paths.astro";
 import { ways } from "../content/ways";
 
 interface Props {
-  id?: string;
+  title?: string;
+  paths?: Path[];
 }
-const { id } = Astro.props;
+const { title = "Build with Hypha.", paths = ways } = Astro.props;
 ---
 
-<section id={id} class="scroll-mt-8 border-t border-rule">
+<section id="build" data-rail-name="Build with Hypha" class="k-closing scroll-mt-8 border-t border-rule">
   <div class="mx-auto max-w-page px-4 pt-16 pb-4 sm:px-6 md:pt-20 md:pb-8">
-    <h2 class="t-h1 max-w-4xl md:ml-margin">Build with Hypha.</h2>
-    <Paths paths={ways} />
+    <h2 class="t-h1 max-w-4xl">{title}</h2>
+    <Paths paths={paths} />
   </div>
 </section>

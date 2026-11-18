@@ -1,0 +1,352 @@
+{
+  "took": 929,
+  "spent": 0.118784,
+  "phases": [
+    {
+      "name": "intent",
+      "from": 2,
+      "to": 291
+    },
+    {
+      "name": "mapping",
+      "from": 293,
+      "to": 296
+    },
+    {
+      "name": "scaffold",
+      "from": 298,
+      "to": 310
+    },
+    {
+      "name": "build",
+      "from": 312,
+      "to": 871
+    },
+    {
+      "name": "delivery",
+      "from": 873,
+      "to": 928
+    }
+  ],
+  "items": [
+    {
+      "id": 1,
+      "name": "Scaffold: contexts, dune, compose",
+      "from": 299,
+      "to": 309,
+      "checks": "build ✓ layout ✓",
+      "refused": []
+    },
+    {
+      "id": 2,
+      "name": "Task: shape, table, statements",
+      "from": 316,
+      "to": 357,
+      "checks": "build ✓ Pg.verify ✓ tests 6/6 ✓",
+      "refused": []
+    },
+    {
+      "id": 3,
+      "name": "Routes: create, list, complete, reopen",
+      "from": 361,
+      "to": 416,
+      "checks": "build ✓ tests 9/9 ✓",
+      "refused": [
+        {
+          "t": 388,
+          "checks": "build",
+          "why": "routes.ml:22 · route GET /tasks answers a list, its returns says one task"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Task states: open, done, reopened",
+      "from": 420,
+      "to": 448,
+      "checks": "build ✓ tests 11/11 ✓",
+      "refused": []
+    },
+    {
+      "id": 5,
+      "name": "Rule: due after now",
+      "from": 452,
+      "to": 480,
+      "checks": "build ✓ tests 12/12 ✓",
+      "refused": []
+    },
+    {
+      "id": 6,
+      "name": "Identity from the session",
+      "from": 484,
+      "to": 518,
+      "checks": "build ✓ layout ✓ tests 14/14 ✓ paths ✓",
+      "refused": []
+    },
+    {
+      "id": 7,
+      "name": "Permission: assignee or owner",
+      "from": 522,
+      "to": 609,
+      "checks": "build ✓ lint ✓ tests 16/16 ✓ paths ✓",
+      "refused": [
+        {
+          "t": 581,
+          "checks": "build",
+          "why": "routes.ml:41 · route POST /tasks/:id/complete may refuse `forbidden`, but its declaration does not list it"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Reminder: delay and job",
+      "from": 613,
+      "to": 687,
+      "checks": "build ✓ Pg.verify ✓ tests 19/19 ✓ paths ✓",
+      "refused": [
+        {
+          "t": 659,
+          "checks": "Pg.verify",
+          "why": "task_store.ml · insert_task: column reminder_job is bigint, the statement says text"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Email client for the catcher",
+      "from": 691,
+      "to": 778,
+      "checks": "build ✓ layout ✓ tests 21/21 ✓ paths ✓",
+      "refused": [
+        {
+          "t": 750,
+          "checks": "paths",
+          "why": "server/tasks/remind.ml is outside this item's paths: it belongs to item 10"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Remind the assignee",
+      "from": 782,
+      "to": 850,
+      "checks": "build ✓ layout ✓ tests 24/24 ✓ paths ✓",
+      "refused": [
+        {
+          "t": 822,
+          "checks": "layout",
+          "why": "server/tasks/model/due.ml names Rowtype: a model names no database"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "API spec and zod",
+      "from": 854,
+      "to": 869,
+      "checks": "openapi.json printed ✓ tasks.zod.ts printed ✓",
+      "refused": []
+    },
+    {
+      "id": 12,
+      "name": "Acceptance over HTTP",
+      "from": 875,
+      "to": 924,
+      "checks": "acceptance over HTTP: 7/7 examples ✓",
+      "refused": []
+    }
+  ],
+  "calls": [
+    {
+      "t": 284,
+      "spent": 0.023552
+    },
+    {
+      "t": 329,
+      "spent": 0.030208
+    },
+    {
+      "t": 342,
+      "spent": 0.035328
+    },
+    {
+      "t": 374,
+      "spent": 0.043136
+    },
+    {
+      "t": 401,
+      "spent": 0.045568
+    },
+    {
+      "t": 433,
+      "spent": 0.056832
+    },
+    {
+      "t": 465,
+      "spent": 0.063616
+    },
+    {
+      "t": 503,
+      "spent": 0.079744
+    },
+    {
+      "t": 541,
+      "spent": 0.080896
+    },
+    {
+      "t": 554,
+      "spent": 0.086144
+    },
+    {
+      "t": 567,
+      "spent": 0.08896
+    },
+    {
+      "t": 594,
+      "spent": 0.090624
+    },
+    {
+      "t": 632,
+      "spent": 0.093952
+    },
+    {
+      "t": 645,
+      "spent": 0.098176
+    },
+    {
+      "t": 672,
+      "spent": 0.099968
+    },
+    {
+      "t": 710,
+      "spent": 0.106624
+    },
+    {
+      "t": 723,
+      "spent": 0.108032
+    },
+    {
+      "t": 736,
+      "spent": 0.110336
+    },
+    {
+      "t": 763,
+      "spent": 0.110848
+    },
+    {
+      "t": 795,
+      "spent": 0.11584
+    },
+    {
+      "t": 808,
+      "spent": 0.116608
+    },
+    {
+      "t": 835,
+      "spent": 0.118784
+    }
+  ],
+  "passed": [
+    {
+      "t": 308,
+      "item": 1,
+      "checks": "build ✓ layout ✓"
+    },
+    {
+      "t": 356,
+      "item": 2,
+      "checks": "build ✓ Pg.verify ✓ tests 6/6 ✓"
+    },
+    {
+      "t": 415,
+      "item": 3,
+      "checks": "build ✓ tests 9/9 ✓"
+    },
+    {
+      "t": 447,
+      "item": 4,
+      "checks": "build ✓ tests 11/11 ✓"
+    },
+    {
+      "t": 479,
+      "item": 5,
+      "checks": "build ✓ tests 12/12 ✓"
+    },
+    {
+      "t": 517,
+      "item": 6,
+      "checks": "build ✓ layout ✓ tests 14/14 ✓ paths ✓"
+    },
+    {
+      "t": 608,
+      "item": 7,
+      "checks": "build ✓ lint ✓ tests 16/16 ✓ paths ✓"
+    },
+    {
+      "t": 686,
+      "item": 8,
+      "checks": "build ✓ Pg.verify ✓ tests 19/19 ✓ paths ✓"
+    },
+    {
+      "t": 777,
+      "item": 9,
+      "checks": "build ✓ layout ✓ tests 21/21 ✓ paths ✓"
+    },
+    {
+      "t": 849,
+      "item": 10,
+      "checks": "build ✓ layout ✓ tests 24/24 ✓ paths ✓"
+    },
+    {
+      "t": 868,
+      "item": 11,
+      "checks": "openapi.json printed ✓ tasks.zod.ts printed ✓"
+    },
+    {
+      "t": 898,
+      "item": 12,
+      "checks": "build ✓ lint ✓ layout ✓ Pg.verify ✓ tests 24/24 ✓ derived files ✓"
+    },
+    {
+      "t": 923,
+      "item": 12,
+      "checks": "acceptance over HTTP: 7/7 examples ✓"
+    }
+  ],
+  "refused": [
+    {
+      "t": 388,
+      "item": 3,
+      "checks": "build",
+      "why": "routes.ml:22 · route GET /tasks answers a list, its returns says one task"
+    },
+    {
+      "t": 581,
+      "item": 7,
+      "checks": "build",
+      "why": "routes.ml:41 · route POST /tasks/:id/complete may refuse `forbidden`, but its declaration does not list it"
+    },
+    {
+      "t": 659,
+      "item": 8,
+      "checks": "Pg.verify",
+      "why": "task_store.ml · insert_task: column reminder_job is bigint, the statement says text"
+    },
+    {
+      "t": 750,
+      "item": 9,
+      "checks": "paths",
+      "why": "server/tasks/remind.ml is outside this item's paths: it belongs to item 10"
+    },
+    {
+      "t": 822,
+      "item": 10,
+      "checks": "layout",
+      "why": "server/tasks/model/due.ml names Rowtype: a model names no database"
+    }
+  ],
+  "released": {
+    "t": 929,
+    "commit": "1635b79"
+  }
+}

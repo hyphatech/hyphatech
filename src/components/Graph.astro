@@ -1,7 +1,7 @@
 ---
 /* The ontology map: concepts, grouped by capability, and the named
-   relations between them. Concepts with an `entry` are open code: drawn
-   brighter and linked to their capability; the rest are fainter, unlinked.
+   relations between them. Concepts with an `entry` are open code, drawn
+   brighter; the rest are fainter. It illustrates, and links nowhere.
    Places are hand-set on a wide frame. Wide screens show the whole map;
    narrower ones a window on it. Names keep their size. Without JavaScript or with reduced motion it is static.
    Screen readers get each concept and the relations as sentences; the
@@ -9,6 +9,8 @@
 
 import { FRAME, bow, box, ground, ringBox, set, sides } from "./graph-geometry";
 import { groups, relations, things, type Group } from "../content/ontology";
+import Package from "@lucide/astro/icons/package";
+import FlaskConical from "@lucide/astro/icons/flask-conical";
 
 interface Props {
   /* Id of the heading that labels the map. */
@@ -20,55 +22,55 @@ const thing = (id: string) => things.find((t) => t.id === id)!;
 
 /* Hand-set places on the frame, grouped by capability. */
 const at: Record<string, [number, number]> = {
-  page: [600, 55],
+  page: [600, 60],
   component: [760, 70],
   form: [900, 60],
-  query: [690, 160],
-  state: [830, 150],
+  query: [690, 150],
+  state: [805, 135],
 
   tenant: [70, 315],
   identity: [70, 445],
-  audit: [70, 575],
+  audit: [70, 580],
   permission: [215, 280],
   ratelimit: [225, 415],
-  session: [225, 555],
+  session: [215, 520],
 
   refusal: [425, 235],
   response: [455, 345],
   route: [535, 435],
-  request: [435, 565],
-  handler: [735, 515],
+  request: [410, 520],
+  handler: [745, 520],
 
-  spec: [735, 240],
+  spec: [750, 290],
   shape: [835, 340],
-  client: [915, 230],
+  client: [915, 235],
 
   secret: [1175, 200],
   config: [1110, 305],
-  flag: [1265, 320],
+  flag: [1250, 290],
 
-  webhook: [1295, 430],
-  event: [1035, 480],
+  webhook: [1295, 435],
+  event: [1035, 495],
   queue: [1165, 515],
-  schedule: [1310, 570],
+  schedule: [1290, 570],
   job: [1175, 605],
 
-  statement: [745, 665],
-  row: [955, 675],
-  database: [690, 780],
-  migration: [580, 840],
-  pool: [820, 845],
-  transaction: [890, 770],
+  statement: [745, 670],
+  row: [925, 710],
+  database: [685, 760],
+  migration: [595, 810],
+  pool: [815, 810],
+  transaction: [890, 765],
 
   log: [110, 770],
-  metric: [230, 835],
-  trace: [290, 715],
+  metric: [220, 810],
+  trace: [315, 725],
   span: [450, 750],
-  health: [420, 840],
+  health: [420, 810],
 
-  cache: [1100, 830],
-  file: [1140, 740],
-  email: [1225, 845],
+  cache: [1100, 810],
+  file: [1120, 745],
+  email: [1255, 810],
   notification: [1270, 765],
 };
 const placed = things.map((t) => ({ ...t, x: at[t.id]![0], y: at[t.id]![1] }));
@@ -102,7 +104,7 @@ const classAt = (g: Group) =>
   <div class="field relative px-4 sm:px-6 md:px-10">
     <svg
       viewBox={`0 0 ${FRAME.w} ${FRAME.h}`}
-      class="graph block h-auto w-full overflow-visible select-none"
+      class="ontology block h-auto w-full overflow-visible select-none"
       data-graph
       data-things={JSON.stringify(placed)}
       data-groups={JSON.stringify(groups)}
@@ -178,20 +180,29 @@ const classAt = (g: Group) =>
               </text>
             </g>
           );
-          /* Open-code concepts link to their capability; the rest are
-             role="img" so screen readers still announce them. */
-          return t.entry ? (
-            <g class="node" data-node={t.id} data-capability={t.entry} transform={`translate(${t.x} ${t.y})`}>
-              <a href={`#cap-${t.group}`} aria-label={`${t.name}: ${t.is}`} data-stop>{mark}</a>
-            </g>
-          ) : (
-            <g class="node mapped" data-node={t.id} transform={`translate(${t.x} ${t.y})`} role="img" aria-label={`${t.name}: ${t.is}`} data-stop>
+          /* The map illustrates, and links nowhere: each concept is
+             role="img", so screen readers still announce it; open code
+             is drawn brighter. */
+          return (
+            <g class:list={["node", !t.entry && "mapped"]} data-node={t.id} data-capability={t.entry} transform={`translate(${t.x} ${t.y})`} role="img" aria-label={`${t.name}: ${t.is}`} data-stop>
               {mark}
             </g>
           );
         })
       }
     </svg>
+    {/* The concept in focus, said in a card beside it: its capability,
+        what it is, and the open component that provides it, or that it
+        is built where it is needed. Hidden from screen readers, which
+        hear the same from the concept itself. */}
+    <div class="peek" data-peek hidden aria-hidden="true">
+      <p class="peek-group" data-peek-group></p>
+      <p class="peek-name" data-peek-name></p>
+      <p class="peek-is" data-peek-is></p>
+      <ul class="peek-refusals" data-peek-refusals></ul>
+      <p class="peek-by"><Package size={14} /><code data-peek-by></code><span data-peek-entry></span></p>
+      <p class="peek-proof" data-peek-proof><FlaskConical size={13} /><span data-peek-test></span></p>
+    </div>
     {/* The relations as sentences, for screen readers. */}
     <ul class="sr-only">
       {relations.map((r) => <li>{`${thing(r.from).name} ${r.label} ${thing(r.to).name}.`}</li>)}
@@ -200,6 +211,40 @@ const classAt = (g: Group) =>
 </div>
 
 <style>
+  /* The card beside the concept in focus. */
+  .peek {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+    width: 19rem;
+    padding: 0.9rem 1rem 0.95rem;
+    border-radius: 12px;
+    border: 1px solid var(--color-rule);
+    background: color-mix(in oklab, var(--color-ivory) 88%, transparent);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 12px 32px -12px rgb(0 0 0 / 0.5);
+    pointer-events: none;
+    animation: peek 180ms var(--ease-glide);
+  }
+  .peek[hidden] { display: none; }
+  @media (width < 40rem) { .peek { width: calc(100% - 16px); } }
+  @keyframes peek { from { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .peek { animation: none; } }
+  .peek-group { font-size: 0.875rem; color: var(--color-graphite); }
+  .peek-name { margin-top: 0.3rem; font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.2; color: var(--color-ink); }
+  .peek-is { margin-top: 0.35rem; font-size: 0.875rem; line-height: 1.5; color: var(--color-graphite); }
+  .peek-refusals { margin-top: 0.6rem; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  .peek-refusals[hidden], .peek-proof[hidden] { display: none; }
+  .peek-refusals :global(li) { font-family: var(--font-mono); font-size: 0.75rem; padding: 0.1rem 0.45rem; border-radius: 6px; border: 1px dashed var(--color-rule); color: var(--color-graphite); }
+  .peek-by { margin-top: 0.75rem; padding-top: 0.6rem; border-top: 1px solid var(--color-rule); display: flex; align-items: center; gap: 0.45rem; font-size: 0.875rem; color: var(--color-graphite); min-width: 0; }
+  .peek-by code { font-family: var(--font-sans); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .peek-by span { margin-left: auto; color: var(--color-graphite); white-space: nowrap; }
+  .peek[data-open] .peek-by code { color: var(--color-ink); font-family: var(--font-mono); }
+  .peek-proof { margin-top: 0.35rem; display: flex; align-items: center; gap: 0.45rem; font-size: 0.75rem; line-height: 1.4; color: var(--color-graphite); }
+  .peek-by :global(svg), .peek-proof :global(svg) { flex: none; }
+  .peek[data-open] .peek-by :global(svg) { color: var(--color-accent); }
+
   /* Dotted background, faded toward the edges. */
   .paper {
     position: absolute;
@@ -209,7 +254,7 @@ const classAt = (g: Group) =>
   }
 
   /* The wide round stroke pads and softens the hull. */
-  .graph .ground {
+  .ontology .ground {
     fill: var(--color-ink);
     stroke: var(--color-ink);
     stroke-width: 28;
@@ -217,77 +262,77 @@ const classAt = (g: Group) =>
     opacity: 0.028;
     transition: opacity 400ms var(--ease-glide);
   }
-  .graph[data-focus] .ground {
+  .ontology[data-focus] .ground {
     opacity: 0.02;
   }
-  .graph[data-focus] .ground[data-lit] {
+  .ontology[data-focus] .ground[data-lit] {
     opacity: 0.06;
   }
 
-  .graph .line,
-  .graph .flow {
+  .ontology .line,
+  .ontology .flow {
     fill: none;
     stroke-linecap: round;
   }
-  .graph .line {
+  .ontology .line {
     stroke: var(--color-graphite);
     stroke-width: 1;
     stroke-dasharray: 1 1;
     transition: stroke 300ms var(--ease-glide);
   }
-  .graph .edge {
+  .ontology .edge {
     opacity: 0.32;
     transition: opacity 300ms var(--ease-glide);
   }
-  .graph .edge.faint {
+  .ontology .edge.faint {
     opacity: 0.16;
   }
-  .graph .edge text {
+  .ontology .edge text {
     opacity: 0;
     transition: opacity 300ms var(--ease-glide);
   }
-  .graph .node,
-  .graph .class {
+  .ontology .node,
+  .ontology .class {
     transition: opacity 300ms var(--ease-glide);
   }
-  .graph[data-focus] .class {
+  .ontology[data-focus] .class {
     opacity: 0.25;
   }
-  .graph[data-focus] .class[data-lit] {
+  .ontology[data-focus] .class[data-lit] {
     opacity: 1;
   }
-  .graph[data-focus] .node:not([data-lit]) {
+  .ontology[data-focus] .node:not([data-lit]) {
     opacity: 0.2;
   }
-  .graph[data-focus] .node[data-lit="2"] {
+  .ontology[data-focus] .node[data-lit="2"] {
     opacity: 0.6;
   }
-  .graph[data-focus] .edge {
+  .ontology[data-focus] .edge {
     opacity: 0.05;
   }
-  .graph[data-focus] .edge[data-lit="2"] {
+  .ontology[data-focus] .edge[data-lit="2"] {
     opacity: 0.26;
   }
-  .graph[data-focus] .edge[data-lit="1"] {
+  .ontology[data-focus] .edge[data-lit="1"] {
     opacity: 1;
   }
-  .graph[data-focus] .edge[data-lit="1"] .line {
+  .ontology[data-focus] .edge[data-lit="1"] .line {
     stroke: color-mix(in oklab, var(--color-ink) 55%, transparent);
   }
-  .graph[data-focus] .edge[data-lit="1"] text {
+  .ontology[data-focus] .edge[data-lit="1"] text {
     opacity: 1;
   }
 
   /* A short dash running from subject to object. `--flow` scales with
      length so every dash moves at the same speed. */
-  .graph .flow {
+  .ontology .flow {
     stroke: var(--color-ink);
     stroke-width: 1.75;
     stroke-dasharray: 0.09 1;
     stroke-dashoffset: 0.09;
     opacity: 0;
   }
-  .graph[data-focus] .edge[data-lit="1"] .flow {
+  .ontology[data-focus] .edge[data-lit="1"] .flow {
     animation: flow var(--flow, 1.6s) cubic-bezier(0.45, 0, 0.3, 1) 200ms infinite;
   }
   @keyframes flow {
@@ -305,34 +350,34 @@ const classAt = (g: Group) =>
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .graph .flow {
+    .ontology .flow {
       display: none;
     }
   }
 
-  .graph .node.mapped {
+  .ontology .node.mapped {
     cursor: default;
   }
-  .graph .node .hit {
+  .ontology .node .hit {
     pointer-events: all;
   }
-  .graph .node .ring,
-  .graph .node .dot {
+  .ontology .node .ring,
+  .ontology .node .dot {
     transform-box: fill-box;
     transform-origin: center;
   }
-  .graph .node .ring {
+  .ontology .node .ring {
     transition: transform 400ms var(--ease-glide);
   }
-  .graph .node:hover .ring,
-  .graph .node[data-lit="0"] .ring {
+  .ontology .node:hover .ring,
+  .ontology .node[data-lit="0"] .ring {
     transform: scale(1.35);
   }
   /* Focus shows on the ring in the accent, not as an outline. */
-  .graph [data-stop]:focus {
+  .ontology [data-stop]:focus {
     outline: none;
   }
-  .graph [data-stop]:focus-visible .ring {
+  .ontology [data-stop]:focus-visible .ring {
     stroke: var(--color-accent);
     stroke-width: 2;
   }
@@ -349,7 +394,7 @@ const classAt = (g: Group) =>
 
   /* Hidden until the draw-in animation starts. Visibility, not opacity,
      so lifting it starts no opacity transition to fight the draw-in. */
-  .graph[data-veiled] :is(.ground, .class, .edge, .node) {
+  .ontology[data-veiled] :is(.ground, .class, .edge, .node) {
     visibility: hidden;
   }
 </style>
@@ -358,7 +403,7 @@ const classAt = (g: Group) =>
   import { FRAME, apart, bow, box, ground, ringBox, set, sides } from "./graph-geometry";
   import { onceVisible, reducedMotion, whileVisible } from "../lib/motion";
 
-  type Thing = { id: string; name: string; group: string; is: string; x: number; y: number; entry?: string };
+  type Thing = { id: string; name: string; group: string; is: string; x: number; y: number; entry?: string; module?: string; refusals?: string[]; proof?: string };
   type Group = { id: string; name: string };
   type Relation = { from: string; to: string; label: string };
 
@@ -393,7 +438,7 @@ const classAt = (g: Group) =>
     const groups: Group[] = JSON.parse(svg.dataset.groups || "[]");
     const relations: Relation[] = JSON.parse(svg.dataset.relations || "[]");
 
-    /* `stop` takes focus (the link or the node). `hx`, `hy`: home place;
+    /* `stop` takes focus (the node). `hx`, `hy`: home place;
        `ox`, `oy`: lean offset; `vx`, `vy`: its velocity; `tx`, `ty`: its
        target. */
     type N = {
@@ -672,16 +717,76 @@ const classAt = (g: Group) =>
       loop?.play();
     };
     let forward: N | null = null;
+    /* The card beside the concept in focus, on the side with room. */
+    const peek = field.querySelector<HTMLElement>("[data-peek]")!;
+    const said = (k: string) => peek.querySelector<HTMLElement>(`[data-peek-${k}]`)!;
+    const show = (n: N) => {
+      said("group").textContent = groups.find((g) => g.id === n.t.group)?.name ?? "";
+      said("name").textContent = n.t.name;
+      said("is").textContent = n.t.is;
+      said("by").textContent = n.t.entry ? n.t.module ?? n.t.entry : "Built where it is needed";
+      said("entry").textContent = n.t.entry && n.t.module ? n.t.entry : "";
+      const refusals = n.t.refusals ?? [];
+      said("refusals").replaceChildren(
+        ...[...refusals.slice(0, 3), ...(refusals.length > 3 ? [`+${refusals.length - 3}`] : [])].map((r) => {
+          const li = document.createElement("li");
+          li.textContent = r;
+          return li;
+        }),
+      );
+      said("refusals").hidden = !refusals.length;
+      said("test").textContent = n.t.proof ?? "";
+      said("proof").hidden = !n.t.proof;
+      peek.toggleAttribute("data-open", !!n.t.entry);
+      peek.hidden = false;
+      const vb = svg.viewBox.baseVal, r = svg.getBoundingClientRect(), f = field.getBoundingClientRect();
+      const k = r.width / vb.width;
+      const at = (m: N) => [r.left - f.left + (m.hx - vb.x) * k, r.top - f.top + (m.hy - vb.y) * k] as const;
+      const w = peek.offsetWidth, h = peek.offsetHeight, W = f.width, H = field.clientHeight;
+      /* On a phone the card docks under the map's window. */
+      if (W < 640) {
+        peek.style.transform = `translate(8px, ${(H - h - 8).toFixed(0)}px)`;
+        return;
+      }
+      /* Elsewhere, beside the concept, on the side that hides the fewest
+         of the concepts lit with it. */
+      const [px, py] = at(n), gap = 24;
+      /* What it should not hide: the concept, its name, and those lit
+         with it, measured as drawn. */
+      const rect = (m: N) => { const q = m.el.getBoundingClientRect(); return { l: q.left - f.left, t: q.top - f.top, r: q.right - f.left, b: q.bottom - f.top }; };
+      const own = rect(n);
+      const lit = [...nodes.values()].filter((m) => m !== n && m.el.getAttribute("data-lit") === "1").map(rect);
+      const overlap = (o: ReturnType<typeof rect>, x: number, y: number) =>
+        Math.max(0, Math.min(o.r, x + w) - Math.max(o.l, x)) * Math.max(0, Math.min(o.b, y + h) - Math.max(o.t, y));
+      const sides = [
+        [own.r + gap, py - h / 2],
+        [own.l - gap - w, py - h / 2],
+        [px - w / 2, own.b + gap],
+        [px - w / 2, own.t - gap - h],
+        [own.r + gap, own.b + gap],
+        [own.l - gap - w, own.b + gap],
+        [own.r + gap, own.t - gap - h],
+        [own.l - gap - w, own.t - gap - h],
+      ].map(([x, y]) => {
+        const cx = Math.min(Math.max(8, x!), W - w - 8), cy = Math.min(Math.max(8, y!), H - h - 8);
+        const score = overlap(own, cx - 8, cy - 8) * 100 + lit.reduce((sum, o) => sum + overlap(o, cx - 6, cy - 6), 0) + Math.hypot(cx - x!, cy - y!) * 2;
+        return { x: cx, y: cy, score };
+      });
+      const best = sides.reduce((p, q) => (q.score < p.score ? q : p));
+      peek.style.transform = `translate(${best.x.toFixed(0)}px, ${best.y.toFixed(0)}px)`;
+    };
     const enter = (n: N) => {
       forward = n;
       focus((m) => m === n);
+      show(n);
     };
     const leave = () => {
       forward = null;
       focus(null);
+      peek.hidden = true;
     };
-    /* Mouse: hover focuses. Touch: no hover, so the first tap focuses and
-       a second tap follows a link. Hit area grows to fingertip size. */
+    /* Mouse: hover focuses. Touch: no hover, so a tap focuses. Hit area
+       grows to fingertip size. */
     let tapped: { n: N; armed: boolean } | null = null;
     if (matchMedia("(pointer: coarse)").matches)
       for (const hit of svg.querySelectorAll(".hit")) hit.setAttribute("r", "22");

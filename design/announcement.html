@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hypha Announcements</title>
+  <!-- The cards a product is announced with, wide (1600 × 900, for
+       Reddit and any link) and tall (1080 × 1350, for LinkedIn). One
+       grammar in every card, the site's: the words open it, heading
+       then lede, and the product itself bears them out beside them, its
+       window running off the card's edge, its code in a panel.
+
+         showcase  the words, the product's window, its code in a panel
+                   over the corner between them
+         bento     two columns on two rows: the words over two short
+                   features, the product's window over two tall ones,
+                   each a panel: its icon and name, what shows it, a
+                   line
+         portrait  the tall card: the words, then the code and what it
+                   draws
+
+       A new announcement copies the card of the layout it needs and
+       changes its words and pictures. Every card is in the docs' palette (docs), on Blue
+       Horizon (blue-horizon), under the halftone. Open as is for every
+       card; ?only=<id> shows one flush at 0,0 for a screenshot, and
+       render.sh takes them all. -->
+  <link rel="stylesheet" href="social.css">
+  <style>
+    .wide { width: 1600px; height: 900px; }
+    .tall { width: 1080px; height: 1350px; }
+    .image > :not(.halftone) { position: absolute; }
+
+    /* The product's window, in its own colours, as an object. */
+    .shot { border-radius: 16px; overflow: hidden; background: #000; }
+    .window .bar { height: 40px; display: flex; align-items: center; justify-content: center; background: var(--panel); border-bottom: 1px solid var(--rule); font-size: 14px; color: var(--graphite); }
+    .window .view { overflow: hidden; }
+    .window .view img { display: block; width: 100%; height: auto; }
+
+    /* Wide cards: the words in a column on the left, the window from
+       its right to past the card's edge. */
+    .wide .wordmark { --size: 26px; left: 72px; top: 72px; }
+    .wide .hero { left: 72px; top: 152px; }
+    .wide .window { top: 72px; }
+    .wide .window .view { height: 680px; }
+
+    .showcase .hero { font-size: 84px; }
+    .showcase .lede { --lede: 24px; left: 72px; top: 341px; width: 440px; line-height: 1.45; }
+    .showcase .window { left: 580px; width: 1180px; }
+    .showcase .window .view img { width: 1245px; }
+    .showcase .panel { left: 72px; top: 459px; width: 640px; }
+    .showcase .panel pre { padding: 20px 28px 22px; font-size: 14px; line-height: 1.5; }
+
+    /* Bento: one grid of two columns, the words and the product, on
+       two rows, every edge on the 24px gutter: the left column the
+       words over two short features, the right the window over two
+       tall ones, wide for what shows most. Each feature a panel: its
+       icon and name, what shows it, one line. */
+    .bento .hero { font-size: 76px; line-height: 1.02; }
+    .bento .lede { --lede: 24px; left: 72px; top: 341px; width: 470px; line-height: 1.45; }
+    .bento .window { left: 596px; width: 932px; height: 363px; }
+    .bento .window .view { height: 323px; }
+    .feature { display: flex; flex-direction: column; min-height: 0; }
+    .feature .panel-head { font: 500 18px/1.3 var(--sans); color: var(--ink); padding: 13px 12px; }
+    .feature .panel-head svg { width: 20px; height: 20px; color: var(--graphite); }
+    .feature .panel-well { position: relative; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+    .feature .foot { padding: 12px 12px 4px; font-size: 16px; line-height: 1.45; color: var(--graphite); }
+    .f-palettes { left: 72px; top: 459px; width: 500px; height: 172px; }
+    .f-styles { left: 72px; top: 655px; width: 500px; height: 173px; }
+    .f-search { left: 596px; top: 459px; width: 560px; height: 369px; }
+    .f-reading { left: 1180px; top: 459px; width: 348px; height: 369px; }
+    .swatches { display: flex; gap: 10px; }
+    .swatch { position: relative; width: 32px; height: 32px; border-radius: 50%; overflow: hidden; display: flex; box-shadow: 0 0 0 1px var(--rule); }
+    .swatch i { width: 50%; }
+    .swatch b { position: absolute; inset: 9px; border-radius: 50%; }
+    .feature .panel-well > img.crop { position: absolute; top: -8px; left: -6px; width: 680px; max-width: none; }
+    .feature pre { font-size: 16px; line-height: 1.6; color: var(--graphite); }
+    .feature pre b { font-weight: 400; color: var(--ink); }
+    .feature svg.sketch { width: 74%; height: auto; color: var(--graphite); }
+
+    /* Portrait: the name, the headline, then the figure to the foot. */
+    .portrait .wordmark { --size: 40px; left: 80px; top: 80px; }
+    .portrait .hero { font-size: 76px; line-height: 1; left: 80px; top: 188px; }
+    .portrait .panel pre { padding: 28px 34px; font-size: 18px; line-height: 1.6; }
+    /* Code, and what it draws lying over its foot. */
+    .drawing .panel { left: 80px; top: 404px; width: 920px; height: 680px; padding: 8px; }
+    .drawing .panel-well { height: 100%; }
+    .drawing .drawn { left: 200px; top: 964px; width: 680px; border-radius: 38px; box-shadow: 0 32px 64px -32px rgb(0 0 0 / 0.9); }
+  </style>
+</head>
+<body>
+
+  <div>
+    <div class="name">Showcase · 1600 × 900</div>
+    <div class="image wide showcase docs blue-horizon" id="solidtype-showcase" data-size="1600,900">
+      <div class="halftone"></div>
+      <div class="wordmark"><img src="../public/brand/hypha-white-shaded.svg" alt=""><div>hypha<span>.solidtype</span></div></div>
+      <h1 class="hero">Solid apps<br><span>in OCaml.</span></h1>
+      <p class="lede">An alternative to TypeScript, with complete bindings to Solid and Kobalte.</p>
+      <div class="shot window object">
+        <div class="bar">localhost:4420</div>
+        <div class="view"><img src="announcements/assets/solidtype/board.png" alt=""></div>
+      </div>
+      <div class="panel object">
+        <div class="panel-head"><svg class="icon" viewBox="0 0 24 24"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>example/src/app.mlx</div>
+        <div class="panel-well"><pre><span class="k">let</span> filter, set_filter <span class="p">=</span> S.create_signal <span class="s">""</span> <span class="k">in</span>
+
+<span class="k">let</span> in_column status <span class="p">=</span>
+  Js.Array.filter <span class="p">(</span>in_view <span class="p">())</span>
+    ~f<span class="p">:(</span><span class="k">fun</span> <span class="p">(</span>t <span class="p">:</span> Api.task<span class="p">)</span> <span class="p">-&gt;</span>
+      Status.equal t.status status <span class="p">&amp;&amp;</span> matches <span class="p">(</span>S.get filter<span class="p">)</span> t<span class="p">)</span>
+<span class="k">in</span>
+
+<span class="p">&lt;</span>Search_field
+  value<span class="p">=(</span><span class="k">fun</span> <span class="p">() -&gt;</span> S.get filter<span class="p">)</span>
+  on_change<span class="p">=(</span>S.set set_filter<span class="p">)&gt;</span>
+  <span class="p">&lt;</span>Search_field.Input placeholder<span class="p">=</span><span class="s">"Filter board"</span> <span class="p">/&gt;</span>
+<span class="p">&lt;/</span>Search_field<span class="p">&gt;</span></pre></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="name">Portrait, code and what it draws · 1080 × 1350</div>
+    <div class="image tall portrait drawing docs blue-horizon" id="solidtype-portrait" data-size="1080,1350">
+      <div class="halftone"></div>
+      <div class="wordmark"><img src="../public/brand/hypha-white-shaded.svg" alt=""><div>hypha<span>.solidtype</span></div></div>
+      <h1 class="hero">The reactive UI<br><span>for modern OCaml.</span></h1>
+      <div class="panel"><div class="panel-well"><pre><span class="k">let</span> make <span class="p">() =</span>
+  <span class="p">&lt;</span>Modal.Backdrop default_open<span class="p">=</span><span class="k">true</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span>Modal.Container<span class="p">&gt;</span>
+      <span class="p">&lt;</span>Modal.Dialog class_<span class="p">=</span><span class="s">"sm:max-w-[400px]"</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span>Modal.Header<span class="p">&gt;</span>
+          <span class="p">&lt;</span>Modal.Icon class_<span class="p">=</span><span class="s">"bg-success-soft text-success-soft-foreground"</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span>Gravity.Lock_open class_<span class="p">=</span><span class="s">"size-5"</span> <span class="p">/&gt;</span>
+          <span class="p">&lt;/</span>Modal.Icon<span class="p">&gt;</span>
+          <span class="p">&lt;</span>Modal.Heading<span class="p">&gt;</span><span class="s">"Full stack, unlocked"</span><span class="p">&lt;/</span>Modal.Heading<span class="p">&gt;</span>
+        <span class="p">&lt;/</span>Modal.Header<span class="p">&gt;</span>
+        <span class="p">&lt;</span>Modal.Footer<span class="p">&gt;</span>
+          <span class="p">&lt;</span>Button class_<span class="p">=</span><span class="s">"w-full"</span> slot<span class="p">=</span><span class="s">`close</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span>Gravity.Rocket <span class="p">/&gt;</span> <span class="s">"Start building"</span>
+          <span class="p">&lt;/</span>Button<span class="p">&gt;</span>
+        <span class="p">&lt;/</span>Modal.Footer<span class="p">&gt;</span>
+      <span class="p">&lt;/</span>Modal.Dialog<span class="p">&gt;</span>
+    <span class="p">&lt;/</span>Modal.Container<span class="p">&gt;</span>
+  <span class="p">&lt;/</span>Modal.Backdrop<span class="p">&gt;</span></pre></div></div>
+      <img class="drawn" src="announcements/assets/solidtype/modal-demo.png" alt="">
+    </div>
+  </div>
+
+<script>
+  /* ?only=<id> keeps one card, for a screenshot. */
+  const only = new URLSearchParams(location.search).get("only");
+  if (only) {
+    document.body.classList.add("only");
+    for (const card of document.querySelectorAll(".image")) if (card.id !== only) card.parentElement.remove();
+  }
+</script>
+</body>
+</html>

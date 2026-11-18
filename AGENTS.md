@@ -17,6 +17,18 @@ make help    # every other target, each with its one line
 `.github/workflows/pages.yml` checks, builds and publishes the site to
 hyphatech.io on every push to `main`.
 
+Work lands on `main` directly, without a pull request:
+`/hypha-workflow:merge` squashes a worktree onto the local `main`, and
+its owner pushes `main`, which publishes it.
+
+## Design
+
+`DESIGN.md` is how the site looks and the patterns every page is built
+from ("Sound by design"); `PRODUCT.md` is who each page is for. Read
+both before changing a page. A page builds from the patterns there (the
+`k-` classes in `src/styles/site.css` and the components); something
+they cannot show becomes a pattern in `DESIGN.md` first.
+
 ## Components
 
 Each open component has a page at `/stack/<slug>`, drawn from its entry

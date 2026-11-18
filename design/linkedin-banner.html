@@ -3,76 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <title>Hypha Banners</title>
-  <!-- Banners for LinkedIn, and the link preview, with the hero's Chladni sand behind them: the
-       site's simulation, seeded and run to one settled frame. Open as is
-       for every variant; ?only=<id> shows one flush at 0,0 for a
-       screenshot. -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500&family=Roboto+Slab:wght@400&display=block" rel="stylesheet">
+  <!-- Banners for LinkedIn, and the link preview, each on Ember
+       and on Horizon, under the halftone. Open as is for every
+       variant; ?only=<id> shows one flush at 0,0 for a screenshot, and
+       render.sh takes them all. -->
+  <link rel="stylesheet" href="social.css">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --night: #15120e;
-      --paper: #f3efe8;
-      --graphite: #948c83;
-      --accent: #d4a820;
-      --serif: "Roboto Slab", Georgia, serif;
-      --sans: "Inter Tight", system-ui, sans-serif;
-    }
-
-    body {
-      background: #2a251f;
-      padding: 72px 80px;
-      display: flex;
-      flex-direction: column;
-      gap: 64px;
-      align-items: flex-start;
-    }
-    body.only { padding: 0; gap: 0; background: var(--night); }
-    body.only .label { display: none; }
-
-    .label {
-      font: 500 11px/1 var(--sans);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--graphite);
-      margin-bottom: 16px;
-    }
-
-    .banner {
-      position: relative;
-      overflow: hidden;
-      flex-shrink: 0;
-      background: var(--night);
-      color: var(--paper);
-    }
     /* LinkedIn personal profile: 1584 × 396. Company page: 1128 × 191. */
     .personal { width: 1584px; height: 396px; }
     .company  { width: 1128px; height: 191px; }
     /* The link preview every page shares (public/og.jpg): 1200 × 630. */
     .og       { width: 1200px; height: 630px; }
 
-    .banner canvas { position: absolute; inset: 0; }
-
-    .wordmark {
-      position: absolute;
-      display: flex; align-items: center;
-      font: 500 var(--size)/1 var(--sans);
-      letter-spacing: -0.01em;
-    }
-    .wordmark img { height: calc(var(--size) * 1.55); width: auto; margin-right: calc(var(--size) * 0.44); }
-
-    .hero {
-      position: absolute;
-      font-family: var(--serif);
-      font-weight: 400;
-      line-height: 0.98;
-      letter-spacing: -0.025em;
-      white-space: nowrap;
-    }
-    .hero span { color: var(--accent); }
+    .banner .wordmark, .banner .hero { position: absolute; }
+    /* A banner is seen at about half its size, and the grain with it. */
+    .banner .grain { opacity: 0.22; }
 
     /* Personal: the profile photo sits over the lower left, so the words
        go right and the wordmark top left, clear of it. */
@@ -80,194 +25,52 @@
     .personal .hero { font-size: 64px; right: 96px; top: 50%; transform: translateY(-50%); }
 
     .company .hero { font-size: 32px; right: 56px; top: 50%; transform: translateY(-50%); }
+
     /* The preview: wordmark top left, the words low on the left, as the
        hero sets them. */
-    .og .wordmark { --size: 22px; top: 64px; left: 80px; }
+    .og .wordmark { --size: 24px; top: 64px; left: 80px; }
     .og .hero { font-size: 80px; left: 80px; bottom: 80px; }
   </style>
 </head>
 <body>
 
   <div>
-    <div class="label">Personal · 1584 × 396 · mode 8·10</div>
-    <div class="banner personal" id="p810" data-mode="8,10,1" data-seed="19">
-      <canvas></canvas>
-      <div class="wordmark"><img src="../public/hypha.webp" alt="">hypha</div>
-      <div class="hero" data-clear>The missing foundation<br><span>for agentic engineering.</span></div>
-    </div>
+    <div class="name">Personal · 1584 × 396 · Ember</div>
+    <div class="image banner personal ember" id="personal-ember"><div class="grain"></div><div class="halftone"></div><div class="wordmark"><img src="../public/brand/hypha-white-shaded.svg" alt="">hypha</div><div class="hero">The missing foundation<br><span>for agentic engineering.</span></div></div>
   </div>
 
   <div>
-    <div class="label">Personal, without the words · 1584 × 396 · mode 8·10</div>
-    <div class="banner personal" id="p810plain" data-mode="8,10,1" data-seed="19">
-      <canvas></canvas>
-      <div class="wordmark"><img src="../public/hypha.webp" alt="">hypha</div>
-    </div>
+    <div class="name">Personal · 1584 × 396 · Horizon</div>
+    <div class="image banner personal horizon" id="personal-horizon"><div class="grain"></div><div class="halftone"></div><div class="wordmark"><img src="../public/brand/hypha-white-shaded.svg" alt="">hypha</div><div class="hero">The missing foundation<br><span>for agentic engineering.</span></div></div>
   </div>
 
   <div>
-    <div class="label">Company page · 1128 × 191 · mode 8·10</div>
-    <div class="banner company" id="c810" data-mode="8,10,1" data-seed="31">
-      <canvas></canvas>
-      <div class="hero" data-clear>The missing foundation<br><span>for agentic engineering.</span></div>
-    </div>
+    <div class="name">Company page · 1128 × 191 · Ember</div>
+    <div class="image banner company ember" id="company-ember"><div class="grain"></div><div class="halftone"></div><div class="hero">The missing foundation<br><span>for agentic engineering.</span></div></div>
   </div>
 
   <div>
-    <div class="label">Link preview · 1200 × 630 · mode 8·10</div>
-    <div class="banner og" id="og" data-mode="8,10,1" data-seed="7">
-      <canvas></canvas>
-      <div class="wordmark"><img src="../public/hypha.webp" alt="">hypha</div>
-      <div class="hero" data-clear>The missing foundation<br><span>for agentic engineering.</span></div>
-    </div>
+    <div class="name">Company page · 1128 × 191 · Horizon</div>
+    <div class="image banner company horizon" id="company-horizon"><div class="grain"></div><div class="halftone"></div><div class="hero">The missing foundation<br><span>for agentic engineering.</span></div></div>
   </div>
+
+  <div>
+    <div class="name">Link preview · 1200 × 630 · Ember</div>
+    <div class="image banner og ember" id="og-ember"><div class="grain"></div><div class="halftone"></div><div class="wordmark"><img src="../public/brand/hypha-white-shaded.svg" alt="">hypha</div><div class="hero">The missing foundation<br><span>for agentic engineering.</span></div></div>
+  </div>
+
+  <div>
+    <div class="name">Link preview · 1200 × 630 · Horizon</div>
+    <div class="image banner og horizon" id="og-horizon"><div class="grain"></div><div class="halftone"></div><div class="wordmark"><img src="../public/brand/hypha-white-shaded.svg" alt="">hypha</div><div class="hero">The missing foundation<br><span>for agentic engineering.</span></div></div>
+  </div>
+
 <script>
-  /* The constants of src/components/Chladni.astro, so the sand reads as
-     the hero's. */
-  const HOLD = 9, EASE = 3.2, SHIMMER = 0.18;
-  const THROW = 0.009, SLIDE = 0.0018;
-  const DENSITY = 0.16, FEWEST = 30000, MOST = 160000;
-  /* A grain is drawn as a soft dot DOT CSS pixels across its middle, not
-     one device pixel: LinkedIn shows a banner at about half its size and
-     recompresses it, and a hairline does not survive either. Sand builds
-     up as 1 - e^(-GAIN·grains), to at most PEAK. */
-  const DOT = 1.8, GAIN = 0.3, PEAK = 0.66;
-  /* Sand under the words, as a share, and the feather of its edge. */
-  const UNDER_WORDS = 0.08, FEATHER = 28;
-  /* Rendered at this many device pixels per CSS pixel, set from the
-     screenshot's scale; a dot is sized in CSS pixels, so the sand reads
-     the same at any scale. */
-  const SCALE = window.devicePixelRatio || 1;
-
-  const LEVELS = 1024;
-  const EASED = new Float32Array(LEVELS + 1);
-  for (let k = 0; k <= LEVELS; k++) EASED[k] = Math.min(1, k / LEVELS) ** 0.35;
-
-  /* Seeded, so a banner is the same every time it is rendered. */
-  function random(seed) {
-    let s = seed >>> 0;
-    return () => {
-      s = (s + 0x6d2b79f5) >>> 0;
-      let t = s;
-      t = Math.imul(t ^ (t >>> 15), t | 1);
-      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }
-
-  function settle(banner) {
-    const [n, m, sign] = banner.dataset.mode.split(",").map(Number);
-    const rnd = random(Number(banner.dataset.seed));
-    const cssW = banner.clientWidth, cssH = banner.clientHeight;
-    const width = Math.round(cssW * SCALE), height = Math.round(cssH * SCALE);
-    /* A square plate as wide as the banner's longer side times its zoom,
-       centred, then moved across by its shift, a share of the width. */
-    const zoom = Number(banner.dataset.zoom || 1), shift = Number(banner.dataset.shift || 0);
-    const side = Math.max(width, height) * zoom;
-    const offsetX = (width - side) / 2 + shift * width, offsetY = (height - side) / 2;
-    const a = n * Math.PI, c = m * Math.PI;
-
-    const along = (length, from, k) => {
-      const cos = new Float32Array(length + 1), sin = new Float32Array(length + 1);
-      for (let i = 0; i <= length; i++) {
-        const p = (k * (i + 0.5 - from)) / side;
-        cos[i] = Math.cos(p); sin[i] = Math.sin(p);
-      }
-      return [cos, sin];
-    };
-    const [cax, sax] = along(width, offsetX, a), [ccx, scx] = along(width, offsetX, c);
-    const [cay, say] = along(height, offsetY, a), [ccy, scy] = along(height, offsetY, c);
-
-    const grains = Math.round(Math.min(MOST, Math.max(FEWEST, cssW * cssH * DENSITY)));
-    const x = new Float32Array(grains), y = new Float32Array(grains);
-    for (let i = 0; i < grains; i++) { x[i] = rnd() * width; y[i] = rnd() * height; }
-
-    /* Shaken from full down to its shimmer, then held there; the frame
-       the site rests on. */
-    const frames = Math.round(HOLD * 0.8 * 60);
-    const slide = SLIDE * side * 0.05;
-    for (let f = 0; f < frames; f++) {
-      const into = f / 60;
-      const strength = SHIMMER + (1 - SHIMMER) * Math.exp(-into / (EASE / 3));
-      const throwBy = THROW * side * strength;
-      for (let i = 0; i < grains; i++) {
-        const ix = x[i] | 0, iy = y[i] | 0;
-        const v = cax[ix] * ccy[iy] + sign * ccx[ix] * cay[iy];
-        const fx = -a * sax[ix] * ccy[iy] - sign * c * scx[ix] * cay[iy];
-        const fy = -c * cax[ix] * scy[iy] - sign * a * ccx[ix] * say[iy];
-        const swing = v < 0 ? -v : v;
-        const move = EASED[swing >= 2 ? LEVELS : (swing * (LEVELS / 2)) | 0];
-        let qx = x[i] + (rnd() - 0.5) * 2 * throwBy * move - slide * v * fx;
-        let qy = y[i] + (rnd() - 0.5) * 2 * throwBy * move - slide * v * fy;
-        if (qx < 0) qx = -qx; else if (qx >= width) qx = 2 * width - qx - 1;
-        if (qy < 0) qy = -qy; else if (qy >= height) qy = 2 * height - qy - 1;
-        x[i] = qx; y[i] = qy;
-      }
-    }
-
-    const canvas = banner.querySelector("canvas");
-    canvas.width = width; canvas.height = height;
-    canvas.style.width = cssW + "px"; canvas.style.height = cssH + "px";
-    const context = canvas.getContext("2d");
-    const image = context.createImageData(width, height);
-    const colour = new Uint32Array(image.data.buffer);
-    /* The share of sand kept at each pixel: UNDER_WORDS inside the
-       words' boxes, rising to all of it over FEATHER outside them. */
-    const keep = new Float32Array(width * height).fill(1);
-    const box = banner.getBoundingClientRect();
-    const feather = FEATHER * SCALE;
-    for (const words of banner.querySelectorAll("[data-clear], .wordmark")) {
-      const r = words.getBoundingClientRect();
-      const l = (r.left - box.left) * SCALE, t = (r.top - box.top) * SCALE;
-      const rr = (r.right - box.left) * SCALE, b = (r.bottom - box.top) * SCALE;
-      for (let py = Math.max(0, t - feather | 0); py < Math.min(height, b + feather); py++)
-        for (let px = Math.max(0, l - feather | 0); px < Math.min(width, rr + feather); px++) {
-          const dx = Math.max(l - px, 0, px - rr), dy = Math.max(t - py, 0, py - b);
-          const d = Math.min(1, Math.hypot(dx, dy) / feather);
-          const k = UNDER_WORDS + (1 - UNDER_WORDS) * d * d * (3 - 2 * d);
-          const i = py * width + px;
-          if (k < keep[i]) keep[i] = k;
-        }
-    }
-    /* Each grain adds a Gaussian dot to the sand's depth at every pixel
-       it covers. */
-    const depth = new Float32Array(width * height);
-    const sigma = (DOT / 2) * SCALE, reach = Math.ceil(sigma * 2.5);
-    const dot = [];
-    for (let dy = -reach; dy <= reach; dy++)
-      for (let dx = -reach; dx <= reach; dx++) {
-        const w = Math.exp(-(dx * dx + dy * dy) / (2 * sigma * sigma));
-        if (w > 0.02) dot.push(dx, dy, w);
-      }
-    for (let i = 0; i < grains; i++) {
-      const gx = x[i] | 0, gy = y[i] | 0;
-      for (let j = 0; j < dot.length; j += 3) {
-        const px = gx + dot[j], py = gy + dot[j + 1];
-        if (px >= 0 && px < width && py >= 0 && py < height) depth[py * width + px] += dot[j + 2];
-      }
-    }
-    const rgb = (0xe8 << 16) | (0xef << 8) | 0xf3;
-    for (let k = 0; k < depth.length; k++) {
-      if (!depth[k]) continue;
-      const alpha = Math.round(255 * PEAK * (1 - Math.exp(-GAIN * depth[k])) * keep[k]);
-      colour[k] = ((alpha << 24) | rgb) >>> 0;
-    }
-    context.putImageData(image, 0, 0);
-  }
-
-  /* ?only=<id> keeps one banner; mode, seed, zoom and shift in the query
-     then try another figure on it without editing the page. */
-  const query = new URLSearchParams(location.search), only = query.get("only");
+  /* ?only=<id> keeps one banner, for a screenshot. */
+  const only = new URLSearchParams(location.search).get("only");
   if (only) {
     document.body.classList.add("only");
     for (const b of document.querySelectorAll(".banner")) if (b.id !== only) b.parentElement.remove();
-    const banner = document.getElementById(only);
-    for (const key of ["mode", "seed", "zoom", "shift"]) if (query.has(key)) banner.dataset[key] = query.get(key);
   }
-  document.fonts.ready.then(() => {
-    for (const banner of document.querySelectorAll(".banner")) settle(banner);
-    document.body.dataset.ready = "";
-  });
 </script>
 </body>
 </html>

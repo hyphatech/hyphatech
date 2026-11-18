@@ -1,0 +1,132 @@
+---
+/* A page's sections as a rail on the right edge: a hairline tick for
+   each, the one in view longer and gold, as the steps' index marks the
+   step in view. Its names show beside the ticks while the rail is
+   hovered or focused. It says at a glance that the page goes on, and
+   how far. In the margin from a laptop up; below, the page scrolls
+   under a finger anyway. Over paper its greys are paper's.
+
+   Every page has it: each section names itself with an id and a
+   `data-rail-name` (`rail` on Section, Hero and TitleBand), and the
+   rail lists them in order. A page of fewer than three has none. */
+---
+
+<nav class="rail" aria-label="Sections" data-rail hidden>
+  <ol></ol>
+</nav>
+
+<style>
+  .rail {
+    display: none;
+    position: fixed;
+    top: 50%;
+    right: 1.25rem;
+    z-index: 20;
+    transform: translateY(-50%);
+    --rail-ink: var(--paper);
+    --rail-graphite: var(--graphite-on-night);
+    --rail-ground: var(--night);
+  }
+  .rail[data-light] {
+    --rail-ink: var(--night);
+    --rail-graphite: var(--graphite-on-paper);
+    --rail-ground: var(--paper);
+  }
+  @media (width >= 80rem) {
+    .rail:not([hidden]) { display: block; }
+  }
+  .rail ol { display: flex; flex-direction: column; align-items: flex-end; }
+  .rail :global(a) {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    height: 1.75rem;
+    color: var(--rail-graphite);
+    transition: color 120ms var(--ease-state);
+  }
+  .rail :global(.tick) {
+    display: block;
+    width: 0.75rem;
+    height: 1px;
+    background: currentColor;
+    transition: width 200ms var(--ease-glide), background-color 120ms var(--ease-state);
+  }
+  .rail :global(a[aria-current] .tick) { width: 1.5rem; background: var(--accent-on-night); }
+  .rail :global(a:hover .tick) { width: 1.5rem; }
+  .rail :global(a:hover),
+  .rail :global(a[aria-current]) { color: var(--rail-ink); }
+
+  /* The names: unseen until the rail is hovered or holds focus, then on
+     the ground they lie over, so a line of the page under them never
+     reads through. */
+  .rail :global(.name) {
+    font-size: 0.875rem;
+    line-height: 1;
+    white-space: nowrap;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-control);
+    background: var(--rail-ground);
+    opacity: 0;
+    transform: translateX(0.25rem);
+    pointer-events: none;
+    transition: opacity 160ms var(--ease-state), transform 160ms var(--ease-state);
+  }
+  .rail:hover :global(.name),
+  .rail:focus-within :global(.name) {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+  .rail :focus-visible { outline-offset: 2px; }
+  .rail[data-light] :focus-visible { outline-color: var(--night); }
+</style>
+
+<script>
+  /* The page's sections, as they name themselves: each with an id and
+     a `data-rail-name`, in the order they stand. */
+  for (const rail of document.querySelectorAll<HTMLElement>("[data-rail]")) {
+    const targets = [...document.querySelectorAll<HTMLElement>("main [data-rail-name][id]")].map((el) => ({ el, name: el.dataset.railName! }));
+    if (targets.length < 3) continue;
+
+    const list = rail.querySelector("ol")!;
+    const links = targets.map(({ el, name }) => {
+      const a = document.createElement("a");
+      a.href = `#${el.id}`;
+      a.innerHTML = `<span class="name"></span><span class="tick" aria-hidden="true"></span>`;
+      a.querySelector(".name")!.textContent = name;
+      const li = document.createElement("li");
+      li.append(a);
+      list.append(li);
+      return a;
+    });
+    rail.hidden = false;
+
+    /* The section in view is the last whose top has passed the window's
+       middle, and the last of all at the page's foot; over a paper
+       section the rail takes paper's greys. */
+    let queued = false;
+    const update = () => {
+      queued = false;
+      const middle = innerHeight / 2;
+      let at = 0;
+      targets.forEach(({ el }, i) => {
+        if (el.getBoundingClientRect().top <= middle) at = i;
+      });
+      if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) at = targets.length - 1;
+      links.forEach((a, i) => (i === at ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current")));
+      const box = rail.getBoundingClientRect();
+      const under = document.elementsFromPoint(box.left + box.width / 2, box.top + box.height / 2).find((e) => !rail.contains(e));
+      rail.toggleAttribute("data-light", !!under?.closest(".theme-light"));
+    };
+    const queue = () => {
+      if (!queued) {
+        queued = true;
+        requestAnimationFrame(update);
+      }
+    };
+    addEventListener("scroll", queue, { passive: true });
+    addEventListener("resize", queue);
+    update();
+  }
+</script>

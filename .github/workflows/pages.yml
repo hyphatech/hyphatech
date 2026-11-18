@@ -3,17 +3,20 @@ name: Pages
 on:
   push:
     branches: [main]
+  # A pull request is built, as main's check, and never deployed.
+  pull_request:
   workflow_dispatch:
 
+# A build reads the repository and nothing more; the deploy job alone
+# is given the rights to publish.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
-# One deployment at a time; a newer push waits rather than cancels.
+# A newer push to a pull request replaces its build; main's deploys
+# queue and always finish.
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: pages-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
@@ -33,7 +36,11 @@ jobs:
 
   deploy:
     needs: build
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

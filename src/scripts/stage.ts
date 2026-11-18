@@ -23,7 +23,7 @@ export interface Scene {
 export interface Fade {
   /* Share of the drawing shown under the words, 0 to 1. */
   underWords: number;
-  /* Pixels over which it returns to full around them. */
+  /* Pixels of clear ground round each letter and control. */
   feather: number;
   /* Pixels faded out at the band's head and foot. */
   head: number;
@@ -103,28 +103,47 @@ export function stage(host: HTMLElement, scene: Scene, fade: Fade) {
   let height = 0;
   let ratio = 1;
 
-  const measure = () => {
+  /* What the sand keeps off: each character of the words, as the page
+     sets it, and each control's box. */
+  type Glyph = { char: string; font: string; x: number; y: number };
+  type Clear = { glyphs: Glyph[]; boxes: Rect[] };
+  const measure = (): Clear => {
     const origin = host.getBoundingClientRect();
-    const clear: Rect[] = [];
+    const glyphs: Glyph[] = [];
+    const boxes: Rect[] = [];
+    const probe = document.createElement("canvas").getContext("2d");
+    const range = document.createRange();
     for (const element of content.querySelectorAll("[data-clear]")) {
-      const range = document.createRange();
-      range.selectNodeContents(element);
-      for (const box of range.getClientRects())
-        if (box.width >= 1)
-          clear.push({
-            left: box.left - origin.left,
-            top: box.top - origin.top,
-            right: box.right - origin.left,
-            bottom: box.bottom - origin.top,
-          });
+      for (const control of element.querySelectorAll("a, button")) {
+        const box = control.getBoundingClientRect();
+        boxes.push({ left: box.left - origin.left, top: box.top - origin.top, right: box.right - origin.left, bottom: box.bottom - origin.top });
+      }
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        const parent = node.parentElement;
+        if (!parent || parent.closest("script, a, button")) continue;
+        const face = getComputedStyle(parent);
+        const font = `${face.fontStyle} ${face.fontWeight} ${face.fontSize} ${face.fontFamily}`;
+        if (probe) probe.font = font;
+        const ascent = probe?.measureText("H").fontBoundingBoxAscent ?? 0;
+        const text = node.textContent ?? "";
+        for (let i = 0; i < text.length; i++) {
+          if (!text[i]!.trim()) continue;
+          range.setStart(node, i);
+          range.setEnd(node, i + 1);
+          const box = range.getBoundingClientRect();
+          if (box.width < 1) continue;
+          glyphs.push({ char: text[i]!, font, x: box.left - origin.left, y: box.top - origin.top + ascent });
+        }
+      }
     }
-    return clear;
+    return { glyphs, boxes };
   };
 
   /* Mask alpha is what is removed: none in the open, most under the
      words, all at the band's very edges. Built at quarter size and
      scaled up smooth. */
-  const shade = (clear: Rect[]) => {
+  const shade = (clear: Clear) => {
     const q = 4;
     const w = Math.ceil(width / q);
     const h = Math.ceil(height / q);
@@ -134,19 +153,33 @@ export function stage(host: HTMLElement, scene: Scene, fade: Fade) {
     const image = m.createImageData(w, h);
     for (let y = 0; y < h; y++)
       for (let x = 0; x < w; x++) {
-        const px = x * q;
         const py = y * q;
         const edge = Math.min(1, py / fade.head, (height - py) / fade.foot);
-        let shown = edge <= 0 ? 0 : edge * edge * (3 - 2 * edge);
-        for (const r of clear) {
-          const dx = Math.max(r.left - px, 0, px - r.right);
-          const dy = Math.max(r.top - py, 0, py - r.bottom);
-          const d = Math.min(1, Math.hypot(dx, dy) / fade.feather);
-          shown = Math.min(shown, fade.underWords + (1 - fade.underWords) * d * d * (3 - 2 * d));
-        }
+        const shown = edge <= 0 ? 0 : edge * edge * (3 - 2 * edge);
         image.data[(y * w + x) * 4 + 3] = Math.round(255 * (1 - shown));
       }
     m.putImageData(image, 0, 0);
+    /* Over the edges, the words' own shapes, thickened and blurred by
+       the feather, so the sand keeps off the letters and not a box
+       round them; each control keeps off its own shape. */
+    m.save();
+    m.scale(1 / q, 1 / q);
+    m.filter = `blur(${fade.feather / q / 2}px)`;
+    m.fillStyle = m.strokeStyle = `rgba(0, 0, 0, ${1 - fade.underWords})`;
+    m.lineJoin = "round";
+    m.lineWidth = fade.feather;
+    m.textBaseline = "alphabetic";
+    for (const g of clear.glyphs) {
+      m.font = g.font;
+      m.fillText(g.char, g.x, g.y);
+      m.strokeText(g.char, g.x, g.y);
+    }
+    for (const b of clear.boxes) {
+      m.beginPath();
+      m.roundRect(b.left - fade.feather / 2, b.top - fade.feather / 2, b.right - b.left + fade.feather, b.bottom - b.top + fade.feather, fade.feather / 2);
+      m.fill();
+    }
+    m.restore();
   };
 
   const render = () => {

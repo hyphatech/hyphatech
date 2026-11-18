@@ -1,0 +1,209 @@
+---
+/* The two vaults as two lanes, the Factory's six steps between them:
+   the Vault above, what Hypha knows of how software is built, read only;
+   the Project Vault below, what the company knows, read and written. A
+   straight line joins a step to a lane only where hypha-haf's code reads
+   or writes it (flow/intent.ml, flow/build.ml, bin/main.ml), with what
+   it takes written on the line; a write is gold. Neither vault is gold,
+   since they are given together, never compared; gold is the Factory
+   between them, and what it writes back. On a phone the lanes stack
+   around the steps, each step with what it takes beside it. */
+
+import Icon from "./Icon.astro";
+import LibraryBig from "@lucide/astro/icons/library-big";
+import Building from "@lucide/astro/icons/building";
+import MessageSquareText from "@lucide/astro/icons/message-square-text";
+import MapIcon from "@lucide/astro/icons/map";
+import Blocks from "@lucide/astro/icons/blocks";
+import Hammer from "@lucide/astro/icons/hammer";
+import ListChecks from "@lucide/astro/icons/list-checks";
+import Tag from "@lucide/astro/icons/tag";
+import { steps } from "../content/factory";
+
+/* Hypha's vault laid on the steps' six columns, each part over the
+   steps that read it, so every line rises into the part it names:
+   Intent the principles, Mapping and Scaffold the Ontology,
+   Composition the skills, Validation and Release the rules. */
+const hypha: [string, string, number][] = [
+  ["Principles", "what holds true", 1],
+  ["Ontology", "what parts mean", 2],
+  ["Skills", "a model's brief", 1],
+  ["Rules", "how code is written", 2],
+];
+/* Each step's icon, the ones the lanes over time draw it with. */
+const icons = [MessageSquareText, MapIcon, Blocks, Hammer, ListChecks, Tag];
+const project: [string, string, number?][] = [
+  ["What it is", "for whom and why"],
+  ["Domains", "what is core"],
+  ["Words", "one meaning each"],
+  ["Decisions", "what was weighed"],
+  ["Registry", "each repository"],
+  ["PRDs", "every signed one"],
+];
+
+type Take = { word: string; write?: boolean };
+/* Each relation between a step and a vault, one to a connector, named
+   as the landing's map names one (hypha-haf's flow/intent.ml,
+   flow/build.ml, bin/main.ml). */
+const takes: Record<string, { vault: Take[]; project: Take[] }> = {
+  Intent: { vault: [{ word: "told by" }], project: [{ word: "reads" }, { word: "writes", write: true }] },
+  Mapping: { vault: [{ word: "looks up" }], project: [{ word: "held to" }] },
+  Scaffold: { vault: [{ word: "laid out by" }], project: [] },
+  Composition: { vault: [{ word: "told by" }], project: [] },
+  Validation: { vault: [{ word: "gated by" }], project: [{ word: "proves" }] },
+  Release: { vault: [], project: [{ word: "records", write: true }] },
+};
+const lanes = [
+  { icon: LibraryBig, name: "Hypha Vault", items: hypha },
+  { icon: Building, name: "Project Vault", items: project },
+];
+---
+
+<figure class="vaults" aria-label="Hypha Vault, read only, holds the principles, the rules, the skills and the Ontology. The Project Vault, one for each project, read and written, holds what the project is, its domains, words and decisions, the registry of its repositories, and its PRDs. Intent reads its skill and the principles, and all the project knows, and writes the PRD. Mapping reads the Ontology and the PRD. Scaffold reads the Ontology. Composition reads the skills and the rules. Validation reads the gates and the PRD. Release writes the release into the Project Vault.">
+  {/* The Vault; what each step takes from it; the Factory's six steps,
+      a sequence and not a store, so a stepper and not a panel: numbered
+      rings on one gold line, as /modernise's stepper joins its steps;
+      what each step reads from or writes to the Project Vault; the
+      Project Vault. On one six-column line. */}
+  <div class="k-panel lane">
+    <p class="k-panel-head"><span class="k-panel-name inline-flex items-center gap-2"><Icon icon={lanes[0]!.icon} />{lanes[0]!.name}</span></p>
+    <dl class:list={["k-panel-well items", "items-6"]}>
+      {lanes[0]!.items.map(([k, v, n]) => <div class="k-panel-row item" style={`--span:${n ?? 1}`}><dt>{k}</dt><dd class="text-graphite">{v}</dd></div>)}
+    </dl>
+  </div>
+  <ol class="feeds" aria-hidden="true">
+    {steps.map((s) => { const t = takes[s.title] ?? { vault: [], project: [] }; return <li class:list={["feed", { on: t.vault.length }]}>{t.vault.map((v) => <div class="k-relation k-relation-v"><span>{v.word}</span></div>)}</li>; })}
+  </ol>
+  <div class="factory">
+    <ol class="steps">
+      {steps.map((s, i) => <li class="step"><span class="ring k-point-icon"><Icon icon={icons[i]!} /></span><span class="step-words"><span class="tabular-nums text-graphite">{String(i + 1).padStart(2, "0")}</span><span class="step-name">{s.title}</span></span></li>)}
+    </ol>
+  </div>
+  <ol class="feeds" aria-hidden="true">
+    {steps.map((s) => { const t = takes[s.title] ?? { vault: [], project: [] }; return <li class:list={["feed", { on: t.project.length }]}>{t.project.length > 0 && <div class:list={["k-relation k-relation-v", { write: t.project.every((p) => p.write) }]}>{t.project.map((p) => <span class:list={{ write: p.write }}>{p.word}</span>)}</div>}</li>; })}
+  </ol>
+  <div class="k-panel lane">
+    <p class="k-panel-head"><span class="k-panel-name inline-flex items-center gap-2"><Icon icon={lanes[1]!.icon} />{lanes[1]!.name}</span></p>
+    <dl class:list={["k-panel-well items", "items-6"]}>
+      {lanes[1]!.items.map(([k, v, n]) => <div class="k-panel-row item" style={`--span:${n ?? 1}`}><dt>{k}</dt><dd class="text-graphite">{v}</dd></div>)}
+    </dl>
+  </div>
+</figure>
+
+<style>
+  .vaults { display: grid; }
+  .lane, .factory { align-self: stretch; }
+  /* Type: one weight throughout, as the site's panels set it; each part
+     and each step a name in ink, what it is in graphite under it; a
+     step's number a small index over its name. */
+  .vaults .lane :global(.k-panel-name) { white-space: nowrap; color: var(--accent-on-night); }
+  .items { display: grid; }
+  .item { display: grid; align-content: start; gap: 0.1rem; }
+  .item dt { color: var(--color-ink); }
+  .item dd { font-size: 0.875rem; line-height: 1.4; text-wrap: balance; }
+
+  /* Below the desktop the vaults stack around the steps, joined by a
+     short line at the middle; each vault's cells two to a row; the
+     steps three to a row, a ring over each name, a gold line through
+     each row's rings; the relations rest. */
+  .feeds { display: none; }
+  .factory { position: relative; margin-block: 1.75rem; }
+  .factory::before, .factory::after {
+    content: "";
+    position: absolute; left: 50%;
+    width: 1px; height: 1.75rem;
+    background: color-mix(in oklab, var(--color-graphite) 60%, transparent);
+  }
+  .factory::before { bottom: 100%; }
+  .factory::after { top: 100%; }
+  .steps { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); row-gap: 1.5rem; padding-block: 0.5rem; }
+  .step { position: relative; display: grid; justify-items: center; row-gap: 0.6rem; text-align: center; }
+  .step:not(:nth-child(3n))::after {
+    content: ""; position: absolute; top: 1.375rem; left: 50%; width: 100%; height: 1px;
+    background: var(--accent-on-night);
+  }
+  .ring { position: relative; z-index: 1; }
+  .items { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .items > :nth-child(2) { border-top: 0; }
+  .items > :nth-child(even) { border-left: 1px solid var(--color-rule); }
+  .item { padding-inline: 0.875rem; }
+  .item dd { white-space: nowrap; }
+  /* The Factory is the gold between the vaults: each ring the panel's
+     tone, edged in gold, its icon gold, on the gold line. */
+  .ring {
+    display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 999px;
+    color: var(--accent-on-night);
+    background: var(--color-panel);
+    box-shadow: 0 0 0 1px var(--accent-on-night);
+  }
+  .step-words { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
+  .step-words > :first-child { font-size: 0.875rem; }
+  .step-name { color: var(--color-ink); font-size: 1rem; line-height: 1.3; }
+
+  @media (width >= 64rem) {
+    .items-6 { grid-template-columns: repeat(6, 1fr); }
+    .items > :nth-child(2) { border-top: 0; }
+    .items-6 > * { grid-column: span var(--span, 1); }
+    .items > * + * { border-top: 0; border-left: 1px solid var(--color-rule); }
+    /* A cell's line never breaks: each fits its column at the narrowest. */
+    .item dd { white-space: nowrap; }
+
+    /* The steps one line across, a ring over each name, the gold line
+       through the rings from the first to the last; over and under them
+       a hairline wherever a step takes from a vault, what it takes in
+       the map's pill; a write is gold. */
+    .factory { margin-block: 0; }
+    .factory::before, .factory::after { display: none; }
+    /* The panels' wells sit 0.3rem inside their frames; the steps and
+       the lines keep to the wells' columns. */
+    .steps { grid-template-columns: repeat(6, 1fr); gap: 0; padding: 0 0.3rem; }
+    .steps::before { content: ""; position: absolute; background: var(--accent-on-night); left: calc(0.3rem + (100% - 0.6rem) / 12); right: calc(0.3rem + (100% - 0.6rem) / 12); top: 1.375rem; bottom: auto; width: auto; height: 1px; }
+    .step { row-gap: 0.7rem; }
+    .step::after { display: none; }
+    .feeds { display: grid; grid-template-columns: repeat(6, 1fr); height: 4.5rem; padding-inline: 0.3rem; }
+    /* A step that both reads and writes keeps one line on its axis,
+       its relations stacked on it. */
+    .feed { display: flex; justify-content: center; }
+    .feed :global(.k-relation::before) { display: block; background: var(--color-ink); opacity: 0.35; }
+    .feed :global(.k-relation span) { color: var(--color-ink); font-size: 0.75rem; }
+    .feed .k-relation { flex-direction: column; gap: 0.4rem; }
+    .feed span.write { color: var(--accent-on-night); border-color: color-mix(in oklab, var(--accent-on-night) 50%, transparent); }
+    .feed .write::before { background: var(--accent-on-night); opacity: 1; }
+  }
+</style>
+
+<script>
+  /* The Factory runs once, the first time the figure comes into view:
+     the gold line draws from the first step to the last, each ring lit
+     gold as the line reaches it, and what the step takes from each vault
+     drawn into it as it lights. Without scripts, with reduced motion, on
+     a phone, or already in view on arrival, it simply stands whole. */
+  import { onceVisible, reducedMotion } from "../lib/motion";
+
+  const STEP = 360;
+  const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
+  for (const fig of document.querySelectorAll<HTMLElement>(".vaults")) {
+    if (reducedMotion.matches || !matchMedia("(width >= 64rem)").matches) continue;
+    if (fig.getBoundingClientRect().top < innerHeight * 0.6) continue;
+    const steps = fig.querySelector<HTMLElement>(".steps")!;
+    const rings = [...fig.querySelectorAll<HTMLElement>(".ring")];
+    const [above, below] = [...fig.querySelectorAll<HTMLElement>(".feeds")].map((f) => [...f.children] as HTMLElement[]);
+    onceVisible(
+      fig,
+      () => {
+        steps.animate([{ clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0 0 0)" }], { duration: STEP * 5, easing: "linear", fill: "backwards", pseudoElement: "::before" });
+        rings.forEach((ring, i) => {
+          const at = i * STEP;
+          ring.animate([{ background: "var(--color-raised)", color: "var(--color-graphite)", boxShadow: "0 0 0 1px var(--color-rule)" }, { background: "var(--color-panel)", color: "var(--accent-on-night)", boxShadow: "0 0 0 1px var(--accent-on-night)" }], { duration: 600, delay: at, easing: EASE, fill: "backwards" });
+          for (const [feed, origin] of [[above![i], "center top"], [below![i], "center top"]] as const) {
+            for (const rel of feed?.querySelectorAll<HTMLElement>(".k-relation") ?? []) {
+              rel.animate([{ transform: "scaleY(0)", transformOrigin: origin }, { transform: "none", transformOrigin: origin }], { duration: 420, delay: at, easing: EASE, fill: "backwards", pseudoElement: "::before" });
+              for (const pill of rel.querySelectorAll("span")) pill.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, delay: at + 180, easing: "ease-out", fill: "backwards" });
+            }
+          }
+        });
+      },
+      { rootMargin: "0px 0px -30% 0px" },
+    );
+  }
+</script>

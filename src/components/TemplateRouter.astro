@@ -4,7 +4,7 @@
    bushing cannot leave, so every pocket comes out the same. The SVG is
    drawn here at build time, well into a pass with the bushing on the
    edge; the script runs the passes while the figure is on screen. With
-   reduced motion, or without JavaScript, it rests. */
+   reduced motion, or without JavaScript, it rests where it stands. */
 
 import "./iso/iso.css";
 import { routeSvg } from "./route-geometry";
@@ -12,20 +12,32 @@ import { Show } from "./route-model";
 
 interface Props {
   class?: string;
+  /* Drawn as a blueprint: faces a step of graphite off the night, tops
+     a step lighter again, edges in graphite hairlines, so the machine
+     reads in the site's warm greys and the gold opening is the one
+     thing with colour. */
+  blueprint?: boolean;
 }
-const { class: className } = Astro.props;
+const { class: className, blueprint = false } = Astro.props;
 const show = new Show();
 const scene = show.sceneAt(show.rest());
 const svg = routeSvg({
   ...scene,
-  boards: scene.boards.map((board) => ({ y: board.y, path: board.pass < 0 ? [] : show.run(board.pass).path.slice(0, board.points) })),
+  boards: scene.boards.map((board) => ({
+    y: board.y,
+    path: board.pass < 0 ? [] : show.run(board.pass).path.slice(0, board.points),
+    whole: board.pass >= 0 && board.points === show.run(board.pass).path.length,
+  })),
 });
 ---
 
-<div class:list={["iso route", className]} data-route set:html={svg} />
+<div class:list={["iso route", blueprint && "route-blueprint", className]} data-route>
+  <Fragment set:html={svg} />
+</div>
 
 <script>
   import { armSvg, boardMove, boardSolid, chunkD, chunksOf, faceOf, glowSvg, mouthFor, move, passSvg, pocketSvg, postsSvg, sweepSvg } from "./route-geometry";
+  import { POCKET } from "./route-model";
   import { BOARD, Show } from "./route-model";
   import { reducedMotion as still, whileVisible } from "../lib/motion";
 
@@ -53,9 +65,11 @@ const svg = routeSvg({
     const grow = (n: number, pass: number, points: number) => {
       const state = shown[n]!;
       const pocket = boards[n]!.querySelector("[data-pocket]")!;
+      const full = pass < 0 ? 0 : show.run(pass).path.length;
       const path = pass < 0 ? [] : show.run(pass).path.slice(0, points);
-      if (state.pass !== pass || points < state.points) {
-        pocket.innerHTML = pocketSvg(n, path);
+      /* A pocket that has just been finished is drawn again, whole. */
+      if (state.pass !== pass || points < state.points || (points === full && state.points !== full)) {
+        pocket.innerHTML = pocketSvg(n, path, pass >= 0 && points === full ? POCKET : undefined, POCKET);
         shown[n] = { pass, points };
         return;
       }
@@ -155,8 +169,48 @@ const svg = routeSvg({
     --anatomy-dot: var(--anatomy-hi);
     --anatomy-weight: 0.75px;
   }
+  /* The one mark: the opening's edge, drawn heavier than every other
+     line, over a wash of its gold, so the boundary reads at a glance and
+     not only while the bushing bears on it. */
+  .iso.route.route-blueprint {
+    --route-flat: color-mix(in oklab, var(--graphite-on-night) 9%, var(--night));
+    --route-top: color-mix(in oklab, var(--graphite-on-night) 16%, var(--night));
+    --anatomy-paper: var(--route-flat);
+    --anatomy-face: var(--route-flat);
+    --anatomy-top: var(--route-top);
+    --anatomy-lit-top: var(--route-top);
+    --anatomy-lit-shade: var(--route-flat);
+    --anatomy-shade-0: color-mix(in oklab, var(--graphite-on-night) 3%, var(--night));
+    --anatomy-shade-1: color-mix(in oklab, var(--graphite-on-night) 5%, var(--night));
+    --anatomy-shade-2: color-mix(in oklab, var(--graphite-on-night) 7%, var(--night));
+    --anatomy-shade-3: var(--route-flat);
+    --anatomy-hi: color-mix(in oklab, var(--paper) 30%, var(--graphite-on-night));
+    --anatomy-mid: color-mix(in oklab, var(--graphite-on-night) 80%, var(--night));
+    --anatomy-lo: color-mix(in oklab, var(--graphite-on-night) 55%, var(--night));
+    --anatomy-faint: color-mix(in oklab, var(--graphite-on-night) 35%, var(--night));
+    --anatomy-lit: var(--paper);
+    --anatomy-halo-opacity: 0;
+  }
+  /* In blueprint each pocket is one recess: its wall in shadow and its
+     floor one even tone a step up from the faces, so every pocket shows
+     the opening's shape again without the passes that cut it. */
+  .iso.route.route-blueprint .route-wall {
+    fill: color-mix(in oklab, #000 50%, var(--route-flat));
+  }
+  .iso.route.route-blueprint :is(.route-pass, .route-pass-edge) {
+    stroke: var(--anatomy-shade-1);
+  }
+  .iso.route.route-blueprint .route-floor-whole {
+    fill: var(--anatomy-shade-1);
+  }
   .iso.route .iso-line[data-tone="gold"] {
     stroke: var(--color-accent);
+    stroke-width: 1.6px;
+  }
+  .iso.route .route-wash {
+    fill: var(--color-accent);
+    fill-opacity: 0.1;
+    stroke: none;
   }
   /* The sub-base is clear: its faces barely tint what lies under it. */
   .iso.route .route-glass > .iso-fill,
@@ -172,6 +226,10 @@ const svg = routeSvg({
      the edge of each pass a thin ridge on it. */
   .iso.route .route-wall {
     fill: var(--anatomy-shade-0);
+    stroke: none;
+  }
+  .iso.route .route-floor-whole {
+    fill: var(--anatomy-shade-3);
     stroke: none;
   }
   .iso.route .route-sweep {
@@ -195,10 +253,18 @@ const svg = routeSvg({
     stroke: var(--anatomy-shade-3);
     stroke-width: 17.6;
   }
+  /* Cut back to the pocket's edge, the strokes can run wide: the thin
+     ridges a wandering path leaves between passes close over. */
+  .iso.route [data-wide] .route-pass-edge {
+    stroke-width: 26;
+  }
+  .iso.route [data-wide] .route-pass {
+    stroke-width: 24.6;
+  }
   .iso.route .route-glow {
     fill: none;
     stroke: var(--color-accent);
-    stroke-width: 3px;
+    stroke-width: 4px;
     stroke-linecap: round;
   }
   .iso.route .route-post {

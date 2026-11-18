@@ -1,0 +1,29 @@
+---
+/* The points beside an artefact (`k-point`): a bare icon on the title's
+   line, then the title and its line. Three at most, under an opener. */
+
+import Icon from "./Icon.astro";
+import type { Card } from "../content/factory";
+
+interface Props {
+  points: Card[];
+  class?: string;
+}
+const { points, class: className } = Astro.props;
+---
+
+<ul class:list={["space-y-6", className]}>
+  {
+    points.map((p) => (
+      <li class="k-point">
+        <span class="k-point-icon">
+          <Icon icon={p.icon} />
+        </span>
+        <div>
+          <p class="font-medium">{p.title}</p>
+          <p class="mt-0.5 text-graphite">{p.body}</p>
+        </div>
+      </li>
+    ))
+  }
+</ul>

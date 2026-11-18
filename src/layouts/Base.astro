@@ -2,10 +2,13 @@
 import Wordmark from "../components/Wordmark.astro";
 import Mark from "../components/Mark.astro";
 import Icon from "../components/Icon.astro";
+import Rail from "../components/Rail.astro";
 import Layers from "@lucide/astro/icons/layers";
 import Compass from "@lucide/astro/icons/compass";
+import Factory from "@lucide/astro/icons/factory";
 import Newspaper from "@lucide/astro/icons/newspaper";
 import CodeXml from "@lucide/astro/icons/code-xml";
+import Split from "@lucide/astro/icons/split";
 import "../styles/site.css";
 /* Preloaded: every page opens in the slab, and the moving bands wait for
    it before they measure. */
@@ -18,23 +21,29 @@ interface Props {
   flush?: boolean;
   /* The 404: noindex, no canonical. */
   lost?: boolean;
+  schema?: Record<string, unknown>;
 }
 
-const { title, description, flush = false, lost = false } = Astro.props;
+const { title, description, flush = false, lost = false, schema } = Astro.props;
 /* A page with an opening band draws the masthead inside it, unruled. */
 const banded = Astro.slots.has("band");
-const canonical = new URL(Astro.url.pathname, Astro.site);
-/* Pages are served as directories ("/stack/"): drop the trailing slash
-   before matching a nav link. */
-const path = Astro.url.pathname.replace(/(.)\/$/, "$1");
-/* A component's page (/stack/spindle) is within Hypha Stack. */
-const within = (href: string) => path === href || path.startsWith(`${href}/`);
+const path = Astro.url.pathname.replace(/\/?$/, "/");
+const within = (href: string) => path.startsWith(href);
+const canonical = new URL(path, Astro.site);
 
 const nav = [
-  { label: "Hypha Stack", href: "/stack", icon: Layers },
-  { label: "Principles", href: "/principles", icon: Compass },
+  { label: "Stack", href: "/stack/", icon: Layers },
+  { label: "Factory", href: "/haf/", icon: Factory },
   { label: "Blog", href: "https://hypha.pub/", icon: Newspaper },
   { label: "GitHub", href: "https://github.com/hyphatech", icon: CodeXml },
+];
+/* The footer keeps every page, Modernise and Principles too, which the
+   header leaves out. */
+const everything = [
+  ...nav.slice(0, 2),
+  { label: "Modernise", href: "/modernise/", icon: Split },
+  { label: "Principles", href: "/principles/", icon: Compass },
+  ...nav.slice(2),
 ];
 ---
 
@@ -53,7 +62,7 @@ const nav = [
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#15120E" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Hypha" />
+    <meta property="og:site_name" content="Hypha Technologies" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
@@ -63,18 +72,31 @@ const nav = [
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="The missing foundation for agentic engineering." />
     <meta name="twitter:card" content="summary_large_image" />
+    {schema && <script type="application/ld+json" set:html={JSON.stringify({ "@context": "https://schema.org", ...schema })} />}
     <script is:inline async src="https://cloud.umami.is/script.js" data-website-id="a3f870a5-b958-4bf7-afa4-8f26c1c7fff7" data-domains="hyphatech.io"></script>
   </head>
 
-  <body class="min-h-dvh bg-ivory text-ink">
+  {/* A column at least the window's height, `main` taking what is
+      left, so a short page still ends at the bottom: the section before
+      its closing takes the room (site.css, "A short page"). */}
+  <body class="flex min-h-dvh flex-col bg-ivory text-ink">
     {/* The first stop for the keyboard, past the masthead; unseen until
         it has focus. */}
     <a href="#main" class="btn-primary absolute top-3 left-4 z-10 -translate-y-24 focus-visible:translate-y-0 sm:left-6">Skip to content</a>
     <div>
-    <header class:list={["relative", !banded && "md:border-b md:border-rule"]}>
+    <header class:list={["relative z-10", !banded && "md:border-b md:border-rule"]}>
       <div class="mx-auto flex h-16 max-w-page items-center gap-6 px-4 sm:px-6">
         <Wordmark />
-        <nav class="ml-auto hidden items-center gap-6 md:flex" aria-label="Site">
+        {/* Over a band its links lie in Ember's gold corner, which takes
+            graphite under 4.5:1; there its graphite is lifted toward the
+            ink, still a step under the page you are on. */}
+        <nav
+          class:list={[
+            "ml-auto hidden items-center gap-6 md:flex",
+            banded && "[--color-graphite:color-mix(in_oklab,var(--graphite-on-night)_70%,var(--paper))]",
+          ]}
+          aria-label="Site"
+        >
           {
             nav.map((item) => (
               <a
@@ -118,14 +140,20 @@ const nav = [
 
     {/* The band is the page's opening, so it is in `main` with the rest:
         skipping the masthead lands on it. */}
-    <main id="main" tabindex="-1" class="outline-none">
+    <main id="main" tabindex="-1" class="flex grow flex-col outline-none">
       <slot name="band" />
       <slot />
     </main>
+    <Rail />
 
     <div class:list={[!flush && "mt-24"]}>
-    <footer class="border-t border-rule">
-      <div class="mx-auto grid max-w-page gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1fr_auto] md:gap-16">
+    {/* The page's foot on Horizon: a low warm band rising along its
+        bottom edge, drawn as for a section twice its height so the band
+        reads in its short space, and a page ends lit, never on bare
+        night. */}
+    <footer class="k-horizon border-t border-rule bg-bottom bg-no-repeat [background-size:100%_260%]">
+      <div class="k-grain" aria-hidden="true"></div>
+      <div class="relative mx-auto grid max-w-page gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1fr_auto] md:gap-16">
         <div class="max-w-lg">
           <div class="flex items-center gap-2">
             <Mark class="h-6" />
@@ -135,16 +163,17 @@ const nav = [
               build's. */}
           <p class="t-caption mt-4 text-graphite">
             <span class="block">
-              © {new Date().getFullYear()} Hypha Technologies Ltd. Registered in
-              England and Wales, no.&nbsp;16665133.
+              <span class="inline-block">© {new Date().getFullYear()} Hypha Technologies Ltd.</span> <span class="inline-block">Registered in England and Wales, no.&nbsp;16665133.</span>
             </span>
-            <span class="block">Registered office: 86–90&nbsp;Paul Street, London EC2A&nbsp;4NE.</span>
+            <span class="block">
+              <span class="inline-block">Registered office:</span> <span class="inline-block">86–90&nbsp;Paul Street, London EC2A&nbsp;4NE.</span>
+            </span>
             <span class="mt-3 block">Made in London.</span>
           </p>
         </div>
-        <ul class="t-control space-y-3 text-graphite pointer-coarse:space-y-0">
+        <ul class="t-control grid grid-cols-2 content-start gap-x-10 gap-y-3 text-graphite pointer-coarse:gap-y-0">
           {
-            nav.map((item) => (
+            everything.map((item) => (
               <li>
                 <a class="tap inline-flex items-center gap-2 transition-colors hover:text-ink" href={item.href}>
                   <Icon icon={item.icon} />
@@ -157,5 +186,14 @@ const nav = [
       </div>
     </footer>
     </div>
+    <script>
+      /* The lights and drawings that move for ever rest while they are off
+         the screen: a section scrolled away keeps its place in its cycle
+         and goes on from there when it comes back. */
+      const rest = new IntersectionObserver((entries) => {
+        for (const e of entries) e.target.toggleAttribute("data-off", !e.isIntersecting);
+      });
+      for (const el of document.querySelectorAll(".theme-ember, .k-lit, .dg")) rest.observe(el);
+    </script>
   </body>
 </html>

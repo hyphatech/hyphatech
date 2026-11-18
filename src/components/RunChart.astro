@@ -1,0 +1,265 @@
+---
+/* The demo's run after you signed, as its journal records it: each item
+   a row, its name at the left and a bar from when it started to when its
+   gates passed it, a thin red notch where a gate refused it and it was
+   mended with nobody asked, and at the bar's end what proved it, the
+   tests growing as the work does. The release is the one gold mark. The
+   time is the run's own clock. Hovered, or tapped on a touch screen, a
+   row says its item, what passed it and why any gate refused it, in the
+   journal's words. Below a wide screen, where the drawing would shrink its
+   type, each name stands over its bar instead. One series, so
+   no legend; a table of the same is there for a screen reader. The data
+   is src/content/haf-run.json, written from hypha-haf's
+   examples/task-tracker/journal.jsonl by scripts/haf-run.mjs. */
+
+import run from "../content/haf-run.json";
+
+const W = 1100;
+const row = 26;
+const L = 250;
+const R = 130;
+const T = 34;
+const B = 40;
+const H = T + run.items.length * row + B;
+const pw = W - L - R;
+const from = run.items[0]!.from - 6;
+const to = run.took;
+const x = (t: number) => L + ((t - from) / (to - from)) * pw;
+const yOf = (i: number) => T + i * row + row / 2;
+
+const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+/* The axis in minutes into the run, never read as a time of day. */
+const minutes = (s: number) => `${Math.round(s / 60)} min`;
+/* An item's name in plain words, where the journal's names its tools. */
+const plain: Record<number, string> = {
+  1: "Scaffold",
+  5: "Rule: due date in the future",
+  9: "Email, to a test mailbox",
+  11: "API spec and client schemas",
+};
+const nameOf = (it: { id: number; name: string }) => plain[it.id] ?? it.name;
+/* What proved an item, said short: the tests passing so far, its
+   scenarios, or its gates. */
+const proof = (checks: string) => {
+  const t = checks.match(/tests (\d+)\/\d+/);
+  if (t) return `${t[1]} tests pass`;
+  const e = checks.match(/(\d+\/\d+) examples/);
+  if (e) return `${e[1]} scenarios proven`;
+  return checks.includes("printed") ? "API printed" : "builds";
+};
+/* A gate's name as a reader knows it. */
+const gates: Record<string, string> = { "Pg.verify": "statements", "openapi.json printed": "API spec printed", "tasks.zod.ts printed": "client schemas printed" };
+const gate = (g: string) => gates[g] ?? g;
+const checksOf = (checks: string) =>
+  checks.split(" ✓").map((c) => c.trim()).filter(Boolean).map((c) => gate(c.replace(/^acceptance over HTTP: (\d+\/\d+) examples$/, "$1 scenarios proven")));
+/* A refusal's reason without the file and line it names. */
+const why = (w: string) => w.replace(/^[\w./:]+ · /, "");
+const took = `${Math.round(run.took / 60)} min`;
+const spent = `$${run.spent.toFixed(2)}`;
+const ticks = [300, 480, 660, 840].filter((t) => t > from);
+const last = run.items.at(-1)!;
+
+const pct = (t: number) => `${((t - from) / (to - from)) * 100}%`;
+const itemOf = (it: (typeof run.items)[number]) =>
+  JSON.stringify({ name: nameOf(it), checks: checksOf(it.checks!), refused: it.refused.map((r) => ({ gate: gate(r.checks), why: why(r.why) })), when: `${clock(it.from!)} · ${Math.max(1, Math.round((it.to! - it.from!) / 60))} min` });
+---
+
+<figure class="run" aria-label={`The demo's run after it was signed: ${run.items.length} items built one after another, ${run.refused.length} of them refused by a gate once and mended with nobody asked, the tests growing to 24 of 24, then released at ${clock(run.took)} for ${"$" + run.spent.toFixed(2)}.`}>
+  <div class="relative" data-run>
+    <svg viewBox={`0 0 ${W} ${H}`} class="wide" role="img" aria-hidden="true">
+      {ticks.map((t) => (
+        <g>
+          <line class="grid" x1={x(t)} x2={x(t)} y1={T - 6} y2={H - B + 6} />
+          <text class="axis" x={x(t)} y={H - B + 26} text-anchor="middle">{minutes(t)}</text>
+        </g>
+      ))}
+      {run.items.map((it, i) => (
+        <g class="item" data-item={itemOf(it)}>
+          <rect class="hit" x="0" y={yOf(i) - row / 2} width={W} height={row} />
+          <text class="name" x={L - 16} y={yOf(i) + 4} text-anchor="end">{nameOf(it)}</text>
+          <rect class="bar" x={x(it.from!)} y={yOf(i) - 4} width={Math.max(4, x(it.to!) - x(it.from!))} height="8" rx="4" />
+          {it.refused.map((r) => <rect class="refusal" x={x(r.t) - 1} y={yOf(i) - 7} width="2" height="14" rx="1" />)}
+          {i < run.items.length - 1 ? <text class="proof" x={x(it.to!) + 10} y={yOf(i) + 4}>{proof(it.checks!)}</text> : <text class="proof" x={x(it.from!) - 10} y={yOf(i) + 4} text-anchor="end">{proof(it.checks!)}</text>}
+        </g>
+      ))}
+      <circle class="released" cx={x(last.to!) + 14} cy={yOf(run.items.length - 1)} r="5" />
+      <text class="released-label" x={x(last.to!) + 26} y={yOf(run.items.length - 1) + 4}>Released</text>
+      <text class="proof" x={x(last.to!) + 26} y={yOf(run.items.length - 1) + 20}>in {took}, {spent}</text>
+    </svg>
+    <div class="narrow" aria-hidden="true">
+      <div class="rows">
+      <div class="track grid-layer">
+        {ticks.map((t) => <span class="tick" style={`left:${pct(t)}`} />)}
+      </div>
+      {run.items.map((it) => (
+        <div class="item" data-item={itemOf(it)}>
+          <p class="line"><span class="name">{nameOf(it)}</span><span class="proof">{proof(it.checks!)}</span></p>
+          <div class="track">
+            <span class="bar" style={`left:${pct(it.from!)};width:max(4px,calc(${pct(it.to!)} - ${pct(it.from!)}))`} />
+            {it.refused.map((r) => <span class="refusal" style={`left:calc(${pct(r.t)} - 1px)`} />)}
+            {it === last && <span class="released" style={`left:calc(${pct(last.to!)} + 9px)`} />}
+          </div>
+        </div>
+      ))}
+      </div>
+      <p class="released-line"><span class="released-label">Released</span> <span class="proof">in {took}, {spent}</span></p>
+      <div class="track axis-row">
+        {ticks.map((t) => <span class="axis" style={`left:${pct(t)}${(t - from) / (to - from) < 0.08 ? ";transform:none" : ""}`}>{minutes(t)}</span>)}
+      </div>
+    </div>
+    <div class="tip" data-tip hidden></div>
+  </div>
+  <table class="sr-only">
+    <thead><tr><th>Item</th><th>Started</th><th>Passed</th><th>Proved by</th><th>Refused</th></tr></thead>
+    <tbody>{run.items.map((it) => <tr><td>{nameOf(it)}</td><td>{clock(it.from!)}</td><td>{clock(it.to!)}</td><td>{it.checks}</td><td>{it.refused.map((r) => `${r.checks}: ${r.why}`).join(". ") || "never"}</td></tr>)}</tbody>
+  </table>
+</figure>
+
+<style>
+  .run svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    font-family: var(--font-sans);
+  }
+  .run table.sr-only caption { display: none; }
+  .run .narrow { display: none; }
+  @media (width < 72rem) {
+    .run svg.wide { display: none; }
+    .run .narrow { display: block; }
+  }
+  .narrow { font-variant-numeric: tabular-nums; }
+  .narrow .rows { position: relative; }
+  .narrow .track { position: relative; width: calc(100% - 5.5rem); height: 8px; }
+  .narrow .grid-layer { position: absolute; inset: 0 auto 0 0; height: auto; pointer-events: none; }
+  .narrow .tick { position: absolute; top: 0; bottom: 0; border-left: 1px dashed color-mix(in oklab, var(--color-ink) 10%, transparent); }
+  .narrow .item { position: relative; padding: 0.3rem 0 0.45rem; cursor: default; }
+  .narrow .item::before { content: ""; position: absolute; inset: 0 -0.5rem; border-radius: 6px; }
+  .narrow .line { position: relative; display: flex; justify-content: space-between; gap: 0.75rem; align-items: baseline; margin-bottom: 0.3rem; line-height: 1.25; }
+  .narrow .name { font-size: 0.875rem; color: color-mix(in oklab, var(--color-ink) 72%, var(--color-graphite)); }
+  .narrow .proof { font-size: 0.75rem; color: var(--color-graphite); white-space: nowrap; }
+  .narrow .item:is(:hover, [data-on])::before { background: color-mix(in oklab, var(--color-ink) 5%, transparent); }
+  .narrow .item:is(:hover, [data-on]) :is(.name, .proof) { color: var(--color-ink); }
+  .narrow .bar { position: absolute; top: 0; height: 8px; border-radius: 4px; background: color-mix(in oklab, var(--color-ink) 78%, transparent); }
+  .narrow .refusal { position: absolute; top: -3px; width: 2px; height: 14px; border-radius: 1px; background: #d0574a; }
+  .narrow .released { position: absolute; top: -1px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent-on-night); box-shadow: 0 0 0 2px var(--color-ivory); }
+  .narrow .released-line { margin-top: 0.5rem; text-align: right; line-height: 1.25; }
+  .narrow .released-label { font-size: 0.875rem; font-weight: 500; color: var(--color-ink); }
+  .narrow .axis-row { margin-top: 0.75rem; height: 1rem; }
+  .narrow .axis { position: absolute; top: 0; transform: translateX(-50%); font-size: 0.75rem; color: var(--color-graphite); white-space: nowrap; }
+  .grid {
+    stroke: color-mix(in oklab, var(--color-ink) 9%, transparent);
+    stroke-dasharray: 2 5;
+  }
+  .axis,
+  .proof {
+    font-size: 12px;
+    fill: var(--color-graphite);
+    font-variant-numeric: tabular-nums;
+  }
+  .name {
+    font-size: 14px;
+    fill: var(--color-graphite);
+  }
+  .hit {
+    fill: transparent;
+  }
+  .item:is(:hover, [data-on]) .name,
+  .item:is(:hover, [data-on]) .proof {
+    fill: var(--color-ink);
+  }
+  .item:is(:hover, [data-on]) .hit {
+    fill: color-mix(in oklab, var(--color-ink) 4%, transparent);
+  }
+  .bar {
+    fill: color-mix(in oklab, var(--color-ink) 78%, transparent);
+  }
+  /* A refusal: a thin red notch across the bar at the moment a gate
+     refused it, a moment in the run, mended with nobody asked. */
+  .refusal {
+    fill: #d0574a;
+  }
+  .released {
+    fill: var(--accent-on-night);
+    stroke: var(--color-ivory);
+    stroke-width: 2;
+  }
+  .released-label {
+    font-size: 14px;
+    font-weight: 500;
+    fill: var(--color-ink);
+  }
+  /* The popover: the item and when it ran on one line, its checks as a
+     row of small ticked chips, and each refusal a short block edged in
+     red, its gate and its reason. Compact, opened under the bar. */
+  .tip {
+    position: absolute;
+    left: 0;
+    width: max-content;
+    max-width: min(21rem, 100%);
+    padding: 0.6rem 0.7rem 0.65rem;
+    border-radius: 10px;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--color-ink);
+    background: color-mix(in oklab, var(--color-ink) 8%, var(--color-ivory));
+    box-shadow: 0 0 0 1px var(--color-rule), 0 16px 32px -16px rgb(0 0 0 / 0.7);
+    pointer-events: none;
+  }
+  .tip :global(.head) { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+  .tip :global(.head b) { font-weight: 500; }
+  .tip :global(.head span) { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-graphite); white-space: nowrap; }
+  .tip :global(.checks) { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
+  .tip :global(.checks li) {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.1rem 0.45rem 0.1rem 0.35rem; border-radius: 999px;
+    font-size: 0.75rem; color: color-mix(in oklab, var(--color-ink) 80%, var(--color-graphite));
+    background: color-mix(in oklab, #5aa06e 14%, transparent);
+  }
+  .tip :global(.checks li::before) { content: "✓"; font-weight: 700; color: #5aa06e; }
+  .tip :global(.refusal-note) {
+    margin-top: 0.5rem; padding: 0.3rem 0 0.3rem 0.6rem;
+    border-left: 2px solid #d0574a;
+    font-size: 0.75rem; color: var(--color-graphite);
+  }
+  .tip :global(.refusal-note b) { display: block; font-weight: 500; color: color-mix(in oklab, #d0574a 75%, var(--color-ink)); }
+</style>
+
+<script>
+  /* Hovered, or tapped on a touch screen, a row says its item, when it
+     ran, what passed it and why any gate refused it. A second tap, or a
+     tap anywhere else, puts it away. */
+  for (const box of document.querySelectorAll<HTMLElement>("[data-run]")) {
+    const tip = box.querySelector<HTMLElement>("[data-tip]")!;
+    const esc = (s: string) => s.replace(/[<>&]/g, "");
+    for (const g of box.querySelectorAll<SVGGElement>("[data-item]")) {
+      const it = JSON.parse(g.dataset.item!) as { name: string; checks: string[]; refused: { gate: string; why: string }[]; when: string };
+      const show = () => {
+        for (const o of box.querySelectorAll("[data-on]")) o.removeAttribute("data-on");
+        g.setAttribute("data-on", "");
+        tip.innerHTML = `<div class="head"><b>${esc(it.name)}</b><span>${esc(it.when)}</span></div><ul class="checks">${it.checks.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>${it.refused.map((r) => `<div class="refusal-note"><b>Refused by ${esc(r.gate)}, then mended</b>${esc(r.why)}</div>`).join("")}`;
+        const bar = (g.querySelector(".bar") ?? g).getBoundingClientRect();
+        const b = box.getBoundingClientRect();
+        tip.style.top = `${bar.bottom - b.top + 10}px`;
+        tip.hidden = false;
+        tip.style.left = `${Math.max(0, Math.min(b.width - tip.offsetWidth, bar.left - b.left))}px`;
+      };
+      const hide = () => {
+        g.removeAttribute("data-on");
+        tip.hidden = true;
+      };
+      g.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && show());
+      g.addEventListener("pointerleave", (e) => e.pointerType === "mouse" && hide());
+      g.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (g.hasAttribute("data-on")) hide();
+        else show();
+      });
+    }
+    document.addEventListener("click", () => {
+      for (const o of box.querySelectorAll("[data-on]")) o.removeAttribute("data-on");
+      tip.hidden = true;
+    });
+  }
+</script>
