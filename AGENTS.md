@@ -17,9 +17,8 @@ make help    # every other target, each with its one line
 `.github/workflows/pages.yml` checks, builds and publishes the site to
 hyphatech.io on every push to `main`.
 
-Work lands on `main` directly, without a pull request:
-`/hypha-workflow:merge` squashes a worktree onto the local `main`, and
-its owner pushes `main`, which publishes it.
+Work lands on `main` directly, without a pull request: its owner
+pushes `main`, which publishes it.
 
 ## Design
 
