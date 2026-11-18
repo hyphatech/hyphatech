@@ -117,8 +117,8 @@ const everything = [
       {/* On a phone the same links stand in a row under the masthead;
           the page you are on is on `raised`. Too wide for the screen, the
           row scrolls under a finger, with no bar drawn under it. */}
-      <nav class="border-y border-rule md:hidden" aria-label="Site">
-        <ul class="mx-auto flex max-w-page gap-0.5 overflow-x-auto px-1.5 [scrollbar-width:none] min-[22.5rem]:gap-1 min-[22.5rem]:px-2 py-2 sm:px-4 [&::-webkit-scrollbar]:hidden">
+      <nav class:list={["h-14 border-y border-rule md:hidden", banded && "[--color-graphite:color-mix(in_oklab,var(--graphite-on-night)_70%,var(--paper))]"]} aria-label="Site">
+        <ul class="mx-auto flex h-full max-w-page items-center gap-0.5 overflow-x-auto px-1.5 [scrollbar-width:none] min-[22.5rem]:gap-1 min-[22.5rem]:px-2 sm:px-4 [&::-webkit-scrollbar]:hidden">
           {
             nav.map((item) => (
               <li class="shrink-0">

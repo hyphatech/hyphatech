@@ -19,9 +19,9 @@ const { title, wide = false, rail } = Astro.props;
 const after = Astro.slots.has("after");
 ---
 
-<section id="top" data-rail-name={rail} class="theme-ember relative isolate overflow-hidden md:-mt-16 md:pt-16">
+<section id="top" data-rail-name={rail} class="theme-ember relative isolate overflow-hidden -mt-(--masthead) pt-(--masthead)">
   <div class="k-grain" aria-hidden="true"></div>
-  <div class="k-halftone" aria-hidden="true"></div>
+  <div class="k-halftone max-md:top-(--masthead)" aria-hidden="true"></div>
   <div class:list={["relative mx-auto w-full max-w-page px-4 pt-24 sm:px-6 md:pt-32", !after && "pb-20 md:pb-28"]}>
     <div>
       <h1 class="t-hero max-w-5xl">
