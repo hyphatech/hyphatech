@@ -38,17 +38,16 @@ import CreditCard from "@lucide/astro/icons/credit-card";
    copy. It is about them before it is about Hypha, one story with
    nothing said twice: their problem and what changes, whether it covers
    what they run, how it is done, what stays theirs, and how it starts. It never repeats
-   the landing's argument. Each claim is shown in a pattern of the kit
-   (DESIGN.md):
+   the landing's argument. Each claim is shown in a pattern of the kit:
 
    top     the offer, its second line in gold, on Ember
    start   the six problems an owner knows, each with what changes, on
            paper
    scope   what is modernised: the system behind and what people use to
            reach it, as the kit's points, on Ember mirrored
-   steps   the engagement's four steps, as hypha-hq's business/model.md
-           sells them, on paper: the business learned once, each part
-           read and moved in turn, all of it kept current. Each with
+   steps   the engagement's four steps, as Hypha sells them, on
+           paper: the business learned once, each part read and moved
+           in turn, all of it kept current. Each with
            what you keep and one example carried through: Foundation the
            map of a business, Reading one part's rules, Moving its log
    people  built with Hypha, and what stays yours: cards, on paper
@@ -167,8 +166,8 @@ const first: Card[] = [
     with every change, Hypha rebuilds it at the speed of agents to last
     for years, while your business keeps running.
     <Fragment slot="actions">
-      <a href={subject("Our system")} class="btn-primary"><Icon icon={Mail} />Talk about your system</a>
-      <a href="#steps" class="btn"><Icon icon={ArrowDown} />See how it moves</a>
+      <a href={subject("Our system")} class="btn-primary"><Icon icon={Mail} />Talk to us</a>
+      <a href="#steps" class="btn"><Icon icon={ArrowDown} />How it moves</a>
     </Fragment>
   </Hero>
 
@@ -190,19 +189,19 @@ const first: Card[] = [
       repeats the hero's light. */}
   <section id="scope" data-rail-name="Whatever your business runs on" class="theme-ember k-mirrored relative scroll-mt-8 overflow-hidden border-t border-rule">
     <div class="k-grain" aria-hidden="true"></div>
-    <div class="relative mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20">
+    <div class="relative mx-auto max-w-page px-4 py-12 sm:px-6 md:py-16">
       <Opener title="Whatever your business runs on.">
         From the program on the office desk to the system behind it,
         everything moves to one modern foundation and works as one.
       </Opener>
-      <ul class="mt-14 grid gap-x-16 gap-y-12 md:grid-cols-2">
+      <ul class="mt-12 grid gap-x-16 gap-y-12 md:grid-cols-2">
         {
           scope.map((c) => (
             <li class="k-point border-t border-rule pt-6">
               <span class="k-point-icon"><Icon icon={c.icon} /></span>
               <div>
                 <h3 class="t-h3">{c.title}</h3>
-                <p class="mt-2 max-w-md leading-relaxed text-graphite">{c.body}</p>
+                <p class="mt-2 max-w-md text-graphite">{c.body}</p>
               </div>
             </li>
           ))
@@ -216,10 +215,9 @@ const first: Card[] = [
       never under a narrative. Foundation carries the map of an example
       business, Reading the rules of one of its parts, invoicing, and
       Moving the log of that part switching over. */}
-  <Section id="steps" rail="Learned once" class="theme-light">
-    <Opener title={["Learned once.", "Moved part\u00a0by\u00a0part. Kept current."]}>
-      Never rewritten whole, and never stopped. The part that costs most
-      moves first, then the next.
+  <Section id="steps" rail="One part at a time" class="theme-light">
+    <Opener title="One part at a time.">
+      Each part moves on its own, and the business never stops.
     </Opener>
     <div class="mt-12 grid gap-12 lg:grid-cols-[13rem_minmax(0,1fr)]">
       <nav class="sticky top-8 hidden self-start lg:block" aria-label="The steps">
@@ -227,7 +225,7 @@ const first: Card[] = [
           {
             steps.map((st, i) => (
               <li>
-                <a href={`#step-${i + 1}`} class="-ml-px flex items-baseline gap-2.5 border-l-2 font-sans text-[0.875rem] leading-tight border-transparent py-2.5 pl-5 text-graphite transition-colors hover:text-ink aria-[current]:border-ink aria-[current]:text-ink" data-step-link>
+                <a href={`#step-${i + 1}`} class="-ml-px flex items-baseline gap-2 border-l-2 font-sans text-sm border-transparent py-2 pl-5 text-graphite transition-colors hover:text-ink aria-[current]:border-ink aria-[current]:text-ink" data-step-link>
                   <span class="tabular-nums">{two(i + 1)}</span>
                   {st.title}
                 </a>
@@ -240,7 +238,7 @@ const first: Card[] = [
         {
           steps.map((st, i) => (
             <li id={`step-${i + 1}`} class="scroll-mt-8 border-rule py-12 first:pt-0 last:pb-0 not-first:border-t" data-step>
-              <p class="t-control flex items-baseline gap-2.5 text-graphite">
+              <p class="t-control flex items-baseline gap-2 text-graphite">
                 <span class="tabular-nums">{two(i + 1)}</span>
                 <span>{st.title}</span>
               </p>
@@ -251,7 +249,7 @@ const first: Card[] = [
               <ul class="mt-7 flex flex-wrap gap-x-8 gap-y-2">
                 {
                   st.keep.map((k) => (
-                    <li class="flex items-center gap-2.5">
+                    <li class="flex items-center gap-2">
                       <span class="k-tick !size-4"><Check size={10} stroke-width={3.5} /></span>
                       {k}
                     </li>
@@ -265,7 +263,7 @@ const first: Card[] = [
                       concepts.map((c, i) => (
                         <Fragment>
                           <div class="k-panel k-panel-card k-panel-stone">
-                            <p class="k-panel-head max-sm:flex-col max-sm:items-start max-sm:gap-0.5"><span class="k-panel-name inline-flex items-center gap-2"><Icon icon={c.icon} />{c.name}</span></p>
+                            <p class="k-panel-head max-sm:flex-col max-sm:items-start max-sm:gap-1"><span class="k-panel-name inline-flex items-center gap-2"><Icon icon={c.icon} />{c.name}</span></p>
                             <p class="k-panel-well k-panel-row flex-1">{c.rule}</p>
                           </div>
                           {i === 0 && <div class="k-relation k-relation-h"><span>places</span></div>}
@@ -290,7 +288,7 @@ const first: Card[] = [
                     <ol class="k-panel-well">
                       {
                         rules.map((r) => (
-                          <li class="k-panel-row grid gap-x-6 gap-y-0.5 sm:grid-cols-[minmax(0,1fr)_auto]">
+                          <li class="k-panel-row grid gap-x-6 gap-y-1 sm:grid-cols-[minmax(0,1fr)_auto]">
                             <span class="text-ink">{r.rule}</span>
                             <span class="text-graphite">{r.by}</span>
                           </li>
@@ -307,9 +305,9 @@ const first: Card[] = [
                     <ol class="k-panel-well">
                       {
                         log.map(([when, what, detail], i) => (
-                          <li class="k-panel-row grid grid-cols-[5.5rem_1.4rem_1fr] items-start gap-x-3">
-                            <span class="pt-0.5 tabular-nums text-graphite">{when}</span>
-                            <span class:list={["k-tick mt-0.5", i < log.length - 1 && "k-tick-quiet"]}><Check size={12} stroke-width={3} /></span>
+                          <li class="k-panel-row grid grid-cols-[5.5rem_1.25rem_1fr] items-start gap-x-3">
+                            <span class="tabular-nums text-graphite">{when}</span>
+                            <span class:list={["k-tick h-6", i < log.length - 1 && "k-tick-quiet"]}><Check size={12} stroke-width={3} /></span>
                             <p><span class:list={["text-ink", i === log.length - 1 && "font-medium"]}>{what}</span><span class="block text-graphite">{detail}</span></p>
                           </li>
                         ))
@@ -340,7 +338,7 @@ const first: Card[] = [
             <p class="k-panel-head items-center !justify-start"><Icon icon={c.icon} /><span class="k-panel-name">{c.title}</span></p>
             <div class="k-panel-well flex-1">
               <div class="k-panel-row !p-5">
-                <p class="leading-relaxed text-graphite">{c.body}</p>
+                <p class=" text-graphite">{c.body}</p>
                 {c.link && <a href={c.link.href} class="link mt-3 inline-block">{c.link.text}</a>}
               </div>
             </div>
@@ -355,22 +353,22 @@ const first: Card[] = [
       footer's; the first, the call, ringed
       and named in gold, where to begin. */}
   <section id="first" data-rail-name="It starts with a conversation" class="k-lit relative scroll-mt-8 overflow-hidden border-t border-rule">
-    <div class="relative mx-auto grid max-w-page items-center gap-14 px-4 py-16 sm:px-6 md:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+    <div class="relative mx-auto grid max-w-page items-center gap-14 px-4 py-12 sm:px-6 md:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <div>
         <Opener title="It starts with a\u00a0conversation.">
           No commitment, and nothing technical to prepare.
         </Opener>
-        <div class="mt-9 flex flex-wrap gap-3">
-          <a href={subject("Our system")} class="btn-primary"><Icon icon={Mail} />Talk about your system</a>
+        <div class="mt-10 flex flex-wrap gap-3">
+          <a href={subject("Our system")} class="btn-primary"><Icon icon={Mail} />Talk to us</a>
         </div>
       </div>
       <ol class="relative">
         {
           first.map((f, i) => (
-            <li class="relative grid grid-cols-[2.75rem_1fr] gap-x-5 pb-10 last:pb-0">
-              {i < first.length - 1 && <span class="absolute top-12 bottom-2 left-[1.375rem] w-px bg-rule" aria-hidden="true"></span>}
-              <span class:list={["k-point-icon !size-11 justify-center rounded-full border", i === 0 ? "border-accent !text-accent" : "border-rule"]}><Icon icon={f.icon} /></span>
-              <div class="pt-2">
+            <li class="relative grid grid-cols-[3rem_1fr] gap-x-5 pb-10 last:pb-0">
+              {i < first.length - 1 && <span class="absolute top-14 bottom-2 left-6 w-px bg-rule" aria-hidden="true"></span>}
+              <span class:list={["k-point-icon !size-12 justify-center rounded-full border", i === 0 ? "border-accent !text-accent" : "border-rule"]}><Icon icon={f.icon} /></span>
+              <div class="pt-3">
                 <p class:list={["font-medium", { "text-accent": i === 0 }]}>{f.title}</p>
                 <p class="mt-1 text-balance text-graphite">{f.body}</p>
               </div>

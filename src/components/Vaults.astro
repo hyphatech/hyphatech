@@ -98,9 +98,9 @@ const lanes = [
      step's number a small index over its name. */
   .vaults .lane :global(.k-panel-name) { white-space: nowrap; color: var(--accent-on-night); }
   .items { display: grid; }
-  .item { display: grid; align-content: start; gap: 0.1rem; }
+  .item { display: grid; align-content: start; }
   .item dt { color: var(--color-ink); }
-  .item dd { font-size: 0.875rem; line-height: 1.4; text-wrap: balance; }
+  .item dd { font-size: 0.875rem; line-height: 1.25rem; text-wrap: balance; }
 
   /* Below the desktop the vaults stack around the steps, joined by a
      short line at the middle; each vault's cells two to a row; the
@@ -117,16 +117,16 @@ const lanes = [
   .factory::before { bottom: 100%; }
   .factory::after { top: 100%; }
   .steps { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); row-gap: 1.5rem; padding-block: 0.5rem; }
-  .step { position: relative; display: grid; justify-items: center; row-gap: 0.6rem; text-align: center; }
+  .step { position: relative; display: grid; justify-items: center; row-gap: 0.5rem; text-align: center; }
   .step:not(:nth-child(3n))::after {
-    content: ""; position: absolute; top: 1.375rem; left: 50%; width: 100%; height: 1px;
+    content: ""; position: absolute; top: calc(2.75rem / 2); left: 50%; width: 100%; height: 1px;
     background: var(--accent-on-night);
   }
   .ring { position: relative; z-index: 1; }
   .items { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .items > :nth-child(2) { border-top: 0; }
   .items > :nth-child(even) { border-left: 1px solid var(--color-rule); }
-  .item { padding-inline: 0.875rem; }
+  .item { padding-inline: 0.75rem; }
   .item dd { white-space: nowrap; }
   /* The Factory is the gold between the vaults: each ring the panel's
      tone, edged in gold, its icon gold, on the gold line. */
@@ -136,9 +136,9 @@ const lanes = [
     background: var(--color-panel);
     box-shadow: 0 0 0 1px var(--accent-on-night);
   }
-  .step-words { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
-  .step-words > :first-child { font-size: 0.875rem; }
-  .step-name { color: var(--color-ink); font-size: 1rem; line-height: 1.3; }
+  .step-words { display: flex; flex-direction: column; align-items: center; }
+  .step-words > :first-child { font-size: 0.875rem; line-height: 1.25rem; }
+  .step-name { color: var(--color-ink); font-size: 1rem; line-height: 1.5rem; }
 
   @media (width >= 64rem) {
     .items-6 { grid-template-columns: repeat(6, 1fr); }
@@ -154,19 +154,19 @@ const lanes = [
        the map's pill; a write is gold. */
     .factory { margin-block: 0; }
     .factory::before, .factory::after { display: none; }
-    /* The panels' wells sit 0.3rem inside their frames; the steps and
+    /* The panels' wells sit 0.25rem inside their frames; the steps and
        the lines keep to the wells' columns. */
-    .steps { grid-template-columns: repeat(6, 1fr); gap: 0; padding: 0 0.3rem; }
-    .steps::before { content: ""; position: absolute; background: var(--accent-on-night); left: calc(0.3rem + (100% - 0.6rem) / 12); right: calc(0.3rem + (100% - 0.6rem) / 12); top: 1.375rem; bottom: auto; width: auto; height: 1px; }
-    .step { row-gap: 0.7rem; }
+    .steps { grid-template-columns: repeat(6, 1fr); gap: 0; padding: 0 0.25rem; }
+    .steps::before { content: ""; position: absolute; background: var(--accent-on-night); left: calc(0.25rem + (100% - 0.5rem) / 12); right: calc(0.25rem + (100% - 0.5rem) / 12); top: calc(2.75rem / 2); bottom: auto; width: auto; height: 1px; }
+    .step { row-gap: 0.75rem; }
     .step::after { display: none; }
-    .feeds { display: grid; grid-template-columns: repeat(6, 1fr); height: 4.5rem; padding-inline: 0.3rem; }
+    .feeds { display: grid; grid-template-columns: repeat(6, 1fr); height: 4.5rem; padding-inline: 0.25rem; }
     /* A step that both reads and writes keeps one line on its axis,
        its relations stacked on it. */
     .feed { display: flex; justify-content: center; }
     .feed :global(.k-relation::before) { display: block; background: var(--color-ink); opacity: 0.35; }
     .feed :global(.k-relation span) { color: var(--color-ink); font-size: 0.75rem; }
-    .feed .k-relation { flex-direction: column; gap: 0.4rem; }
+    .feed .k-relation { flex-direction: column; gap: 0.5rem; }
     .feed span.write { color: var(--accent-on-night); border-color: color-mix(in oklab, var(--accent-on-night) 50%, transparent); }
     .feed .write::before { background: var(--accent-on-night); opacity: 1; }
   }

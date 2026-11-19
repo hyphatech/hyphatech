@@ -1,0 +1,224 @@
+---
+/* The jig, in the decision boards' language (decisions-geometry.ts): a
+   template on the gridded base, its opening a well edged in gold. The
+   tool, a round bushing, is pulled wherever the agent likes, often past
+   the edge, and rides the gold wall instead. Still under reduced motion,
+   resting against the wall.
+
+   Drawn in lit night (iso/lit.ts, iso/lit.css): every solid as its top,
+   falling off from the light, its side faces each shaded by its turn to
+   it, the top edges that face the viewer caught, and its outline. */
+
+import Sparkles from "@lucide/astro/icons/sparkles";
+import * as k from "./iso/iso-kit";
+import { WIDTH, P, baseOf, gridOf, pointOf, iconMatrix } from "./decisions-geometry";
+import { litSides, lightOf, toneOf } from "./iso/lit";
+import "./iso/lit.css";
+
+const id = "jig";
+
+/* The template, T high, and its opening; the floor of the well at F. */
+const T = 14;
+const F = 0;
+const PLATE = { x: -48, y: -48, w: 96, d: 96, r: 4 };
+const OPEN = { x: -28, y: -28, w: 56, d: 56, r: 12 };
+/* The tool: a round bushing, its top flush with the template's. Its
+   centre keeps to a square OPEN.r inside the opening's edge, so it meets
+   every wall and corner alike. It is 2 narrower than the corners: the
+   rim's stroke (1.4) and the tool's outline (0.8) take 1.1 between their
+   centre lines, and a plan unit projects to 0.82 at the least, at the
+   corners, so 2 leaves them clear by half a pixel there and more along
+   the walls. */
+const C = OPEN.r;
+const R = C - 2;
+const TOP = T;
+const at0: k.Point3 = [0, 0, 0];
+
+const plate = k.slabOf(PLATE, 0, T, P, 4, 0);
+const light = lightOf(P);
+const plateSides = litSides(k.ringOf(PLATE, 8), 0, T, P);
+const baseSides = litSides(k.ringOf({ x: -64, y: -64, w: 128, d: 128, r: 4 }, 8), -4, 0, P);
+const STEPS = 24;
+const ring = (z: number) => k.pathOf(k.ringOf(OPEN, STEPS).map(([x, y]) => pointOf([x, y, z])), true);
+const rim = ring(T);
+const floor = ring(F);
+/* The well's walls: a face for each step of the opening's edge, between
+   rim and floor; only those whose inner side turns to the viewer are
+   seen, each in one of four tones by the way it turns. */
+const edge = k.ringOf(OPEN, STEPS);
+const area = edge.reduce((sum, [x, y], i) => { const [nx, ny] = edge[(i + 1) % edge.length]!; return sum + x * ny - nx * y; }, 0);
+const viewer = k.towardViewer(P);
+const walls = edge
+  .map(([x0, y0], i) => {
+    const [x1, y1] = edge[(i + 1) % edge.length]!;
+    const [dx, dy] = [x1 - x0, y1 - y0];
+    const len = Math.hypot(dx, dy) || 1;
+    const [nx, ny] = area > 0 ? [-dy / len, dx / len] : [dy / len, -dx / len];
+    if (nx * viewer[0] + ny * viewer[1] <= 0) return null;
+    const d = k.pathOf([pointOf([x0, y0, T]), pointOf([x1, y1, T]), pointOf([x1, y1, F]), pointOf([x0, y0, F])], true);
+    /* A wall's inner face turns away from where its normal points. */
+    return { d, t: toneOf(-nx, -ny, light) };
+  })
+  .filter((w): w is { d: string; t: number } => w !== null);
+const floorGrid = (() => {
+  const lines: string[] = [];
+  for (let v = -48; v <= 48; v += 16) {
+    lines.push(k.pathOf([pointOf([v, OPEN.y, F]), pointOf([v, OPEN.y + OPEN.d, F])]));
+    lines.push(k.pathOf([pointOf([OPEN.x, v, F]), pointOf([OPEN.x + OPEN.w, v, F])]));
+  }
+  return lines.join("");
+})();
+const tool = k.cylinder(0, 0, R, F, TOP - F, P, 48);
+const icon = iconMatrix({ at: [0, 0, TOP], size: R * 2, icon: "sparkles" });
+
+const base = baseOf();
+const corners: k.Point3[] = [[-64, -64, 0], [64, 64, -4], [-48, -48, T]];
+const ys = corners.map((c) => pointOf(c)[1]);
+const top = Math.floor(Math.min(...ys)) - 4;
+const viewBox = `0 ${top} ${WIDTH} ${Math.ceil(Math.max(...ys)) + 4 - top}`;
+const grid = gridOf();
+const focus = pointOf([0, 0, T]);
+const [ox, oy] = pointOf(at0);
+const ux = pointOf([1, 0, 0]);
+const uy = pointOf([0, 1, 0]);
+const frame = {
+  ux: [ux[0] - ox, ux[1] - oy],
+  uy: [uy[0] - ox, uy[1] - oy],
+  reach: OPEN.w / 2 - C,
+  roam: PLATE.w / 2 - C - 2,
+};
+/* A gradient across a top, from the light's corner (top right) to the
+   far one. */
+const grad = (name: string) => `${id}-${name}`;
+---
+
+<div class="jig lit-night" data-jig={JSON.stringify(frame)} aria-hidden="true">
+  <svg viewBox={viewBox} class="dg">
+    <defs>
+      <clipPath id={`${id}-open`}><path d={rim} /></clipPath>
+      <clipPath id={`${id}-floor`}><path d={floor} /></clipPath>
+      <filter id={`${id}-glow`} x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" /></filter>
+      <radialGradient id={`${id}-light`} gradientUnits="userSpaceOnUse" cx={focus[0]} cy={focus[1]} r="130">
+        <stop offset="0" style="stop-color:var(--ln-pool)" />
+        <stop offset="1" style="stop-color:var(--ln-pool);stop-opacity:0" />
+      </radialGradient>
+      {/* A round side turns smoothly: lit at its right, dark at its left. */}
+      <linearGradient id={grad("round")} x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" style="stop-color:var(--ln-part-dark)" />
+        <stop offset="1" style="stop-color:var(--ln-part-light)" />
+      </linearGradient>
+      {(["base", "plate", "part", "floor"] as const).map((n) => (
+        <linearGradient id={grad(n)} x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0" style={`stop-color:var(--ln-${n}-lit)`} />
+          <stop offset="1" style={`stop-color:var(--ln-${n}-far)`} />
+        </linearGradient>
+      ))}
+    </defs>
+
+    <g class="solid base">
+      <path class="fill" d={base.fill} />
+      {baseSides.map((f) => <path class="face" d={f.d} style={`--t:${f.t}%`} />)}
+      <path class="top" d={base.top} fill={`url(#${grad("base")})`} />
+      <path d={base.top} fill={`url(#${id}-light)`} />
+      <path class="grid" d={grid} />
+      <path class="edge" d={base.outline} />
+      <path class="crease" d={base.crease} />
+    </g>
+    <g class="solid plate">
+      <path class="fill" d={plate.fill} />
+      {plateSides.map((f) => <path class="face" d={f.d} style={`--t:${f.t}%`} />)}
+      <path class="top" d={plate.top} fill={`url(#${grad("plate")})`} />
+      <path class="edge" d={plate.outline} />
+      <path class="crease" d={plate.crease} />
+    </g>
+    <g clip-path={`url(#${id}-open)`}>
+      <path class="well" d={rim} />
+      {walls.map((w) => <path class="wall" d={w.d} style={`--t:${w.t}%`} />)}
+      <path class="floor" d={floor} fill={`url(#${grad("floor")})`} />
+      <path d={floor} fill={`url(#${id}-light)`} />
+      <path class="grid floor-grid" d={floorGrid} clip-path={`url(#${id}-floor)`} />
+    </g>
+    <path class="glow" d={rim} filter={`url(#${id}-glow)`} />
+    <g clip-path={`url(#${id}-open)`}>
+      <g class="solid tool" data-tool>
+        <path class="round" d={tool.fill} fill={`url(#${grad("round")})`} />
+        <path class="top" d={tool.top} fill={`url(#${grad("part")})`} />
+        <path class="edge" d={tool.outline} />
+        <path class="crease" d={tool.crease} />
+        <g class="icon" transform={icon}><Sparkles size={24} stroke-width={2} /></g>
+      </g>
+    </g>
+    {/* The boundary over all: where the tool rides the wall, its top meets
+        the rim, and the gold line runs on unbroken. */}
+    <path class="rim" d={rim} />
+  </svg>
+</div>
+
+<script>
+  import { reducedMotion, whileVisible } from "../lib/motion";
+
+  for (const root of document.querySelectorAll<HTMLElement>("[data-jig]")) {
+    const f = JSON.parse(root.dataset.jig!);
+    const tools = [...root.querySelectorAll<SVGElement>("[data-tool]")];
+    const screen = (x: number, y: number) => [x * f.ux[0] + y * f.uy[0], x * f.ux[1] + y * f.uy[1]];
+    const clamp = (v: number) => Math.min(f.reach, Math.max(-f.reach, v));
+
+    let at = [0, 0];
+    let goal = [0, 0];
+    /* Anywhere over the template, often past the opening's edge. */
+    const choose = () => {
+      goal = [(Math.random() * 2 - 1) * f.roam, (Math.random() * 2 - 1) * f.roam];
+    };
+    const draw = () => {
+      const [dx, dy] = screen(at[0], at[1]);
+      for (const t of tools) t.setAttribute("transform", `translate(${dx} ${dy})`);
+    };
+
+    if (reducedMotion.matches) {
+      /* At rest against the wall. */
+      at = [f.reach, -f.reach / 2];
+      goal = [f.roam, -f.reach / 2];
+      draw();
+      continue;
+    }
+
+    choose();
+    draw();
+    let since = 0;
+    whileVisible(root, (dt) => {
+      since += dt;
+      const [gx, gy] = [goal[0] - at[0], goal[1] - at[1]];
+      const d = Math.hypot(gx, gy);
+      const step = Math.min(d, 42 * dt);
+      const next = [clamp(at[0] + (gx / (d || 1)) * step), clamp(at[1] + (gy / (d || 1)) * step)];
+      const moved = Math.hypot(next[0] - at[0], next[1] - at[1]);
+      at = next;
+      /* A new pull once this one is reached or the wall holds it. */
+      if (d < 1 || (moved < 0.01 && since > 0.6) || since > 2.6) {
+        choose();
+        since = 0;
+      }
+      draw();
+    });
+  }
+</script>
+
+<style>
+  .jig .dg { display: block; width: 100%; height: auto; overflow: visible; }
+  /* A side face mixes its solid's dark and light by its turn to the
+     light, stroked in its own colour so no seam shows. */
+  .dg .base .fill { fill: var(--ln-base-dark); }
+  .dg .plate .fill { fill: var(--ln-plate-dark); }
+  .dg .base .face { --c: color-mix(in oklab, var(--ln-base-light) var(--t), var(--ln-base-dark)); }
+  .dg .plate .face { --c: color-mix(in oklab, var(--ln-plate-light) var(--t), var(--ln-plate-dark)); }
+  .dg .wall { --c: color-mix(in oklab, var(--ln-wall-light) var(--t), var(--ln-wall-dark)); }
+  .dg .face, .dg .wall { fill: var(--c); stroke: var(--c); stroke-width: 0.6; stroke-linejoin: round; }
+  .dg .edge { fill: none; stroke: var(--ln-edge); stroke-width: 0.8; stroke-linejoin: round; }
+  .dg .crease { fill: none; stroke: var(--ln-crease); stroke-width: 0.9; stroke-linecap: round; stroke-linejoin: round; }
+  .dg .grid { fill: none; stroke: var(--ln-grid); stroke-width: 0.6; }
+  .dg .floor-grid { stroke: var(--ln-floor-grid); }
+  .dg .well { fill: var(--ln-well); }
+  .dg .rim { fill: none; stroke: var(--accent-on-night); stroke-width: 1.4; stroke-linejoin: round; }
+  .dg .glow { fill: none; stroke: var(--accent-on-night); stroke-width: 5; opacity: 0.4; }
+  .dg .icon :global(svg) { color: var(--ln-icon); overflow: visible; }
+</style>

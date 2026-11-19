@@ -27,11 +27,11 @@ const { paths } = Astro.props;
 <ul class="mt-12 grid gap-4 md:grid-cols-3">
   {
     paths.map((s) => (
-      <li class:list={["relative isolate flex flex-col overflow-hidden rounded-panel p-8 [&>*:not(.k-halftone)]:relative", "border", s.primary ? "theme-light border-transparent" : "border-rule"]}>
+      <li class:list={["relative isolate flex flex-col overflow-hidden rounded-panel p-6 md:p-8 [&>*:not(.k-halftone)]:relative", "border", s.primary ? "theme-light border-transparent" : "border-rule"]}>
         {!s.primary && <div class="k-halftone" aria-hidden="true"></div>}
         <h3 class="t-h2">{s.title}</h3>
-        <p class="mt-3 grow leading-relaxed text-graphite">{s.body}</p>
-        <div class="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+        <p class="mt-3 grow text-graphite">{s.body}</p>
+        <div class="mt-6 flex flex-wrap items-center md:mt-8 gap-x-5 gap-y-3">
           <a href={s.href} class={s.primary ? "btn-primary" : "btn"}>
             <Icon icon={s.icon} />
             {s.action}

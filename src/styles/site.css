@@ -4,9 +4,10 @@
 
 @import "tailwindcss";
 
-/* The tokens of DESIGN.md ("Sound by design"): night and paper that
-   swap, graphite, rules, and one gold that marks the one thing a pattern
-   points at. DESIGN.md is the reference; change it with these. */
+/* The tokens of Hypha's design language ("Sound by design"): night and
+   paper that swap, graphite, rules, and one gold that marks the one thing
+   a pattern points at. The language is the reference; change it with
+   these, and hypha.pub's with them. */
 /* The palette. Night and paper swap as ground and text; roles are named
    from these, never from a raw value. */
 :root {
@@ -42,13 +43,23 @@
   --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
 
+  /* The ladder: every size with its line, both whole steps of the 4px
+     unit (0.25rem), so every line of text sits on one grid. */
   --text-xs: 0.75rem;
-  --text-xs--line-height: 1.35;
+  --text-xs--line-height: 1rem;
   --text-sm: 0.875rem;
-  --text-sm--line-height: 1.4;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 2rem;
+  --text-6xl: 4rem;
+  --text-6xl--line-height: 4.25rem;
 
   --radius-control: 4px;
-  --radius-panel: 10px;
+  --radius-panel: 12px;
 
   --ease-glide: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-state: cubic-bezier(0.4, 0, 0.2, 1);
@@ -151,7 +162,7 @@
   /* Focus in the accent; on paper in ink, where the accent is too faint. */
   :focus-visible {
     outline: 2px solid var(--color-accent);
-    outline-offset: 3px;
+    outline-offset: 4px;
   }
   /* Paper section: swaps the tokens, so contents need no light variants.
      Graphite keeps 5.6:1; the accent keeps its one gold, faint here, so
@@ -212,17 +223,17 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background: radial-gradient(circle, color-mix(in oklab, var(--color-ink) 17%, transparent) 0.6px, transparent 1px) 0 0 / 22px 22px;
+    background: radial-gradient(circle, color-mix(in oklab, var(--color-ink) 17%, transparent) 0.6px, transparent 1px) 0 0 / 24px 24px;
   }
-  .k-mark { position: absolute; width: 22px; height: 22px; color: var(--accent-on-night); }
+  .k-mark { position: absolute; width: 24px; height: 24px; color: var(--accent-on-night); }
   .k-mark::before, .k-mark::after { content: ""; position: absolute; background: currentColor; }
   .k-mark::before { left: 0; right: 0; top: 50%; height: 1.5px; transform: translateY(-50%); }
   .k-mark::after { top: 0; bottom: 0; left: 50%; width: 1.5px; transform: translateX(-50%); }
-  .k-mark-tl { top: -11px; left: -11px; }
-  .k-mark-tr { top: -11px; right: -11px; }
-  .k-mark-bl { bottom: -11px; left: -11px; }
-  .k-mark-br { bottom: -11px; right: -11px; }
-  /* A drawing's ground: fine dots on a 22px grid, even to the edges,
+  .k-mark-tl { top: -12px; left: -12px; }
+  .k-mark-tr { top: -12px; right: -12px; }
+  .k-mark-bl { bottom: -12px; left: -12px; }
+  .k-mark-br { bottom: -12px; right: -12px; }
+  /* A drawing's ground: fine dots on a 24px grid, even to the edges,
      over a fine grain. Under a drawing or a figure only, never under
      running text. */
   .k-gridground {
@@ -330,7 +341,7 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background: radial-gradient(circle, color-mix(in oklab, var(--color-ink) 17%, transparent) 0.6px, transparent 1px) 0 0 / 22px 22px;
+    background: radial-gradient(circle, color-mix(in oklab, var(--color-ink) 17%, transparent) 0.6px, transparent 1px) 0 0 / 24px 24px;
   }
   /* Night inside a paper section: the night tokens back, for the one
      thing on the paper that must keep its gold. */
@@ -349,7 +360,7 @@
   @media (forced-colors: active) {
     [aria-current="page"] {
       text-decoration: underline;
-      text-underline-offset: 6px;
+      text-underline-offset: 4px;
     }
   }
   .font-serif {
@@ -366,9 +377,17 @@
   text-wrap: balance;
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(2.75rem, 5.5vw, 5rem);
-  line-height: 1.05;
+  font-size: 3rem;
+  line-height: 3.25rem;
   letter-spacing: -0.025em;
+  @media (width >= 48rem) {
+    font-size: 4rem;
+    line-height: 4.25rem;
+  }
+  @media (width >= 64rem) {
+    font-size: 5rem;
+    line-height: 5.25rem;
+  }
 }
 
 /* Sized so each of the hero's two lines fits the measure: a laptop sets
@@ -377,9 +396,17 @@
   text-wrap: balance;
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(2.75rem, 5.5vw, 5rem);
-  line-height: 1.05;
+  font-size: 3rem;
+  line-height: 3.25rem;
   letter-spacing: -0.025em;
+  @media (width >= 48rem) {
+    font-size: 4rem;
+    line-height: 4.25rem;
+  }
+  @media (width >= 64rem) {
+    font-size: 5rem;
+    line-height: 5.25rem;
+  }
 }
 
 @utility t-h1 {
@@ -387,9 +414,13 @@
   font-family: var(--font-serif);
   font-weight: 400;
   font-variant-numeric: lining-nums tabular-nums;
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1.05;
+  font-size: 2rem;
+  line-height: 2.5rem;
   letter-spacing: -0.01em;
+  @media (width >= 64rem) {
+    font-size: 3rem;
+    line-height: 3.25rem;
+  }
 }
 
 @utility t-h2 {
@@ -397,17 +428,27 @@
   font-family: var(--font-serif);
   font-weight: 400;
   font-variant-numeric: lining-nums tabular-nums;
-  font-size: clamp(1.5rem, 2.8vw, 2rem);
-  line-height: 1.2;
+  font-size: 1.5rem;
+  line-height: 2rem;
   letter-spacing: -0.005em;
+  @media (width >= 64rem) {
+    font-size: 2rem;
+    line-height: 2.5rem;
+  }
 }
 
+/* A step under the section's heading: on a phone, where that heading
+   is 24px too, it steps down to keep its rank. */
 @utility t-h3 {
   text-wrap: balance;
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: 1.5rem;
-  line-height: 1.25;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  @media (width >= 48rem) {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
 }
 
 /* A section's paragraph: the sans, at a size and an ink that read on
@@ -416,7 +457,7 @@
   font-family: var(--font-sans);
   font-weight: 400;
   font-size: 1.25rem;
-  line-height: 1.5;
+  line-height: 1.75rem;
   color: color-mix(in oklab, var(--color-ink) 72%, var(--color-ivory));
   text-wrap: pretty;
 }
@@ -433,21 +474,21 @@
   font-family: var(--font-sans);
   font-weight: 500;
   font-size: 0.875rem;
-  line-height: 1.4;
+  line-height: 1.25rem;
 }
 
 @utility t-control {
   font-family: var(--font-sans);
   font-weight: 500;
   font-size: var(--text-sm);
-  line-height: 1.25;
+  line-height: 1.25rem;
 }
 
 @utility t-caption {
   font-family: var(--font-sans);
   font-weight: 400;
   font-size: var(--text-xs);
-  line-height: 1.5;
+  line-height: 1rem;
 }
 
 /* A proposition's number, linking to its own address for citing. Inked
@@ -483,7 +524,7 @@
   font-family: var(--font-sans);
   font-weight: 400;
   font-size: 1rem;
-  line-height: 1.55;
+  line-height: 1.5rem;
   color: var(--color-graphite);
   text-wrap: pretty;
 }
@@ -508,10 +549,10 @@
   @apply t-control pointer-coarse:min-h-11 cursor-pointer items-center text-graphite underline decoration-current/40 underline-offset-4 transition-colors pointer-coarse:inline-flex hover:text-ink hover:decoration-current;
 }
 
-/* The ontology map's ground: ink dots on a 22px grid. Faded where it
+/* The ontology map's ground: ink dots on a 24px grid. Faded where it
    is used, each place its own way. */
 @utility dotted {
-  background: radial-gradient(circle, color-mix(in oklab, var(--color-ink) 17%, transparent) 0.6px, transparent 1px) 0 0 / 22px 22px;
+  background: radial-gradient(circle, color-mix(in oklab, var(--color-ink) 17%, transparent) 0.6px, transparent 1px) 0 0 / 24px 24px;
 }
 
 /* A place in the phone's row of links: graphite, on
@@ -560,7 +601,7 @@
 /* The hold button is unseen, so its row draws the focus. */
 [data-strip]:has([data-hold]:focus-visible) {
   outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
+  outline-offset: 4px;
 }
 
 [data-strip]:has([data-hold]:focus-visible) .marquee-track,
@@ -598,9 +639,9 @@
   }
 }
 
-/* The kit: the patterns every page builds from, as DESIGN.md names them.
-   Each is one level deep: a panel holds rows ruled apart, never a box in
-   a box. Gold marks the one thing a pattern points at. */
+/* The kit: the patterns every page builds from, as the design language
+   names them. Each is one level deep: a panel holds rows ruled apart,
+   never a box in a box. Gold marks the one thing a pattern points at. */
 @layer components {
   /* A night field set on paper re-mixes its surfaces. */
   /* A panel on paper is night, so it stands out from the paper. */
@@ -636,7 +677,7 @@
      log alike. A frame carries small labels at its head and a footer
      line at its foot; the rows sit in one well inset in it, ruled apart.
      One face, one size. Only the Hypha side of a comparison is gold. */
-  .k-panel { display: flex; flex-direction: column; align-self: start; background: color-mix(in oklab, var(--color-ink) 7%, var(--color-ivory)); border-radius: 16px; padding: 0 0.3rem 0.3rem; font-size: 1rem; box-shadow: 0 0 0 1px var(--color-rule); }
+  .k-panel { display: flex; flex-direction: column; align-self: start; background: color-mix(in oklab, var(--color-ink) 7%, var(--color-ivory)); border-radius: 16px; padding: 0 0.25rem 0.25rem; font-size: 1rem; line-height: 1.5rem; box-shadow: 0 0 0 1px var(--color-rule); }
   .k-panel-hypha { box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-on-night) 70%, transparent); }
   /* A panel standing as a card in a grid row: as tall as its row, its
      well taking the rest. */
@@ -645,13 +686,13 @@
      panel the page points at. */
   .k-panel-card .k-panel-well { color: color-mix(in oklab, var(--color-ink) 72%, var(--color-ivory)); }
   .k-panel-card.k-panel-hypha .k-panel-well { color: var(--color-ink); }
-  .k-panel-head { display: flex; justify-content: space-between; gap: 1rem; padding: 0.6rem 1rem; font-size: 0.875rem; color: var(--color-graphite); }
+  .k-panel-head { display: flex; justify-content: space-between; gap: 1rem; padding: 0.5rem 1rem; font-size: 0.875rem; line-height: 1.25rem; color: var(--color-graphite); }
   .k-panel-name { color: var(--color-ink); font-weight: 500; }
   .k-panel-hypha .k-panel-name { color: var(--accent-on-night); }
   .k-panel-well { background: color-mix(in oklab, var(--color-ink) 1.5%, var(--color-ivory)); border-radius: 12px; }
   .k-panel-well > * + * { border-top: 1px solid var(--color-rule); }
-  .k-panel-row { padding: 0.75rem 1rem; line-height: 1.45; }
-  .k-panel-foot { margin-top: auto; padding: 0.7rem 1rem 0.45rem; font-size: 0.875rem; line-height: 1.55; color: var(--color-graphite); }
+  .k-panel-row { padding: 0.75rem 1rem; line-height: 1.5rem; }
+  .k-panel-foot { margin-top: auto; padding: 0.75rem 1rem 0.5rem; font-size: 0.875rem; line-height: 1.25rem; color: var(--color-graphite); }
   /* Compare (Compare.astro): the before and after as two panels of the
      same rows, the Hypha one gold at its edge, and one outcome under
      both, after the gold tick. */
@@ -676,75 +717,80 @@
   .k-compare-row { display: grid; grid-template-columns: 7.5rem 1fr; gap: 1rem; }
   .k-compare-row dt { color: var(--color-graphite); white-space: nowrap; }
   .k-compare > li:not(.k-panel-hypha) .k-compare-row dd { color: rgb(226 222 216 / 0.92); }
-  .k-compare-outcome { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-top: 1.75rem; font-size: 1.25rem; line-height: 1.5; color: var(--color-ink); text-align: left; }
+  .k-compare-outcome { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-top: 1.75rem; font-size: 1.25rem; line-height: 1.75rem; color: var(--color-ink); text-align: left; }
 
   /* A table set in the panel: its header row on the frame, its body the
      well. */
   .k-panel table { width: 100%; border-collapse: separate; border-spacing: 0; }
-  .k-panel th { text-align: left; font-weight: 400; font-size: 0.875rem; color: var(--color-graphite); padding: 0.6rem 1rem; }
-  .k-panel td { padding: 0.75rem 1rem; vertical-align: top; line-height: 1.45; background: color-mix(in oklab, var(--color-ink) 1.5%, var(--color-ivory)); }
+  .k-panel th { text-align: left; font-weight: 400; font-size: 0.875rem; line-height: 1.25rem; color: var(--color-graphite); padding: 0.5rem 1rem; }
+  .k-panel td { padding: 0.75rem 1rem; vertical-align: top; line-height: 1.5rem; background: color-mix(in oklab, var(--color-ink) 1.5%, var(--color-ivory)); }
   .k-panel tbody tr + tr td { border-top: 1px solid var(--color-rule); }
   .k-panel tbody tr:first-child td:first-child { border-top-left-radius: 12px; }
   .k-panel tbody tr:first-child td:last-child { border-top-right-radius: 12px; }
   .k-panel tbody tr:last-child td:first-child { border-bottom-left-radius: 12px; }
   .k-panel tbody tr:last-child td:last-child { border-bottom-right-radius: 12px; }
-  .k-tag { display: inline-block; margin-left: 0.35rem; border: 1px solid var(--color-rule); border-radius: 5px; padding: 0 0.35rem; font-size: 0.75rem; line-height: 1.5; color: var(--color-graphite); vertical-align: 0.05em; }
+  .k-tag { display: inline-block; margin-left: 0.25rem; border: 1px solid var(--color-rule); border-radius: 4px; padding: 0 0.5rem; font-size: 0.75rem; line-height: 1.25rem; color: var(--color-graphite); vertical-align: 0.05em; }
 
   /* A tick: gold where something is done or proven, ink on paper lists. */
   /* A tick is a bare mark, never a box: a filled square reads as a form's
      checkbox. Gold where something is done or proven, graphite when quiet. */
-  .k-tick { display: inline-flex; align-items: center; justify-content: center; width: 1.3rem; height: 1.3rem; flex-shrink: 0; color: var(--accent-on-night); }
+  .k-tick { display: inline-flex; align-items: center; justify-content: center; width: 1.25rem; height: 1.25rem; flex-shrink: 0; color: var(--accent-on-night); }
   .k-tick svg { width: 100%; height: 100%; stroke-width: 2.5; }
   .k-tick-quiet { color: var(--color-graphite); }
 
   /* A point beside an artefact: a bare icon on the title's line, then
      the title and its line. No tile: the icon marks, the words lead. */
-  .k-point { display: grid; grid-template-columns: 1.25rem 1fr; gap: 0.85rem; align-items: start; }
+  .k-point { display: grid; grid-template-columns: 1.25rem 1fr; gap: 0.75rem; align-items: start; }
   .k-point-icon { display: flex; align-items: center; height: 1.5rem; color: var(--color-graphite); }
-  .k-point-icon svg { width: 1.15rem; height: 1.15rem; }
+  .k-point-icon svg { width: 1.25rem; height: 1.25rem; }
+  /* The icon's box is its title's line, so it centres on it: a body
+     title's 24px, a card title's 28px, then 32px from 48rem. */
+  .k-point:has(.t-h3) .k-point-icon { height: 1.75rem; }
+  @media (width >= 48rem) { .k-point:has(.t-h3) .k-point-icon { height: 2rem; } }
 
   /* A map of concepts: cards in a strict grid, each relation in its own
      cell between two, a label on its line. Labels, never links. */
   .k-map { display: grid; grid-template-columns: minmax(0, 1fr) 7rem minmax(0, 1fr); grid-template-rows: auto 5.5rem auto; }
-  .k-concept { padding: 1rem 1.1rem; border-radius: 14px; background: var(--color-panel); box-shadow: 0 0 0 1px var(--color-rule), 0 16px 32px -20px rgb(0 0 0 / 0.8); }
+  .k-concept { padding: 1rem; border-radius: 16px; background: var(--color-panel); box-shadow: 0 0 0 1px var(--color-rule), 0 16px 32px -20px rgb(0 0 0 / 0.8); }
   .k-concept-hypha { box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-on-night) 70%, transparent), 0 16px 32px -20px rgb(0 0 0 / 0.8); }
   .k-relation { position: relative; display: flex; align-items: center; justify-content: center; }
   .k-relation::before { content: ""; position: absolute; background: var(--color-graphite); opacity: 0.6; }
   .k-relation-h::before { left: 0; right: 0; top: 50%; height: 1px; }
   .k-relation-v::before { top: 0; bottom: 0; left: 50%; width: 1px; }
-  .k-relation span { position: relative; font-size: 0.75rem; line-height: 1; color: var(--color-graphite); background: var(--color-ivory); border: 1px solid var(--color-rule); border-radius: 999px; padding: 0.25rem 0.5rem; white-space: nowrap; }
+  .k-relation span { position: relative; font-size: 0.75rem; line-height: 1rem; color: var(--color-graphite); background: var(--color-ivory); border: 1px solid var(--color-rule); border-radius: 999px; padding: 0.25rem 0.5rem; white-space: nowrap; }
   /* Before a map assembles (src/lib/map.ts) its cards and labels are
      veiled and its lines undrawn; only the script sets this. */
   .k-map[data-veiled] :is(.k-concept, .k-relation span) { opacity: 0; }
   .k-map[data-veiled] .k-relation::before { opacity: 0; }
   /* On a phone the map keeps its shape, tighter: the cards' padding
-     and the relation column shrink, to just the width of its longest
-     label, which stays on one line as everywhere else. */
+     and the relation column shrink, the column to just the width of its
+     longest label, which stays on one line as everywhere else. */
   @media (width < 40rem) {
-    .k-map { grid-template-columns: minmax(0, 1fr) 5rem minmax(0, 1fr); grid-template-rows: auto 3.5rem auto; }
-    .k-concept { padding: 0.8rem 0.85rem; }
-    .k-relation span { padding: 0.25rem 0.4rem; }
+    .k-map { grid-template-columns: minmax(0, 1fr) 5.5rem minmax(0, 1fr); grid-template-rows: auto 3.5rem auto; }
+    .k-concept { padding: 0.75rem; }
+    .k-map .k-panel-row { padding: 0.75rem; }
+    .k-map .k-panel-head { padding: 0.5rem 0.75rem; }
   }
 
   /* The caret at a live panel's foot. */
-  .k-caret { display: inline-block; width: 0.5rem; height: 1.1em; background: var(--accent-on-night); vertical-align: -0.2em; margin-left: 0.25rem; animation: k-blink 1.1s steps(1) infinite; }
+  .k-caret { display: inline-block; width: 0.5rem; height: 1em; background: var(--accent-on-night); vertical-align: -0.2em; margin-left: 0.25rem; animation: k-blink 1.1s steps(1) infinite; }
   @media (prefers-reduced-motion: reduce) { .k-caret { animation: none; } }
 
   /* A figure: a sourced number, large, its line and its source. */
-  .k-figure { background: color-mix(in oklab, var(--color-ink) 4%, var(--color-ivory)); border-radius: 20px; padding: 1.6rem 1.7rem 1.5rem; }
+  .k-figure { background: color-mix(in oklab, var(--color-ink) 4%, var(--color-ivory)); border-radius: 16px; padding: 1.5rem; }
   /* A figure that is its source's link: the whole card leaves the site,
      a step brighter under the pointer, its source inked. */
   .k-figure-link { color: inherit; transition: background-color 120ms var(--ease-state); }
   .k-figure-link .k-figure-source { text-decoration: underline; text-decoration-color: color-mix(in oklab, currentColor 40%, transparent); text-underline-offset: 2px; transition: color 120ms var(--ease-state), text-decoration-color 120ms var(--ease-state); }
   .k-figure-link:hover { background: color-mix(in oklab, var(--color-ink) 8%, var(--color-ivory)); }
   .k-figure-link:hover .k-figure-source { color: var(--color-ink); text-decoration-color: currentColor; }
-  .k-figure-number { font-family: var(--font-serif); font-weight: 400; font-size: clamp(3.5rem, 6vw, 5rem); letter-spacing: -0.04em; line-height: 1; }
+  .k-figure-number { font-family: var(--font-serif); font-weight: 400; font-size: 3rem; letter-spacing: -0.04em; line-height: 1; @media (width >= 48rem) { font-size: 4rem; } @media (width >= 64rem) { font-size: 5rem; } }
 
   /* A sheet: a document lying on paper, nothing under it. */
-  .k-sheet { background: #fbf9f5; color: var(--night); border-radius: 14px; box-shadow: 0 0 0 1px var(--color-rule), 0 24px 48px -28px rgb(40 28 12 / 0.35); }
+  .k-sheet { background: #fbf9f5; color: var(--night); border-radius: 16px; box-shadow: 0 0 0 1px var(--color-rule), 0 24px 48px -28px rgb(40 28 12 / 0.35); }
 
   /* A statement: one line at poster scale, over the sand. */
-  .k-statement { font-family: var(--font-serif); font-weight: 400; font-size: clamp(3rem, 7.5vw, 6.5rem); line-height: 1; letter-spacing: -0.03em; text-wrap: balance; }
+  .k-statement { font-family: var(--font-serif); font-weight: 400; font-size: 3rem; line-height: 1; letter-spacing: -0.03em; text-wrap: balance; @media (width >= 48rem) { font-size: 4rem; } @media (width >= 64rem) { font-size: 5rem; } }
 }
 
 @keyframes k-blink { 50% { opacity: 0; } }

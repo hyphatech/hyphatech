@@ -128,7 +128,7 @@ const style = ([, fg, bg]: Run) => `${fg ? `color:${fg};` : ""}${bg && bg !== "#
       phone the six names cannot stand side by side, so the bars stand
       alone, tall enough to tap, and the one playing is named once under
       them. */}
-  <div class="mt-5 flex min-w-0 gap-1.5" role="group" aria-label="Chapters">
+  <div class="mt-5 flex min-w-0 gap-2" role="group" aria-label="Chapters">
     {
       chapters.map((c, i) => (
         <button type="button" aria-current={i === first ? "true" : undefined} aria-label={c.title} class="tab group min-w-6 py-3 text-left sm:min-w-20 sm:pt-1 sm:pb-2" style={`flex:${lens[i]} 1 0`}>

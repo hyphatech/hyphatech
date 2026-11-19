@@ -27,14 +27,13 @@ for (const p of propositions) {
 <Base
   title="Principles · Hypha"
   description="The principles Hypha is built on, in seven propositions."
-  flush
 >
   {/* The title alone on the dotted ground Stack's title stands on; the
       propositions on paper. */}
   <TitleBand slot="band" rail="Principles" title="Principles" />
 
   <section class="theme-light">
-    <div class="mx-auto max-w-page px-4 py-16 sm:px-6 md:py-20">
+    <div class="mx-auto max-w-page px-4 py-12 sm:px-6 md:py-16">
       <ol>
         {
           groups.map((g) => (
@@ -47,7 +46,7 @@ for (const p of propositions) {
               {g.lines.length > 0 && (<ol class="mt-8 md:mt-10">
                 {g.lines.map((l) => (
                   <li id={l.n} class="grid scroll-mt-8 grid-cols-[3.5rem_minmax(0,1fr)] gap-x-4 not-first:mt-7 md:grid-cols-margin">
-                    <a href={`#${l.n}`} class="t-cite t-number self-start pt-1.5 text-base md:text-right" aria-label={`Proposition ${l.n}`}>{l.n}</a>
+                    <a href={`#${l.n}`} class="t-cite t-number self-start text-base leading-7 md:text-right md:leading-8" aria-label={`Proposition ${l.n}`}>{l.n}</a>
                     <p class="t-h3 max-w-2xl [text-wrap:pretty]">{l.text}</p>
                     {l.remarks.length > 0 && (
                       <ol class="t-note col-start-2 mt-3 max-w-xl space-y-2">

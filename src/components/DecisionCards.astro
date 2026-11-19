@@ -34,7 +34,10 @@ import CircleDot from "@lucide/astro/icons/circle-dot";
 import Mail from "@lucide/astro/icons/mail";
 import Ticket from "@lucide/astro/icons/ticket";
 import { marks } from "../content/marks";
-import { WIDTH, HEIGHT, tileOf, iconMatrix, baseOf, gridOf, linkOf, pointOf, boundOf, byDepth, type Scene, type Tile, type IconName } from "./decisions-geometry";
+import { WIDTH, HEIGHT, P, SIZE, tileOf, iconMatrix, baseOf, gridOf, linkOf, pointOf, boundOf, byDepth, type Scene, type Tile, type IconName } from "./decisions-geometry";
+import * as k from "./iso/iso-kit";
+import { litSides } from "./iso/lit";
+import "./iso/lit.css";
 
 const icons: Partial<Record<IconName, any>> = {
   server: Server, monitor: Monitor, terminal: SquareTerminal, plug: Plug, check: Check, x: X, zap: Zap, resume: RotateCcw,
@@ -168,20 +171,25 @@ interface Props {
 const list = Astro.props.whole ? [{ title: "", body: "", scene: whole }] : cards;
 
 /* What a scene draws, in order: what stands behind the tiles first. */
+/* Lit night (iso/lit.ts): every side face shaded by its turn to the
+   light, every top a fall-off from it. */
 const base = baseOf();
+const baseSides = litSides(k.ringOf({ x: -64, y: -64, w: 128, d: 128, r: 4 }, 8), -4, 0, P);
 const grid = gridOf();
+const sidesOfTile = ({ at: [x, y, z], size = SIZE }: Tile) => litSides(k.ringOf({ x: x - size / 2, y: y - size / 2, w: size, d: size, r: 2.5 }, 8), z - 3, z, P);
 const draw = (s: Scene) => {
   const focus = s.tiles.find((t) => t.gold)!;
   return {
     focus: pointOf(focus.at),
     bound: s.bound ? boundOf(s.bound) : null,
-    tiles: byDepth(s.tiles).map((t: Tile) => ({ t, paths: tileOf(t) })),
+    boundSides: s.bound ? litSides(k.ringOf({ ...s.bound, r: 3 }, 8), 0, 2, P) : [],
+    tiles: byDepth(s.tiles).map((t: Tile) => ({ t, paths: tileOf(t), sides: sidesOfTile(t) })),
     links: s.links.map((l) => ({ l, d: linkOf(l) })),
   };
 };
 ---
 
-<ul class:list={["decisions", { whole: Astro.props.whole }]}>
+<ul class:list={["decisions lit-night", { whole: Astro.props.whole }]}>
   {
     list.map((c, i) => {
       const d = draw(c.scene);
@@ -202,22 +210,28 @@ const draw = (s: Scene) => {
                   <stop offset="0" stop-color="#fff" stop-opacity="1" />
                   <stop offset="1" stop-color="#fff" stop-opacity="0" />
                 </radialGradient>
+                <linearGradient id={`dg-base-${n}`} x1="1" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ln-base-lit)" /><stop offset="1" style="stop-color:var(--ln-base-far)" /></linearGradient>
+                <linearGradient id={`dg-tile-${n}`} x1="1" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ln-part-lit)" /><stop offset="1" style="stop-color:var(--ln-part-far)" /></linearGradient>
                 <mask id={`dg-near-${n}`} maskUnits="userSpaceOnUse" x="0" y="0" width={WIDTH} height={HEIGHT}><rect width={WIDTH} height={HEIGHT} fill={`url(#dg-fade-${n})`} /></mask>
               </defs>
               <path class="base-side" d={base.fill} />
-              <path class="base-top" d={base.top} />
+              {baseSides.map((f) => <path class="face base-face" d={f.d} style={`--t:${f.t}%`} />)}
+              <path class="base-top" d={base.top} fill={`url(#dg-base-${n})`} />
               <path d={base.top} fill={`url(#dg-light-${n})`} />
               <path class="grid" d={grid} />
               <path class="grid grid-lit" d={grid} mask={`url(#dg-near-${n})`} />
               <path class="edge" d={base.outline} />
-              {d.bound && <g class="bound"><path class="side" d={d.bound.fill} /><path class="top" d={d.bound.top} /><path class="edge" d={d.bound.outline} /></g>}
+              <path class="crease" d={base.crease} />
+              {d.bound && <g class="bound"><path class="side" d={d.bound.fill} />{d.boundSides.map((f) => <path class="face" d={f.d} style={`--t:${f.t}%`} />)}<path class="top" d={d.bound.top} /><path class="edge" d={d.bound.outline} /></g>}
               {d.links.map(({ l, d: dd }) => <path class:list={["link", { gold: l.gold, solid: l.solid }]} d={dd} />)}
-              {d.tiles.map(({ t, paths }) => (
+              {d.tiles.map(({ t, paths, sides }) => (
                 <g class:list={["tile", { gold: t.gold }]}>
                   {t.gold && <path class="glow" d={paths.top} filter="url(#dg-glow)" />}
                   <path class="side" d={paths.fill} />
-                  <path class="top" d={paths.top} />
+                  {sides.map((f) => <path class="face" d={f.d} style={`--t:${f.t}%`} />)}
+                  <path class="top" d={paths.top} fill={t.gold ? undefined : `url(#dg-tile-${n})`} />
                   <path class="edge" d={paths.outline} />
+                  <path class="crease" d={paths.crease} />
                   <g class="icon" transform={iconMatrix(t)}>{marks[t.icon] ? <svg viewBox="0 0 24 24" width="20" height="20" x="2" y="2"><path d={marks[t.icon]} fill="currentColor" /></svg> : (() => { const I = icons[t.icon]; return <I size={24} stroke-width={2} />; })()}</g>
                 </g>
               ))}
@@ -259,8 +273,8 @@ const draw = (s: Scene) => {
     content: ""; position: absolute; left: 50%; top: 50%; background: var(--accent-on-night);
     transform: translate(-50%, -50%);
   }
-  .mark::before { width: 13px; height: 1.5px; }
-  .mark::after { width: 1.5px; height: 13px; }
+  .mark::before { width: 12px; height: 1.5px; }
+  .mark::after { width: 1.5px; height: 12px; }
   .stage { padding: 2rem 0.75rem 0.25rem; display: grid; place-items: center; }
   .words { padding: 0.5rem 0.25rem 2rem; display: flex; flex-direction: column; justify-content: center; }
   /* From a tablet up: a decision a row, a large drawing beside its
@@ -292,11 +306,20 @@ const draw = (s: Scene) => {
   .whole .stage :global(svg) { max-width: none; }
   .dg { display: block; width: 100%; height: auto; overflow: visible; }
 
+  /* Lit night (iso/lit.ts, as the landing's jig): night materials, one
+     warm light from the top right; a face mixes its dark and its lit by
+     its turn to it, stroked in its own colour so no seam shows. */
+  .dg .face { --c: color-mix(in oklab, var(--ln-part-light) var(--t), var(--ln-part-dark)); fill: var(--c); stroke: var(--c); stroke-width: 0.5; stroke-linejoin: round; }
+  .dg .base-face { --c: color-mix(in oklab, var(--ln-base-light) var(--t), var(--ln-base-dark)); }
+  .dg .bound .face { --c: color-mix(in oklab, color-mix(in oklab, #d0574a 45%, var(--night)) var(--t), color-mix(in oklab, #d0574a 25%, #000)); }
+  .dg .crease { fill: none; stroke: var(--ln-crease); stroke-width: 0.8; stroke-linecap: round; stroke-linejoin: round; }
+  .dg .gold .face { --c: color-mix(in oklab, color-mix(in oklab, var(--accent-on-night) 30%, #241e16) var(--t), color-mix(in oklab, var(--accent-on-night) 12%, #0d0b08)); }
+
   /* The base: a plate of night, its grid barely there. */
   .dg .base-side { fill: color-mix(in oklab, #000 30%, var(--color-ivory)); }
   .dg .base-top { fill: color-mix(in oklab, var(--color-graphite) 7%, var(--color-ivory)); }
   .dg .grid { fill: none; stroke: color-mix(in oklab, var(--color-graphite) 18%, transparent); stroke-width: 0.6; }
-  .dg .edge { fill: none; stroke: color-mix(in oklab, var(--color-graphite) 55%, transparent); stroke-width: 0.8; stroke-linejoin: round; }
+  .dg .edge { fill: none; stroke: color-mix(in oklab, #000 45%, transparent); stroke-width: 0.8; stroke-linejoin: round; }
 
   /* A tile: its sides a step darker than its top; gold where it lands. */
   .dg .side { fill: color-mix(in oklab, #000 25%, var(--color-ivory)); }

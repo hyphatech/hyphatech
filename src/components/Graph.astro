@@ -200,8 +200,8 @@ const classAt = (g: Group) =>
       <p class="peek-name" data-peek-name></p>
       <p class="peek-is" data-peek-is></p>
       <ul class="peek-refusals" data-peek-refusals></ul>
-      <p class="peek-by"><Package size={14} /><code data-peek-by></code><span data-peek-entry></span></p>
-      <p class="peek-proof" data-peek-proof><FlaskConical size={13} /><span data-peek-test></span></p>
+      <p class="peek-by"><Package size={16} /><code data-peek-by></code><span data-peek-entry></span></p>
+      <p class="peek-proof" data-peek-proof><FlaskConical size={16} /><span data-peek-test></span></p>
     </div>
     {/* The relations as sentences, for screen readers. */}
     <ul class="sr-only">
@@ -218,12 +218,13 @@ const classAt = (g: Group) =>
     top: 0;
     z-index: 2;
     width: 19rem;
-    padding: 0.9rem 1rem 0.95rem;
+    padding: 1rem;
     border-radius: 12px;
     border: 1px solid var(--color-rule);
-    background: color-mix(in oklab, var(--color-ivory) 88%, transparent);
-    backdrop-filter: blur(8px);
-    box-shadow: 0 12px 32px -12px rgb(0 0 0 / 0.5);
+    /* Opaque, as a panel is: the drawing under it never shows through
+       its words. */
+    background: color-mix(in oklab, var(--color-ink) 7%, var(--color-ivory));
+    box-shadow: 0 16px 32px -20px rgb(0 0 0 / 0.8);
     pointer-events: none;
     animation: peek 180ms var(--ease-glide);
   }
@@ -231,17 +232,17 @@ const classAt = (g: Group) =>
   @media (width < 40rem) { .peek { width: calc(100% - 16px); } }
   @keyframes peek { from { opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .peek { animation: none; } }
-  .peek-group { font-size: 0.875rem; color: var(--color-graphite); }
-  .peek-name { margin-top: 0.3rem; font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.2; color: var(--color-ink); }
-  .peek-is { margin-top: 0.35rem; font-size: 0.875rem; line-height: 1.5; color: var(--color-graphite); }
-  .peek-refusals { margin-top: 0.6rem; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  .peek-group { font-size: 0.875rem; line-height: 1.25rem; color: var(--color-graphite); }
+  .peek-name { margin-top: 0.25rem; font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.75rem; color: var(--color-ink); }
+  .peek-is { margin-top: 0.25rem; font-size: 0.875rem; line-height: 1.25rem; color: var(--color-graphite); }
+  .peek-refusals { margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.25rem; }
   .peek-refusals[hidden], .peek-proof[hidden] { display: none; }
-  .peek-refusals :global(li) { font-family: var(--font-mono); font-size: 0.75rem; padding: 0.1rem 0.45rem; border-radius: 6px; border: 1px dashed var(--color-rule); color: var(--color-graphite); }
-  .peek-by { margin-top: 0.75rem; padding-top: 0.6rem; border-top: 1px solid var(--color-rule); display: flex; align-items: center; gap: 0.45rem; font-size: 0.875rem; color: var(--color-graphite); min-width: 0; }
+  .peek-refusals :global(li) { font-family: var(--font-mono); font-size: 0.75rem; line-height: 1rem; padding: 0.25rem 0.5rem; border-radius: 8px; border: 1px dashed var(--color-rule); color: var(--color-graphite); }
+  .peek-by { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--color-rule); display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; line-height: 1.25rem; color: var(--color-graphite); min-width: 0; }
   .peek-by code { font-family: var(--font-sans); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .peek-by span { margin-left: auto; color: var(--color-graphite); white-space: nowrap; }
   .peek[data-open] .peek-by code { color: var(--color-ink); font-family: var(--font-mono); }
-  .peek-proof { margin-top: 0.35rem; display: flex; align-items: center; gap: 0.45rem; font-size: 0.75rem; line-height: 1.4; color: var(--color-graphite); }
+  .peek-proof { margin-top: 0.25rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; line-height: 1rem; color: var(--color-graphite); }
   .peek-by :global(svg), .peek-proof :global(svg) { flex: none; }
   .peek[data-open] .peek-by :global(svg) { color: var(--color-accent); }
 
@@ -382,10 +383,12 @@ const classAt = (g: Group) =>
     stroke-width: 2;
   }
 
-  /* On a phone, a window on the map: edge to edge, fading out on every
-     side. */
+  /* On a phone, a window on the map: edge to edge, the drawing fading
+     out on every side, and the card over it whole, never faded with it. */
   .field:has(> [data-window]) {
     padding-inline: 0;
+  }
+  .field > [data-window] {
     mask-image:
       linear-gradient(to right, transparent, black 12%, black 88%, transparent),
       linear-gradient(transparent, black 10%, black 90%, transparent);

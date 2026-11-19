@@ -17,14 +17,12 @@ import slab from "@fontsource-variable/roboto-slab/files/roboto-slab-latin-wght-
 interface Props {
   title: string;
   description: string;
-  /* The last section meets the footer with no gap. */
-  flush?: boolean;
   /* The 404: noindex, no canonical. */
   lost?: boolean;
   schema?: Record<string, unknown>;
 }
 
-const { title, description, flush = false, lost = false, schema } = Astro.props;
+const { title, description, lost = false, schema } = Astro.props;
 /* A page with an opening band draws the masthead inside it, unruled. */
 const banded = Astro.slots.has("band");
 const path = Astro.url.pathname.replace(/\/?$/, "/");
@@ -118,14 +116,14 @@ const everything = [
           the page you are on is on `raised`. Too wide for the screen, the
           row scrolls under a finger, with no bar drawn under it. */}
       <nav class:list={["h-14 border-y border-rule md:hidden", banded && "[--color-graphite:color-mix(in_oklab,var(--graphite-on-night)_70%,var(--paper))]"]} aria-label="Site">
-        <ul class="mx-auto flex h-full max-w-page items-center gap-0.5 overflow-x-auto px-1.5 [scrollbar-width:none] min-[22.5rem]:gap-1 min-[22.5rem]:px-2 sm:px-4 [&::-webkit-scrollbar]:hidden">
+        <ul class="mx-auto flex h-full max-w-page items-center gap-1 overflow-x-auto px-2 [scrollbar-width:none] sm:px-4 [&::-webkit-scrollbar]:hidden">
           {
             nav.map((item) => (
               <li class="shrink-0">
                 <a
                   href={item.href}
                   aria-current={path === item.href ? "page" : within(item.href) ? "true" : undefined}
-                  class="nav-item gap-1.5 px-2 py-2.5 min-[22.5rem]:gap-2 min-[22.5rem]:px-3"
+                  class="nav-item gap-2 px-2 py-2 min-[22.5rem]:px-3"
                 >
                   <Icon icon={item.icon} />
                   {item.label}
@@ -146,14 +144,14 @@ const everything = [
     </main>
     <Rail />
 
-    <div class:list={[!flush && "mt-24"]}>
+    <div>
     {/* The page's foot on Horizon: a low warm band rising along its
         bottom edge, drawn as for a section twice its height so the band
         reads in its short space, and a page ends lit, never on bare
         night. */}
     <footer class="k-horizon border-t border-rule bg-bottom bg-no-repeat [background-size:100%_260%]">
       <div class="k-grain" aria-hidden="true"></div>
-      <div class="relative mx-auto grid max-w-page gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1fr_auto] md:gap-16">
+      <div class="relative mx-auto grid max-w-page gap-6 px-4 py-12 sm:px-6 md:grid-cols-[1fr_auto] md:gap-16 md:py-16">
         <div class="max-w-lg">
           <div class="flex items-center gap-2">
             <Mark class="h-6" />

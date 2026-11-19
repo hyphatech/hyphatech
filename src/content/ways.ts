@@ -31,7 +31,7 @@ const modernise: Path = {
 
 const factory: Path = {
   title: "The Factory",
-  body: "The autonomous factory for durable software. It takes your product from decisions to working software, with nothing to babysit.",
+  body: "The autonomous factory for durable software. It takes your product from decisions to working software at the speed of agents.",
   href: "/haf/",
   action: "Explore the Factory",
   icon: Factory,

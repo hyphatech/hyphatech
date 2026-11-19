@@ -22,7 +22,7 @@ const after = Astro.slots.has("after");
 <section id="top" data-rail-name={rail} class="theme-ember relative isolate overflow-hidden -mt-(--masthead) pt-(--masthead)">
   <div class="k-grain" aria-hidden="true"></div>
   <div class="k-halftone max-md:top-(--masthead)" aria-hidden="true"></div>
-  <div class:list={["relative mx-auto w-full max-w-page px-4 pt-24 sm:px-6 md:pt-32", !after && "pb-20 md:pb-28"]}>
+  <div class:list={["relative mx-auto w-full max-w-page px-4 pt-16 sm:px-6 md:pt-32", !after && "pb-12 md:pb-16"]}>
     <div>
       <h1 class="t-hero max-w-5xl">
         {title[0]}
@@ -35,7 +35,7 @@ const after = Astro.slots.has("after");
   </div>
   {
     after && (
-      <div class:list={["relative mx-auto px-4 pb-16 sm:px-6 md:pb-20", wide ? "mt-12 max-w-[86rem] md:mt-14" : "mt-16 max-w-page md:mt-20"]}>
+      <div class:list={["relative mx-auto px-4 pb-12 sm:px-6 md:pb-16", wide ? "mt-12 max-w-[86rem]" : "mt-12 max-w-page"]}>
         <slot name="after" />
       </div>
     )

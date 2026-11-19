@@ -15,7 +15,7 @@ const above = Astro.slots.has("above");
 <section id="top" data-rail-name={rail} class="theme-ember relative isolate overflow-hidden -mt-(--masthead) pt-(--masthead)">
   <div class="k-grain" aria-hidden="true"></div>
   <div class="k-halftone max-md:top-(--masthead)" aria-hidden="true"></div>
-  <div class:list={["relative mx-auto max-w-page px-4 pb-16 sm:px-6 md:pb-20", above ? "pt-12 md:pt-16" : "pt-16 md:pt-20"]}>
+  <div class:list={["relative mx-auto max-w-page px-4 pb-12 sm:px-6 md:pb-16", above ? "pt-10 md:pt-16" : "pt-12 md:pt-16"]}>
     <div>
       <slot name="above" />
       <h1 class:list={["t-display max-w-3xl", above && "mt-6"]}>{title}</h1>

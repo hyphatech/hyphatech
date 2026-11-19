@@ -134,9 +134,9 @@ const itemOf = (it: (typeof run.items)[number]) =>
   .narrow .track { position: relative; width: calc(100% - 5.5rem); height: 8px; }
   .narrow .grid-layer { position: absolute; inset: 0 auto 0 0; height: auto; pointer-events: none; }
   .narrow .tick { position: absolute; top: 0; bottom: 0; border-left: 1px dashed color-mix(in oklab, var(--color-ink) 10%, transparent); }
-  .narrow .item { position: relative; padding: 0.3rem 0 0.45rem; cursor: default; }
-  .narrow .item::before { content: ""; position: absolute; inset: 0 -0.5rem; border-radius: 6px; }
-  .narrow .line { position: relative; display: flex; justify-content: space-between; gap: 0.75rem; align-items: baseline; margin-bottom: 0.3rem; line-height: 1.25; }
+  .narrow .item { position: relative; padding: 0.25rem 0 0.5rem; cursor: default; }
+  .narrow .item::before { content: ""; position: absolute; inset: 0 -0.5rem; border-radius: 8px; }
+  .narrow .line { position: relative; display: flex; justify-content: space-between; gap: 0.75rem; align-items: baseline; margin-bottom: 0.25rem; line-height: 1.25rem; }
   .narrow .name { font-size: 0.875rem; color: color-mix(in oklab, var(--color-ink) 72%, var(--color-graphite)); }
   .narrow .proof { font-size: 0.75rem; color: var(--color-graphite); white-space: nowrap; }
   .narrow .item:is(:hover, [data-on])::before { background: color-mix(in oklab, var(--color-ink) 5%, transparent); }
@@ -144,10 +144,10 @@ const itemOf = (it: (typeof run.items)[number]) =>
   .narrow .bar { position: absolute; top: 0; height: 8px; border-radius: 4px; background: color-mix(in oklab, var(--color-ink) 78%, transparent); }
   .narrow .refusal { position: absolute; top: -3px; width: 2px; height: 14px; border-radius: 1px; background: #d0574a; }
   .narrow .released { position: absolute; top: -1px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent-on-night); box-shadow: 0 0 0 2px var(--color-ivory); }
-  .narrow .released-line { margin-top: 0.5rem; text-align: right; line-height: 1.25; }
+  .narrow .released-line { margin-top: 0.5rem; text-align: right; line-height: 1.25rem; }
   .narrow .released-label { font-size: 0.875rem; font-weight: 500; color: var(--color-ink); }
   .narrow .axis-row { margin-top: 0.75rem; height: 1rem; }
-  .narrow .axis { position: absolute; top: 0; transform: translateX(-50%); font-size: 0.75rem; color: var(--color-graphite); white-space: nowrap; }
+  .narrow .axis { position: absolute; top: 0; transform: translateX(-50%); font-size: 0.75rem; line-height: 1rem; color: var(--color-graphite); white-space: nowrap; }
   .grid {
     stroke: color-mix(in oklab, var(--color-ink) 9%, transparent);
     stroke-dasharray: 2 5;
@@ -198,10 +198,10 @@ const itemOf = (it: (typeof run.items)[number]) =>
     left: 0;
     width: max-content;
     max-width: min(21rem, 100%);
-    padding: 0.6rem 0.7rem 0.65rem;
-    border-radius: 10px;
-    font-size: 0.8125rem;
-    line-height: 1.4;
+    padding: 0.75rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
     color: var(--color-ink);
     background: color-mix(in oklab, var(--color-ink) 8%, var(--color-ivory));
     box-shadow: 0 0 0 1px var(--color-rule), 0 16px 32px -16px rgb(0 0 0 / 0.7);
@@ -210,18 +210,18 @@ const itemOf = (it: (typeof run.items)[number]) =>
   .tip :global(.head) { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
   .tip :global(.head b) { font-weight: 500; }
   .tip :global(.head span) { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-graphite); white-space: nowrap; }
-  .tip :global(.checks) { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
+  .tip :global(.checks) { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.5rem; }
   .tip :global(.checks li) {
-    display: inline-flex; align-items: center; gap: 0.3rem;
-    padding: 0.1rem 0.45rem 0.1rem 0.35rem; border-radius: 999px;
-    font-size: 0.75rem; color: color-mix(in oklab, var(--color-ink) 80%, var(--color-graphite));
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    padding: 0 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; line-height: 1.25rem; color: color-mix(in oklab, var(--color-ink) 80%, var(--color-graphite));
     background: color-mix(in oklab, #5aa06e 14%, transparent);
   }
   .tip :global(.checks li::before) { content: "✓"; font-weight: 700; color: #5aa06e; }
   .tip :global(.refusal-note) {
-    margin-top: 0.5rem; padding: 0.3rem 0 0.3rem 0.6rem;
+    margin-top: 0.5rem; padding: 0.25rem 0 0.25rem 0.5rem;
     border-left: 2px solid #d0574a;
-    font-size: 0.75rem; color: var(--color-graphite);
+    font-size: 0.75rem; line-height: 1rem; color: var(--color-graphite);
   }
   .tip :global(.refusal-note b) { display: block; font-weight: 500; color: color-mix(in oklab, #d0574a 75%, var(--color-ink)); }
 </style>

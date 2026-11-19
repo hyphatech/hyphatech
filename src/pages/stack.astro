@@ -151,12 +151,12 @@ const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", 
           <li id={`cap-${c.id}`} data-part={c.id} class="flex scroll-mt-24 flex-col bg-ivory p-7">
             <Icon icon={c.icon} size="lg" />
             <h3 class="t-h3 mt-5">{c.name}</h3>
-            <p class="mt-2 grow leading-relaxed text-graphite">{c.is}</p>
+            <p class="mt-2 grow text-graphite">{c.is}</p>
             <p class="mt-6 flex flex-wrap gap-x-5 gap-y-2">
               {c.by.map((b) => (
                 <a href={b.href} class="link group inline-flex items-center gap-1 pointer-coarse:min-h-11">
                   {b.name}
-                  <Arrow way="on" class="size-3.5" />
+                  <Arrow way="on" class="size-4" />
                 </a>
               ))}
             </p>
@@ -168,7 +168,7 @@ const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", 
           <li class="flex flex-col bg-ivory p-7">
             <Icon class="text-graphite" icon={c.icon} size="lg" />
             <h3 class="t-h3 mt-5 text-graphite">{c.name}</h3>
-            <p class="mt-2 grow leading-relaxed text-graphite">{c.is}</p>
+            <p class="mt-2 grow text-graphite">{c.is}</p>
             <p class="mt-6"><span class="k-tag ml-0">WIP</span></p>
           </li>
         ))
@@ -181,7 +181,7 @@ const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", 
       as OCaml's. The code is an example, not taken from a product. */}
   <Section id="ocaml" rail="What the language cannot say" class="k-lit">
     <Opener title={["What the language cannot say,", "the system cannot get wrong."]}>
-      <a href="https://ocaml.org" class="link-inline group text-ink">OCaml<Arrow way="out" class="ml-0.5 inline size-[0.8em] align-[-0.05em]" /></a> meets every need at once, and
+      <a href="https://ocaml.org" class="link-inline group text-ink">OCaml<Arrow way="out" class="ml-1 inline size-[0.8em] align-[-0.05em]" /></a> meets every need at once, and
       the stack is built within its limits. It makes contracts and
       failure cases explicit, but it does not make an application correct on
       its own.
@@ -192,7 +192,7 @@ const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", 
           ocaml.map((o) => (
             <li class="k-point">
               <span class="k-point-icon"><Icon icon={o.icon} /></span>
-              <div><p class="font-medium">{o.title}</p><p class="mt-0.5 text-graphite">{o.body}</p></div>
+              <div><p class="font-medium">{o.title}</p><p class="mt-1 text-graphite">{o.body}</p></div>
             </li>
           ))
         }
@@ -200,9 +200,9 @@ const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", 
       {/* Each state a type, and the signature the only way between
           them: refunding a draft cannot be written. The error's first
           two lines as OCaml 5.5 prints them. */}
-      <div class="k-panel [container-type:inline-size]">
+      <div class="k-panel">
         <p class="k-panel-head"><span class="k-panel-name inline-flex items-center gap-2 font-mono"><Icon icon={FileCode} />invoice.ml</span><span class="font-mono">dune build</span></p>
-        <pre tabindex="0" class="k-panel-well overflow-x-auto px-5 py-4 font-mono text-[0.875rem] leading-[1.7]"><code><span class="text-accent">type</span> draft <span class="text-accent">and</span> sent <span class="text-accent">and</span> paid
+        <pre tabindex="0" class="k-panel-well overflow-x-auto px-5 py-4 font-mono text-sm leading-6"><code><span class="text-accent">type</span> draft <span class="text-accent">and</span> sent <span class="text-accent">and</span> paid
 
 <span class="text-accent">module</span> Invoice <span class="text-graphite">:</span> <span class="text-accent">sig</span>
   <span class="text-accent">type</span> 'state t
@@ -212,8 +212,10 @@ const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", 
 <span class="text-accent">end</span>
 
 <span class="text-accent">let</span> oops <span class="text-graphite">=</span> Invoice.refund draft</code></pre>
-        <pre class="k-panel-foot font-mono whitespace-pre text-[min(0.875rem,calc((100cqi-2rem)/36.8))]">Error: The value draft has type draft Invoice.t
-       but an expression was expected of type <span class="text-accent">paid Invoice.t</span></pre>
+        {/* On a phone the error wraps without the compiler's indent,
+            rather than shrinking to fit its lines. */}
+        <pre class="k-panel-foot font-mono whitespace-pre-wrap max-sm:text-xs">Error: The value draft has type draft Invoice.t
+<span class="max-sm:hidden">       </span>but an expression was expected of type <span class="text-accent">paid Invoice.t</span></pre>
       </div>
     </div>
     {/* Stops under keyboard focus; a tap, click, Enter or Space holds

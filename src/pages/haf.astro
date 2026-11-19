@@ -139,11 +139,11 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
       HAF's palette. */}
   <section id="showcase" class="k-haf scroll-mt-8 border-t border-rule">
     <div class="border-b border-rule">
-      <p class="mx-auto flex max-w-page items-center gap-2.5 px-4 py-3.5 text-graphite sm:px-6"><Icon icon={CirclePlay} />See the Factory at work</p>
+      <p class="mx-auto flex max-w-page items-center gap-2 px-4 py-3 text-graphite sm:px-6"><Icon icon={CirclePlay} />See the Factory at work</p>
     </div>
     <div class="relative isolate">
       <div class="dotted pointer-events-none absolute inset-0 -z-10 [mask-image:linear-gradient(transparent,#000_15%,#000_85%,transparent)]" aria-hidden="true"></div>
-      <div class="relative mx-auto max-w-page px-4 pt-12 pb-16 sm:px-6 md:pt-14 md:pb-20">
+      <div class="relative mx-auto max-w-page px-4 py-12 sm:px-6 md:py-16">
         <Demo label="A session of Hypha Autonomous Factory, from a request to a released change." />
       </div>
     </div>
@@ -160,14 +160,14 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
       them and pay for their guesses. The Factory takes all of it off your
       hands.
     </Opener>
-    <ul class="mt-14 grid gap-x-12 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+    <ul class="mt-12 grid gap-x-12 gap-y-8 md:grid-cols-2 md:gap-y-12 lg:grid-cols-3">
       {
         solved.map((c) => (
-          <li class="k-point border-t border-rule pt-6">
+          <li class="k-point border-t border-rule pt-5 md:pt-6">
             <span class="k-point-icon"><Icon icon={c.icon} /></span>
             <div>
               <h3 class="t-h3">{c.title}</h3>
-              <p class="mt-2 leading-relaxed text-graphite">{c.body}</p>
+              <p class="mt-2 text-graphite">{c.body}</p>
               {c.link && <a href={c.link.href} class="link mt-3 inline-block">{c.link.text}</a>}
             </div>
           </li>
@@ -190,7 +190,7 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
           {
             steps.map((st, i) => (
               <li>
-                <a href={`#step-${i + 1}`} class="-ml-px flex items-baseline gap-2.5 border-l-2 font-sans text-[0.875rem] leading-tight border-transparent py-2.5 pl-5 text-graphite transition-colors hover:text-ink aria-[current]:border-ink aria-[current]:text-ink" data-step-link>
+                <a href={`#step-${i + 1}`} class="-ml-px flex items-baseline gap-2 border-l-2 font-sans text-sm border-transparent py-2 pl-5 text-graphite transition-colors hover:text-ink aria-[current]:border-ink aria-[current]:text-ink" data-step-link>
                   <span class="tabular-nums">{two(i + 1)}</span>
                   {st.title}
                 </a>
@@ -203,7 +203,7 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
         {
           steps.map((st, i) => (
             <li id={`step-${i + 1}`} class="scroll-mt-8 border-rule py-12 first:pt-0 last:pb-0 not-first:border-t" data-step>
-              <p class="t-control flex items-baseline gap-2.5 text-graphite">
+              <p class="t-control flex items-baseline gap-2 text-graphite">
                 <span class="tabular-nums">{two(i + 1)}</span>
                 <span>{st.title}</span>
               </p>
@@ -212,7 +212,7 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
               <ul class="mt-7 flex flex-wrap gap-x-8 gap-y-2">
                 {
                   st.gives.map((g) => (
-                    <li class="flex items-center gap-2.5">
+                    <li class="flex items-center gap-2">
                       <span class="k-tick !size-4"><Check size={10} stroke-width={3.5} /></span>
                       {g}
                     </li>
@@ -241,7 +241,7 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
       built. Your Project Vault holds what to build and where each part
       belongs. Together they set the boundaries every change is held to.
     </Opener>
-    <div class="k-plate mt-14 px-3 py-10 sm:px-6 sm:py-14 md:px-12 md:py-16 xl:-mx-12">
+    <div class="k-plate mt-12 px-3 py-10 sm:px-6 sm:py-14 md:px-12 md:py-16 xl:-mx-12">
       <span class="k-mark k-mark-tl" aria-hidden="true"></span>
       <span class="k-mark k-mark-tr" aria-hidden="true"></span>
       <span class="k-mark k-mark-bl" aria-hidden="true"></span>
@@ -262,7 +262,7 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
     </Opener>
     {/* On fine dots edge to edge, fading out above and below, as the
         landing's jig lies. */}
-    <div class="relative isolate mt-6 md:mt-8">
+    <div class="relative isolate mt-12">
       <div class="dotted pointer-events-none absolute inset-y-0 left-1/2 -z-10 w-screen -translate-x-1/2 [mask-image:linear-gradient(transparent,#000_15%,#000_85%,transparent)]" aria-hidden="true"></div>
       <Graph labelledby="ontology-title" />
     </div>
@@ -291,11 +291,11 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
       Once signed, the work runs by itself, keeping you aware of anything
       unforeseen.
     </Opener>
-    <div class="relative isolate mt-14 py-6">
+    <div class="relative isolate mt-6 py-6">
       <div class="dotted pointer-events-none absolute inset-y-0 left-1/2 -z-10 w-screen -translate-x-1/2 [mask-image:linear-gradient(transparent,#000_15%,#000_85%,transparent)]" aria-hidden="true"></div>
       <Autonomy />
     </div>
-    <Points points={screen} class={`mt-14 ${row}`} />
+    <Points points={screen} class={`mt-12 ${row}`} />
   </Section>
 
   {/* Inside: the Factory's layers on your machine, as one panel, from
@@ -305,7 +305,7 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
       Agents write the code. The difference is in the design decisions
       around it.
     </Opener>
-    <div class="mt-16 md:mt-20"><DecisionCards /></div>
+    <div class="mt-12"><DecisionCards /></div>
   </Section>
 
   {/* The models: a preset names one for each kind of work, one drawn
@@ -343,9 +343,9 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
             <li class="flex">
               <div class="k-figure flex w-full flex-col">
                 <p class="k-figure-number">{r.number}</p>
-                <p class="mt-4 leading-snug">{r.what}</p>
-                <p class="mt-3 text-[0.875rem] leading-snug text-graphite">{r.limit}</p>
-                <p class="mt-auto pt-4 text-[0.875rem] text-graphite">{r.by}</p>
+                <p class="mt-4">{r.what}</p>
+                <p class="mt-3 text-sm text-graphite">{r.limit}</p>
+                <p class="mt-auto pt-4 text-sm text-graphite">{r.by}</p>
               </div>
             </li>
           ))
@@ -371,7 +371,7 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
       on the page's edge, set as the strip that names the demo, in gold
       with a soft gold light round them. No platform, no date. */}
   <section id="soon" class="scroll-mt-8 border-t border-rule">
-    <p class="soon mx-auto flex max-w-page items-center gap-2.5 px-4 py-3.5 text-accent sm:px-6"><Icon icon={Factory} />Coming soon</p>
+    <p class="soon mx-auto flex max-w-page items-center gap-2 px-4 py-3 text-accent sm:px-6"><Icon icon={Factory} />Coming soon</p>
   </section>
 
   <Closing paths={hafWays} />

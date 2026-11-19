@@ -22,11 +22,14 @@ pushes `main`, which publishes it.
 
 ## Design
 
-`DESIGN.md` is how the site looks and the patterns every page is built
-from ("Sound by design"); `PRODUCT.md` is who each page is for. Read
-both before changing a page. A page builds from the patterns there (the
-`k-` classes in `src/styles/site.css` and the components); something
-they cannot show becomes a pattern in `DESIGN.md` first.
+The site is drawn in Hypha's design language, which hypha.pub and every
+image Hypha posts share: how its pages look, the patterns each is built
+from ("Sound by design"), and who each page is for. It is kept with
+Hypha's rules, outside this repository, and no file here copies it. Read
+it before changing a page. A page builds from its patterns (the `k-`
+classes in `src/styles/site.css` and the components); something they
+cannot show becomes a pattern of the language first, then here and in
+hypha.pub alike.
 
 ## Components
 

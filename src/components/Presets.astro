@@ -32,7 +32,7 @@ const soon = [
 ---
 
 <div class="presets">
-  <div class="k-panel k-panel-card pt-[0.3rem]">
+  <div class="k-panel k-panel-card pt-1">
     <ul class="k-panel-well">
       {
         rows.map((r) => (
@@ -40,7 +40,7 @@ const soon = [
             <span class="row-icon"><Icon icon={r.icon} /></span>
             <span class="min-w-0 flex-1">
               <span class="block text-ink">{r.model}</span>
-              <span class="block text-[0.875rem] text-graphite">{r.work}</span>
+              <span class="block text-sm text-graphite">{r.work}</span>
             </span>
             <span class="provider">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d={marks[r.mark]} /></svg>
@@ -84,27 +84,28 @@ const soon = [
     display: grid;
     place-items: center;
     flex: none;
-    width: 2.1rem;
-    height: 2.1rem;
-    border-radius: 9px;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 8px;
     color: var(--color-ink);
     background: color-mix(in oklab, var(--color-ink) 6%, transparent);
   }
   .row-icon :global(svg) {
-    width: 1.05rem;
-    height: 1.05rem;
+    width: 1rem;
+    height: 1rem;
   }
   .provider {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.5rem;
     font-size: 0.875rem;
+    line-height: 1.25rem;
     color: var(--color-graphite);
   }
   .provider svg,
   .chip svg {
-    width: 0.95rem;
-    height: 0.95rem;
+    width: 1rem;
+    height: 1rem;
     fill: currentColor;
     flex: none;
   }
@@ -112,7 +113,7 @@ const soon = [
      stay quieter in their own style; no label over either. */
   .strip {
     display: grid;
-    gap: 0.875rem;
+    gap: 0.75rem;
   }
   .strip ul {
     display: flex;
@@ -122,20 +123,20 @@ const soon = [
   .chip {
     display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
-    padding: 0.4rem 0.75rem;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
     border-radius: 999px;
     font-size: 0.875rem;
+    line-height: 1.25rem;
     color: var(--color-ink);
     box-shadow: 0 0 0 1px var(--color-rule);
   }
   .chip :global(svg) {
-    width: 0.95rem;
-    height: 0.95rem;
+    width: 1rem;
+    height: 1rem;
   }
   .chip-soon {
     color: var(--color-graphite);
     box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-rule) 70%, transparent);
-    border: 1px dashed transparent;
   }
 </style>

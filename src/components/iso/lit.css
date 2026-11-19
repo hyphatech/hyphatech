@@ -1,0 +1,29 @@
+/* Lit night, the colours every isometric figure takes (lit.ts shades its
+   faces): night materials and one warm light from the top right. A top
+   falls off from `-lit` to `-far`; a side face mixes `-dark` and
+   `-light` by its turn to the light. Gold stays the one mark. */
+.lit-night {
+  --ln-pool: color-mix(in oklab, var(--accent-on-night) 34%, transparent);
+  --ln-base-lit: color-mix(in oklab, var(--accent-on-night) 7%, #16130f);
+  --ln-base-far: #110f0c;
+  --ln-base-dark: #090806;
+  --ln-base-light: #1a1610;
+  --ln-plate-lit: color-mix(in oklab, var(--accent-on-night) 12%, #221d17);
+  --ln-plate-far: #15120e;
+  --ln-plate-dark: #0b0907;
+  --ln-plate-light: color-mix(in oklab, var(--accent-on-night) 10%, #201a13);
+  --ln-part-lit: color-mix(in oklab, var(--accent-on-night) 18%, #28221a);
+  --ln-part-far: #17130f;
+  --ln-part-dark: #0d0b08;
+  --ln-part-light: color-mix(in oklab, var(--accent-on-night) 14%, #241e16);
+  --ln-well: #0a0806;
+  --ln-wall-dark: #0d0b08;
+  --ln-wall-light: color-mix(in oklab, var(--accent-on-night) 16%, #1f1912);
+  --ln-floor-lit: color-mix(in oklab, var(--accent-on-night) 26%, #1c170f);
+  --ln-floor-far: #120f0b;
+  --ln-edge: color-mix(in oklab, #000 45%, transparent);
+  --ln-crease: color-mix(in oklab, color-mix(in oklab, var(--accent-on-night) 35%, var(--paper)) 40%, transparent);
+  --ln-grid: color-mix(in oklab, var(--accent-on-night) 12%, transparent);
+  --ln-floor-grid: color-mix(in oklab, var(--accent-on-night) 26%, transparent);
+  --ln-icon: color-mix(in oklab, var(--accent-on-night) 55%, var(--paper));
+}
