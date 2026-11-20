@@ -107,7 +107,7 @@ const steps: { title: string; claim: [string, string]; body: string; keep: strin
   {
     title: "Care",
     claim: ["Kept current.", "Changed as the business asks."],
-    body: "The engineer who moved it maintains and fixes it, and adapts it as your business needs.",
+    body: "Support, maintenance and security updates from Hypha for as long as you need, and whatever your business needs next.",
     keep: ["No one new to hire", "A response time agreed"],
   },
 ];
@@ -116,16 +116,16 @@ const steps: { title: string; claim: [string, string]; body: string; keep: strin
    what it becomes. No phones yet. */
 const scope = [
   { icon: Monitor, title: "Desktop apps", body: "A program the office depends on, in Access, Delphi or Visual Basic, becomes a modern app for Windows, macOS and Linux." },
-  { icon: Globe, title: "Web apps", body: "A website or portal your staff and customers rely on becomes a web app that works on any screen and grows with the business." },
-  { icon: Server, title: "Infrastructure", body: "A server, a database and scripts that grew together, become one system that runs it all, with every rule stated plainly." },
-  { icon: Sheet, title: "Automations", body: "The copying, exporting and re-entering done by hand today happens on its own." },
+  { icon: Globe, title: "Web apps", body: "A website or portal your staff and customers rely on becomes a fast, secure web app that grows with the business." },
+  { icon: Server, title: "Infrastructure", body: "Wherever your software runs, its whole setup is written down as code, easy to audit and safe to change." },
+  { icon: Sheet, title: "Automations", body: "Repetitive office work, from filling in documents to collecting data and writing reports, is automated end to end." },
 ];
 
 /* Why Hypha, then what stays the owner's whoever works on it next:
    four cards, the heading naming the two halves. Hypha whole, never
    a person or the Factory alone. */
 const people: Card[] = [
-  { icon: Blocks, title: "Designed together", body: "Language, components and method made as one, with checks no agent can skip." },
+  { icon: Blocks, title: "Designed together", body: "Every part made to fit the rest, and every change proven before it goes live." },
   { icon: FileCheck, title: "Delivered with its proof", body: "Every change arrives with its tests, its documents and the record of how it was built." },
   { icon: UserCheck, title: "Everything in your name", body: "Your code and your business's records, in your accounts for any engineer to carry on." },
   { icon: ShieldCheck, title: "Runs where you choose", body: "Your cloud or your own machines, with your data and its privacy under your control." },
@@ -212,7 +212,8 @@ const first: Card[] = [
       Moving the log of that part switching over. */}
   <Section id="steps" rail="One part at a time" class="theme-light">
     <Opener title="One part at a time.">
-      No downtime at any point.
+      A gradual move, where each step improves your system and the old one
+      keeps working until the new one takes over.
     </Opener>
     <div class="mt-12 grid gap-12 lg:grid-cols-[13rem_minmax(0,1fr)]">
       <nav class="sticky top-8 hidden self-start lg:block" aria-label="The steps">
@@ -324,7 +325,7 @@ const first: Card[] = [
   <Section id="people" rail="Built with Hypha" class="theme-light">
     <Opener title={["Built with Hypha.", "Yours to keep."]}>
       Every part stands on Hypha's foundation, and everything made stays
-      yours, whoever works on it next.
+      yours.
     </Opener>
     <ul class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {

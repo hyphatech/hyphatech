@@ -40,7 +40,7 @@ const factory: Path = {
 
 const stack: Path = {
   title: "The Stack",
-  body: "Open components, made to fit together. Every part is typed, tested and documented, so a mistake is caught before the code runs.",
+  body: "Open components made to fit together. Designed from the ground up to build software that lasts.",
   href: "/stack/",
   action: "Explore the Stack",
   icon: Layers,
