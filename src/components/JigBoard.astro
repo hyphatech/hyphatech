@@ -62,7 +62,10 @@ const walls = edge
   .filter((w): w is { d: string; t: number } => w !== null);
 const floorGrid = (() => {
   const lines: string[] = [];
+  /* Only the lines that cross the floor: Safari on iOS drops the floor's
+     clip inside the opening's, and draws the rest across the walls. */
   for (let v = -48; v <= 48; v += 16) {
+    if (v <= OPEN.x || v >= OPEN.x + OPEN.w) continue;
     lines.push(k.pathOf([pointOf([v, OPEN.y, F]), pointOf([v, OPEN.y + OPEN.d, F])]));
     lines.push(k.pathOf([pointOf([OPEN.x, v, F]), pointOf([OPEN.x + OPEN.w, v, F])]));
   }

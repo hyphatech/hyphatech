@@ -46,7 +46,7 @@ const capabilities = [
     id: "http",
     icon: Globe,
     name: "HTTP and APIs",
-    is: "An RFC-strict web framework, typed end to end, fast and multi-core by design. OpenAPI docs via Scalar.",
+    is: "An RFC-strict web framework, typed end to end, fast and multi-core by design. Its routes become interactive API docs, with nothing to write by hand.",
     by: [spindle],
   },
   {
@@ -60,7 +60,7 @@ const capabilities = [
     id: "data",
     icon: Database,
     name: "Data and persistence",
-    is: "Typed Postgres queries, checked against the database schema. Migrations built in, on a native driver with TLS, pooling and failover.",
+    is: "Typed SQL queries, checked against the database schema. Migrations built in, and a native Postgres driver with TLS, pooling and failover.",
     by: [{ name: "Rowtype", href: page("rowtype") }, spindle, { name: "Postgres driver", href: page("postgres-eio") }],
   },
   {
@@ -110,12 +110,12 @@ const ocaml = [
   {
     icon: Lock,
     title: "Boundaries in the language",
-    body: "Module signatures and abstract types say what a component exposes, and the compiler holds every caller to it.",
+    body: "Module signatures and abstract types say what a component exposes, and every caller is held to it.",
   },
   {
     icon: ScanText,
     title: "Code that reads as its model",
-    body: "Concise, with types inferred, keeping intent and failure cases in plain sight.",
+    body: "Concise, with types inferred, keeping intent and every error path in plain sight.",
   },
 ];
 
@@ -181,10 +181,7 @@ const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", 
       as OCaml's. The code is an example, not taken from a product. */}
   <Section id="ocaml" rail="What the language cannot say" class="k-lit">
     <Opener title={["What the language cannot say,", "the system cannot get wrong."]}>
-      <a href="https://ocaml.org" class="link-inline group text-ink">OCaml<Arrow way="out" class="ml-1 inline size-[0.8em] align-[-0.05em]" /></a> meets every need at once, and
-      the stack is built within its limits. It makes contracts and
-      failure cases explicit, but it does not make an application correct on
-      its own.
+      <a href="https://ocaml.org" class="link-inline group text-ink">OCaml<Arrow way="out" class="ml-1 inline size-[0.8em] align-[-0.05em]" /></a> meets every need at once, and the whole stack is built on its strengths. It makes contracts and failure cases explicit. Its fast, uncompromising compiler checks every change an agent makes in seconds, and stops a mistake before the code ever runs.
     </Opener>
     <div class="mt-12 grid grid-cols-1 items-center gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
       <ul class="space-y-6">

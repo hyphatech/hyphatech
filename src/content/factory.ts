@@ -45,36 +45,36 @@ export const steps: Step[] = [
     title: "Intent",
     claim: "Decided up front.",
     body: "Each decision only you can make comes one at a time, with the answer the Factory recommends and why it matters. Everything else is assumed in plain sight, for you to correct. The agreed decisions become PRDs, and nothing is built until they are signed.",
-    gives: ["One question at a time", "Every assumption shown", "Signed before it is built"],
+    gives: ["One question at a time", "Every assumption shown", "Your signature starts the work"],
   },
   {
     title: "Mapping",
     claim: "Looked up, never improvised.",
-    body: "The signed PRDs are laid over the Ontology, which knows what each part means and which component already provides it. Those parts are taken as they are, proven. Your model writes only what is unique to your product.",
+    body: "The signed PRDs are laid over the Ontology, which knows what each requirement means and which of them Hypha Stack covers. Those are taken as they are. Your model writes only what is unique to your product.",
     gives: ["Proven parts, reused", "New parts, built to fit"],
   },
   {
     title: "Scaffold",
     claim: "The shape comes first.",
-    body: "On Hypha Stack, the Factory writes the whole application from the signed PRDs, every file it needs to build, with an empty place wherever your product's own code goes. It builds before any model is called, and a model only fills those places.",
-    gives: ["Computed, never guessed", "Builds before a model is paid"],
+    body: "On Hypha Stack, the Factory writes the whole application from the signed PRDs, every file it needs, with typed stubs left for the model. It compiles before any model is called.",
+    gives: ["Computed, never guessed", "Compiles before a model is paid"],
   },
   {
     title: "Composition",
     claim: "Built behind gates.",
-    body: "Your model builds what is unique to your product, piece by piece. Each piece counts only once the Factory's own checks pass it, and one they refuse goes back to be built again.",
-    gives: ["No agent to babysit", "Checked before it counts"],
+    body: "Your model replaces those stubs, piece by piece. Each counts only once the Factory's checks pass it, and one they refuse goes back for another try.",
+    gives: ["Retried without you", "Checked before it counts"],
   },
   {
     title: "Validation",
     claim: "Proven on the running software.",
-    body: "Every signed scenario is played against it, through its pages too where it has them, and who may see what is proven as well.",
+    body: "Every signed scenario is tested the way your users will use it, from the screens they see to the permissions behind them.",
     gives: ["Every requirement proven", "Built-in QA"],
   },
   {
     title: "Release",
     claim: "Ready to run.",
-    body: "Every part of your project is released together, exactly as it was proven. Explore in the Workbench, it's ready to deploy.",
+    body: "Every part of your project is released together, exactly as it passed. Explore in the Workbench, it's ready to deploy.",
     gives: ["Versioned and tagged"],
   },
 ];
@@ -82,19 +82,19 @@ export const steps: Step[] = [
 /* What the Factory solves: a problem a cell, its fix in one line, a
    link down to the section that proves it, in the page's order. */
 export const solved: Card[] = [
-  { title: "Nothing built on a guess", icon: MessageSquareText, body: "Requirements are settled, question by question, before a line is written.", link: { href: "#steps", text: "Six steps" } },
-  { title: "Nothing written twice", icon: Blocks, body: "Proven parts of Hypha Stack are reused, and a model writes only what is new.", link: { href: "#ontology", text: "The Ontology" } },
-  { title: "No line crossed", icon: ShieldCheck, body: "A model's code runs walled off from your keys, your files and the internet.", link: { href: "#harness", text: "The walls" } },
-  { title: "No agent to babysit", icon: BellOff, body: "A refused piece is retried and a stopped run resumes, with nobody watching.", link: { href: "#screen", text: "Hands off" } },
-  { title: "No model lock-in", icon: Sparkles, body: "Any provider, or a model on your own machine, chosen for each kind of work.", link: { href: "#models", text: "Any model" } },
-  { title: "No tokens wasted", icon: Coins, body: "What already exists is looked up, never guessed, and each change costs less.", link: { href: "#economy", text: "Less spent" } },
+  { title: "Nothing built on a guess", icon: MessageSquareText, body: "Requirements are settled before a line is written.", link: { href: "#steps", text: "Six steps" } },
+  { title: "Nothing written twice", icon: Blocks, body: "Proven components are reused as they stand.", link: { href: "#ontology", text: "The Ontology" } },
+  { title: "No line crossed", icon: ShieldCheck, body: "A model's code runs walled off from your keys and your files, and reaches the internet through a guarded gate.", link: { href: "#harness", text: "The walls" } },
+  { title: "No agent to babysit", icon: BellOff, body: "Refusals are retried and interrupted runs pick up again, with nobody watching.", link: { href: "#screen", text: "Hands off" } },
+  { title: "No model lock-in", icon: Sparkles, body: "Whichever models you trust, in the cloud or local, each where it fits.", link: { href: "#models", text: "Any model" } },
+  { title: "No tokens wasted", icon: Coins, body: "Mechanical work never reaches a model, and each change costs less.", link: { href: "#economy", text: "Less spent" } },
 ];
 
 /* The two vaults: what each gives every model, and what holds them. */
 export const vaults: Card[] = [
   { title: "Hypha Vault", icon: LibraryBig, body: "Hypha's rules, skills and Ontology, read throughout the work and never changed by a model." },
-  { title: "Project Vault", icon: MessageSquareText, body: "Your business, its domains, its words and its decisions, kept as your own and grown with every change." },
-  { title: "Asked once", icon: FolderGit2, body: "A settled decision is never asked again, and every later change starts from it." },
+  { title: "Project Vault", icon: MessageSquareText, body: "Your business, its domains, its words and its decisions, kept as your own and grown as the product grows." },
+  { title: "Asked once", icon: FolderGit2, body: "A settled decision is never asked again, and all later work starts from it." },
 ];
 
 /* The harness, held and never told: what an agent is told in a prompt,
@@ -112,7 +112,7 @@ export const held = {
   after: {
     name: "The Factory",
     icon: Factory,
-    values: ["Only those its task may touch", "Run by the Factory, a new test required", "Never in reach", "Closed while it builds", "Caught and ended", "When every check passes"],
+    values: ["Only those its task may touch", "Run by the Factory, a new test required", "Never in reach", "Through a guarded gate", "Caught and ended", "When every check passes"],
     story: "Every rule a wall the model meets.",
   },
 };
@@ -128,7 +128,7 @@ export const screen: Card[] = [
    watching one. */
 export const record: Card[] = [
   { title: "Traced to its reason", icon: ScrollText, body: "Every change leads back to the requirement behind it and the checks that passed it." },
-  { title: "Priced as you were billed", icon: Receipt, body: "Every call kept with its usage as your provider reported it, priced to the picodollar at the prices of its day." },
+  { title: "Priced as you were billed", icon: Receipt, body: "Every call kept with its usage as your provider reported it, priced to the last fraction of a cent." },
   { title: "Kept within budget", icon: Gauge, body: "Each request carries a cost estimated at signing, and the work stays within it." },
 ];
 

@@ -22,7 +22,7 @@ const talk: Path = {
 
 const modernise: Path = {
   title: "Modernise",
-  body: "The system your business runs on, moved part by part while it keeps running. Each part switches over only once it does everything the old one did.",
+  body: "Whether it's old code nobody dares touch or a fragile prototype, Hypha rebuilds it at the speed of agents, while your business keeps running.",
   href: "/modernise/",
   action: "See how it moves",
   icon: Split,
@@ -31,7 +31,7 @@ const modernise: Path = {
 
 const factory: Path = {
   title: "The Factory",
-  body: "The autonomous factory for durable software. It takes your product from decisions to working software at the speed of agents.",
+  body: "The autonomous factory for durable software. You make the decisions, the Factory does the rest.",
   href: "/haf/",
   action: "Explore the Factory",
   icon: Factory,

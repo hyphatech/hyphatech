@@ -14,6 +14,9 @@ import Blocks from "@lucide/astro/icons/blocks";
 import Network from "@lucide/astro/icons/network";
 import Hourglass from "@lucide/astro/icons/hourglass";
 import Gem from "@lucide/astro/icons/gem";
+import PenLine from "@lucide/astro/icons/pen-line";
+import BookOpen from "@lucide/astro/icons/book-open";
+import Hammer from "@lucide/astro/icons/hammer";
 import Closing from "../components/Closing.astro";
 import Compare from "../components/Compare.astro";
 import { ways } from "../content/ways";
@@ -75,14 +78,14 @@ const kinds = {
     icon: Hourglass,
     note: "built by agents alone",
     values: ["Guessed again, where nothing was stated", "Whoever reads the diff", "By whoever remembers", "Until someone proposes a rewrite"],
-    story: "Fast to write, and guessed again at every change.",
+    story: "Fast to write, and fragile from the start.",
   },
   after: {
     name: "Durable",
     icon: Gem,
     note: "built with Hypha",
-    values: ["Agreed before it is built", "Checks nothing skips", "As it is, at every change", "For years"],
-    story: "Fast to write, and sound after every change.",
+    values: ["Agreed before it is built", "Checks nothing skips", "Always as it is", "For years"],
+    story: "Fast to write, and holds together as it grows.",
   },
 };
 
@@ -94,7 +97,7 @@ const kinds = {
 const levels = [
   { title: "Language", icon: Braces, body: "What it cannot say, the system cannot get wrong.", hypha: false },
   { title: "Components", icon: Blocks, body: "Made to fit together, built and proven once.", hypha: false },
-  { title: "Factory", icon: Factory, body: "The practices and the method, held on every change.", hypha: true },
+  { title: "Factory", icon: Factory, body: "The autonomous line from your decisions to a tested release.", hypha: true },
   { title: "Ontology", icon: Network, body: "The shared meaning of every part, and of how the parts relate.", hypha: false },
 ];
 
@@ -181,9 +184,7 @@ const levels = [
     <div class="grid items-center gap-12 xl:grid-cols-2">
       <div>
         <Opener title={["Strong boundaries", "make systems sound."]} mark>
-          A boundary is meaning an agent no longer has to guess: what each
-          thing is, what it may touch, what it must return. It lives in the
-          foundation and is checked on every change.
+          A boundary tells an agent what each thing is, what it may touch and what it must return, so nothing is left to guess. Where an instruction can be ignored, a boundary holds.
         </Opener>
       </div>
       <div class="mx-auto w-full max-w-[40rem] xl:max-w-none"><JigBoard /></div>
@@ -216,8 +217,8 @@ const levels = [
         <div>
           <h2 class="t-hero lg:text-6xl">Hypha: <span class="block text-accent lg:whitespace-nowrap">sound by design.</span></h2>
           <p class="t-lede mt-8 max-w-xl">
-            Stop babysitting agents.
-            <span class="block">Focus on what your product must do.</span>
+            A coherent foundation, from the language up.
+            <span class="block">Deterministic where possible, intelligent where necessary.</span>
           </p>
           <p class="mt-10 flex gap-3">
             <a href="/haf/" class="btn-primary"><Icon icon={Factory} />The Factory</a>
@@ -236,15 +237,15 @@ const levels = [
                   <p class="k-panel-head"><span class="k-panel-name inline-flex items-center gap-2"><Icon icon={l.icon} />{l.title}</span></p>
                   <p class="k-panel-well k-panel-row flex-1">{l.body}</p>
                 </div>
-                {i === 0 && <div class="k-relation k-relation-h"><span>written in</span></div>}
+                {i === 0 && <div class="k-relation k-relation-h"><span class="k-badge" role="img" aria-label="written in" title="written in"><PenLine size={15} stroke-width={1.6} aria-hidden="true" /></span></div>}
                 {i === 1 && (
                   <Fragment>
                     <div />
                     <div />
-                    <div class="k-relation k-relation-v"><span>described by</span></div>
+                    <div class="k-relation k-relation-v"><span class="k-badge" role="img" aria-label="described by" title="described by"><BookOpen size={15} stroke-width={1.6} aria-hidden="true" /></span></div>
                   </Fragment>
                 )}
-                {i === 2 && <div class="k-relation k-relation-h"><span>builds from</span></div>}
+                {i === 2 && <div class="k-relation k-relation-h"><span class="k-badge" role="img" aria-label="builds from" title="builds from"><Hammer size={15} stroke-width={1.6} aria-hidden="true" /></span></div>}
               </Fragment>
             ))
           }
@@ -254,9 +255,7 @@ const levels = [
       <div id="durable" data-rail-name="Durable software" class="mt-12 scroll-mt-8 md:mt-16">
         <h2 class="t-h1">Build durable software <span class="block">at the speed of agents.</span></h2>
         <p class="t-lede mt-6 max-w-2xl">
-          The same agents write software that lasts until its first real
-          change, and software that keeps changing for years. What
-          separates the two is not speed but the foundation they build on.
+          Models made code cheap, and most of it is disposable. Hypha is built for durable products that grow fast, without trading speed for quality.
         </p>
         <Compare class="mt-12" {...kinds} />
       </div>

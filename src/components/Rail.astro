@@ -32,6 +32,16 @@
     --rail-graphite: var(--graphite-on-paper);
     --rail-ground: var(--paper);
   }
+  .rail :global(a[data-light]) {
+    --rail-ink: var(--night);
+    --rail-graphite: var(--graphite-on-paper);
+    --rail-ground: var(--paper);
+  }
+  .rail :global(a[data-dark]) {
+    --rail-ink: var(--paper);
+    --rail-graphite: var(--graphite-on-night);
+    --rail-ground: var(--night);
+  }
   @media (width >= 80rem) {
     .rail:not([hidden]) { display: block; }
   }
@@ -47,24 +57,26 @@
   }
   .rail :global(.tick) {
     display: block;
-    width: 0.75rem;
+    width: 1.5rem;
     height: 1px;
     background: currentColor;
-    transition: width 200ms var(--ease-glide), background-color 120ms var(--ease-state);
+    transform: scaleX(0.5);
+    transform-origin: right;
+    transition: transform 200ms var(--ease-glide), background-color 120ms var(--ease-state);
   }
-  .rail :global(a[aria-current] .tick) { width: 1.5rem; background: var(--accent-on-night); }
-  .rail :global(a:hover .tick) { width: 1.5rem; }
+  .rail :global(a[aria-current] .tick) { transform: none; background: var(--accent-on-night); }
+  .rail :global(a:hover .tick) { transform: none; }
   .rail :global(a:hover),
   .rail :global(a[aria-current]) { color: var(--rail-ink); }
 
-  /* The names: unseen until the rail is hovered or holds focus, then on
-     the ground they lie over, so a line of the page under them never
-     reads through. */
+  /* The names: unseen until the rail is hovered or holds focus, then
+     each on the ground under its own row, so a line of the page never
+     reads through and a name over paper is paper's. */
   .rail :global(.name) {
     font-size: 0.875rem;
     line-height: 1.25rem;
     white-space: nowrap;
-    padding: 0.25rem 0.5rem;
+    padding: 0.125rem 0.5rem;
     border-radius: var(--radius-control);
     background: var(--rail-ground);
     opacity: 0;
@@ -118,6 +130,14 @@
       const box = rail.getBoundingClientRect();
       const under = document.elementsFromPoint(box.left + box.width / 2, box.top + box.height / 2).find((e) => !rail.contains(e));
       rail.toggleAttribute("data-light", !!under?.closest(".theme-light"));
+      const light = rail.hasAttribute("data-light");
+      for (const a of links) {
+        const r = a.querySelector(".name")!.getBoundingClientRect();
+        const below = document.elementsFromPoint(r.left + r.width / 2, r.top + r.height / 2).find((e) => !rail.contains(e));
+        const own = !!below?.closest(".theme-light");
+        a.toggleAttribute("data-light", own && !light);
+        a.toggleAttribute("data-dark", !own && light);
+      }
     };
     const queue = () => {
       if (!queued) {

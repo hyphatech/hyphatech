@@ -751,6 +751,7 @@
   /* A map of concepts: cards in a strict grid, each relation in its own
      cell between two, a label on its line. Labels, never links. */
   .k-map { display: grid; grid-template-columns: minmax(0, 1fr) 7rem minmax(0, 1fr); grid-template-rows: auto 5.5rem auto; }
+  .k-map:has(.k-badge) { grid-template-columns: minmax(0, 1fr) 4.5rem minmax(0, 1fr); grid-template-rows: auto 4.5rem auto; }
   .k-concept { padding: 1rem; border-radius: 16px; background: var(--color-panel); box-shadow: 0 0 0 1px var(--color-rule), 0 16px 32px -20px rgb(0 0 0 / 0.8); }
   .k-concept-hypha { box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-on-night) 70%, transparent), 0 16px 32px -20px rgb(0 0 0 / 0.8); }
   .k-relation { position: relative; display: flex; align-items: center; justify-content: center; }
@@ -758,6 +759,7 @@
   .k-relation-h::before { left: 0; right: 0; top: 50%; height: 1px; }
   .k-relation-v::before { top: 0; bottom: 0; left: 50%; width: 1px; }
   .k-relation span { position: relative; font-size: 0.75rem; line-height: 1rem; color: var(--color-graphite); background: var(--color-ivory); border: 1px solid var(--color-rule); border-radius: 999px; padding: 0.25rem 0.5rem; white-space: nowrap; }
+  .k-relation .k-badge { display: grid; place-items: center; width: 1.875rem; height: 1.875rem; padding: 0; border-radius: 7px; color: var(--color-ink); background: color-mix(in oklab, var(--color-ink) 9%, var(--color-ivory)); border-color: color-mix(in oklab, var(--color-ink) 22%, var(--color-ivory)); box-shadow: 0 2.5px 0 color-mix(in oklab, #000 55%, var(--color-ivory)); }
   /* Before a map assembles (src/lib/map.ts) its cards and labels are
      veiled and its lines undrawn; only the script sets this. */
   .k-map[data-veiled] :is(.k-concept, .k-relation span) { opacity: 0; }
@@ -767,6 +769,7 @@
      longest label, which stays on one line as everywhere else. */
   @media (width < 40rem) {
     .k-map { grid-template-columns: minmax(0, 1fr) 5.5rem minmax(0, 1fr); grid-template-rows: auto 3.5rem auto; }
+    .k-map:has(.k-badge) { grid-template-columns: minmax(0, 1fr) 3rem minmax(0, 1fr); grid-template-rows: auto 3rem auto; }
     .k-concept { padding: 0.75rem; }
     .k-map .k-panel-row { padding: 0.75rem; }
     .k-map .k-panel-head { padding: 0.5rem 0.75rem; }
@@ -777,12 +780,12 @@
   @media (prefers-reduced-motion: reduce) { .k-caret { animation: none; } }
 
   /* A figure: a sourced number, large, its line and its source. */
-  .k-figure { background: color-mix(in oklab, var(--color-ink) 4%, var(--color-ivory)); border-radius: 16px; padding: 1.5rem; }
+  .k-figure { background: var(--color-panel); border-radius: 16px; padding: 1.5rem; }
   /* A figure that is its source's link: the whole card leaves the site,
      a step brighter under the pointer, its source inked. */
   .k-figure-link { color: inherit; transition: background-color 120ms var(--ease-state); }
   .k-figure-link .k-figure-source { text-decoration: underline; text-decoration-color: color-mix(in oklab, currentColor 40%, transparent); text-underline-offset: 2px; transition: color 120ms var(--ease-state), text-decoration-color 120ms var(--ease-state); }
-  .k-figure-link:hover { background: color-mix(in oklab, var(--color-ink) 8%, var(--color-ivory)); }
+  .k-figure-link:hover { background: var(--color-raised); }
   .k-figure-link:hover .k-figure-source { color: var(--color-ink); text-decoration-color: currentColor; }
   .k-figure-number { font-family: var(--font-serif); font-weight: 400; font-size: 3rem; letter-spacing: -0.04em; line-height: 1; @media (width >= 48rem) { font-size: 4rem; } @media (width >= 64rem) { font-size: 5rem; } }
 

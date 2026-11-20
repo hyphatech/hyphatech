@@ -79,7 +79,7 @@ const two = (n: number) => String(n).padStart(2, "0");
    PLACEHOLDERS until the benchmark runs; never pushed as they stand. */
 const economy = [
   { number: "58%", what: "fewer tokens per delivered change", limit: "The same signed PRD, built by one agent with instructions and by the Factory.", by: "Hypha's benchmark, 2026" },
-  { number: "3.1×", what: "less spent per change, at a higher bar", limit: "Every signed scenario proven in the Factory's run, against the agent's own claim of done.", by: "Hypha's benchmark, 2026" },
+  { number: "3.1×", what: "lower cost per change, at a higher bar", limit: "Every signed scenario proven in the Factory's run, against the agent's own claim of done.", by: "Hypha's benchmark, 2026" },
 ];
 
 
@@ -122,11 +122,10 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
 
 <Base
   title="Hypha Autonomous Factory · Hypha"
-  description="Hypha Autonomous Factory, the autonomous factory for durable software. It takes your product from decisions to working software on its own, with nothing to babysit."
+  description="Hypha Autonomous Factory, the autonomous factory for durable software. You make the decisions, and it does the rest, turning them into a tested release, ready to ship."
 >
   <Hero slot="band" rail="The autonomous factory" title={["The autonomous factory", "for durable software."]}>
-    Hypha Autonomous Factory takes your product from decisions to working
-    software on its own, with nothing to babysit.
+    You make the decisions. Hypha Autonomous Factory does the rest, turning them into a tested release, ready to ship.
     <Fragment slot="actions">
       <a href="#showcase" class="btn-primary"><Icon icon={ArrowDown} />See it at work</a>
       <span class="t-control inline-flex items-center gap-2 self-center px-1 text-graphite"><Icon icon={Clock} />Coming soon</span>
@@ -302,8 +301,7 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
       what you touch to what it reaches. On lit night. */}
   <Section id="inside" rail="Under the hood" class="k-lit">
     <Opener title="Under the hood.">
-      Agents write the code. The difference is in the design decisions
-      around it.
+      Models write the code. The difference is in the design decisions around them.
     </Opener>
     <div class="mt-12"><DecisionCards /></div>
   </Section>
@@ -315,9 +313,7 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
     <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
       <div>
         <Opener title={["Any model.", "The right one for each job."]} mark>
-          The strongest model where judgement matters, a cheaper or local
-          one where it does not. Every kind of work gets the model that
-          suits it, from any provider or your own machine.
+          The strongest model where judgement matters, a faster or cheaper one where it does not. Any model, from any provider, in presets of your own to switch between.
         </Opener>
       </div>
       <Presets />
@@ -333,7 +329,7 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
       <div>
         <Opener title={["Less spent.", "A higher bar."]}>
           With HAF you get more for less. A program does everything it can,
-          the model that suits the job does the rest, and no token is burned
+          the right model does the rest, and no token is burned
           for nothing. Faster, cheaper, and built to last.
         </Opener>
       </div>
