@@ -1,0 +1,164 @@
+---
+/* Experts decide, agents build, drawn as one board: each part rises
+   out of the gold outline the plan gave it. Built and still under
+   reduced motion. Lit night, as the jig. */
+
+import Users from "@lucide/astro/icons/users";
+import CreditCard from "@lucide/astro/icons/credit-card";
+import Server from "@lucide/astro/icons/server";
+import Globe from "@lucide/astro/icons/globe";
+import Mail from "@lucide/astro/icons/mail";
+import ChartLine from "@lucide/astro/icons/chart-line";
+import Check from "@lucide/astro/icons/check";
+import * as k from "./iso/iso-kit";
+import { WIDTH, P, baseOf, gridOf, pointOf, iconMatrix } from "./decisions-geometry";
+import { litSides } from "./iso/lit";
+import "./iso/lit.css";
+
+const { checks = true } = Astro.props as { checks?: boolean };
+const id = `blueprint-${Math.random().toString(36).slice(2, 8)}`;
+const rise = k.screenRise(1, P);
+const parts = [
+  { plan: { x: -56, y: -56, w: 48, d: 32, r: 3 }, h: 14, icon: Users },
+  { plan: { x: -56, y: -16, w: 48, d: 32, r: 3 }, h: 10, icon: CreditCard },
+  { plan: { x: 0, y: -56, w: 56, d: 48, r: 3 }, h: 24, icon: Server },
+  { plan: { x: 0, y: 0, w: 24, d: 56, r: 3 }, h: 16, icon: Globe },
+  { plan: { x: 32, y: 0, w: 24, d: 24, r: 3 }, h: 8, icon: Mail },
+  { plan: { x: -56, y: 24, w: 48, d: 32, r: 3 }, h: 12, icon: ChartLine },
+].map((p, i) => {
+  const c: k.Point3 = [p.plan.x + p.plan.w / 2, p.plan.y + p.plan.d / 2, 0];
+  const ring = k.ringOf(p.plan, 8);
+  const foot = ring.map(([x, y]) => pointOf([x, y, 0]));
+  const hull = k.screenHull([...foot, ...foot.map(([x, y]) => [x, y - 400] as k.Flat)]);
+  return {
+    ...p,
+    order: i,
+    depth: k.depthOf(c, P),
+    outline: k.planOutline(p.plan, 0, P),
+    clip: k.pathOf(hull, true),
+    slab: k.slabOf(p.plan, 0, p.h, P, 4, 0),
+    sides: litSides(ring, 0, p.h, P),
+    mark: iconMatrix({ at: [c[0], c[1], p.h], size: Math.min(p.plan.w, p.plan.d) * 0.9, icon: "globe" }),
+    sink: p.h * rise,
+  };
+});
+const built = [...parts].sort((a, b) => a.depth - b.depth);
+
+const base = baseOf();
+const baseSides = litSides(k.ringOf({ x: -64, y: -64, w: 128, d: 128, r: 4 }, 8), -4, 0, P);
+const grid = gridOf();
+const ys = ([[-64, -64, 30], [64, 64, -4], [64, -64, 0], [-64, 64, 0]] as k.Point3[]).map((c) => pointOf(c)[1]);
+const top = Math.floor(Math.min(...ys)) - 4;
+const viewBox = `0 ${top} ${WIDTH} ${Math.ceil(Math.max(...ys)) + 4 - top}`;
+const focus = pointOf([0, 0, 0]);
+
+---
+
+<div class="blueprint lit-night" data-blueprint data-checks={checks ? "" : undefined} aria-hidden="true">
+  <svg viewBox={viewBox} class="bp">
+    <defs>
+      <radialGradient id={`${id}-light`} gradientUnits="userSpaceOnUse" cx={focus[0]} cy={focus[1]} r="140">
+        <stop offset="0" style="stop-color:var(--ln-pool)" />
+        <stop offset="1" style="stop-color:var(--ln-pool);stop-opacity:0" />
+      </radialGradient>
+      {(["base", "part"] as const).map((n) => (
+        <linearGradient id={`${id}-${n}`} x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0" style={`stop-color:var(--ln-${n}-lit)`} />
+          <stop offset="1" style={`stop-color:var(--ln-${n}-far)`} />
+        </linearGradient>
+      ))}
+      {parts.map((p) => <clipPath id={`${id}-clip-${p.order}`}><path d={p.clip} /></clipPath>)}
+    </defs>
+
+    <g class="solid base">
+      <path class="fill" d={base.fill} />
+      {baseSides.map((f) => <path class="face" d={f.d} style={`--t:${f.t}%`} />)}
+      <path class="top" d={base.top} fill={`url(#${id}-base)`} />
+      <path d={base.top} fill={`url(#${id}-light)`} />
+      <path class="grid" d={grid} />
+      <path class="edge" d={base.outline} />
+      <path class="crease" d={base.crease} />
+    </g>
+    {parts.map((p) => <path class="plan" d={p.outline} data-plan={p.order} />)}
+    {
+      built.map((p) => (
+        <g clip-path={`url(#${id}-clip-${p.order})`}>
+          <g class="solid part" data-part={p.order} data-sink={p.sink.toFixed(2)}>
+            <path class="fill" d={p.slab.fill} />
+            {p.sides.map((f) => <path class="face" d={f.d} style={`--t:${f.t}%`} />)}
+            <path class="top" d={p.slab.top} fill={`url(#${id}-part)`} />
+            <path class="edge" d={p.slab.outline} />
+            <path class="crease" d={p.slab.crease} />
+            <g class="icon" transform={p.mark}><p.icon size={24} stroke-width={1.6} /></g>
+            <g class="icon check" transform={p.mark}><Check size={24} stroke-width={2} /></g>
+          </g>
+        </g>
+      ))
+    }
+  </svg>
+</div>
+
+<script>
+  import { reducedMotion, onceVisible, whileVisible } from "../lib/motion";
+
+  /* The board builds once, as soon as it is seen: every part rises out of
+     the outline the plan gave it, fast, and stays. Then, unless the
+     page turns it off, every few seconds a quick run checks every part,
+     its icon a gold check for a moment. */
+  const RISE = 0.45;
+  const STAGGER = 0.07;
+  const CYCLE = 4, EACH = 0.16, SHOW = 0.9;
+  const RUN = [2, 0, 1, 5, 3, 4];
+  const ease = (t: number) => 1 - Math.pow(1 - t, 3);
+  const clamp = (t: number) => Math.max(0, Math.min(1, t));
+
+  if (!reducedMotion.matches)
+    for (const root of document.querySelectorAll<HTMLElement>("[data-blueprint]")) {
+      const parts = [...root.querySelectorAll<SVGGElement>("[data-part]")]
+        .map((el) => ({ el, i: Number(el.dataset.part), sink: Number(el.dataset.sink) }))
+        .sort((a, b) => a.i - b.i);
+      const lift = (p: (typeof parts)[number], f: number) => p.el.setAttribute("transform", `translate(0 ${(p.sink * (1 - f)).toFixed(2)})`);
+      parts.forEach((p) => lift(p, 0));
+      const built = RISE + STAGGER * parts.length;
+
+      onceVisible(
+        root,
+        () => {
+          let t = 0;
+          whileVisible(root, (dt) => {
+            t += dt;
+            if (t <= built + dt) for (const p of parts) lift(p, ease(clamp((t - p.i * STAGGER) / RISE)));
+            const after = t - built - 0.6;
+            if (after < 0 || !root.hasAttribute("data-checks")) return;
+            const c = after % CYCLE;
+            for (const p of parts) {
+              const s = c - RUN.indexOf(p.i) * EACH;
+              p.el.classList.toggle("checked", s > 0 && s < SHOW);
+            }
+          });
+        },
+        { threshold: 0.25 },
+      );
+    }
+</script>
+
+<style>
+  .blueprint .bp { display: block; width: 100%; height: auto; overflow: visible; }
+  .bp .base .fill { fill: var(--ln-base-dark); }
+  .bp .part .fill { fill: var(--ln-part-dark); }
+  .bp .base .face { --c: color-mix(in oklab, var(--ln-base-light) var(--t), var(--ln-base-dark)); }
+  .bp .part .face { --c: color-mix(in oklab, var(--ln-part-light) var(--t), var(--ln-part-dark)); }
+  .bp .face { fill: var(--c); stroke: var(--c); stroke-width: 0.6; stroke-linejoin: round; }
+  .bp .edge { fill: none; stroke: var(--ln-edge); stroke-width: 0.8; stroke-linejoin: round; }
+  .bp .crease { fill: none; stroke: var(--ln-crease); stroke-width: 0.9; stroke-linecap: round; stroke-linejoin: round; }
+  .bp .grid { fill: none; stroke: var(--ln-grid); stroke-width: 0.6; }
+  .bp .plan { fill: none; stroke: var(--accent-on-night); stroke-width: 1; stroke-linejoin: round; }
+  .bp .part .crease { transition: stroke 500ms ease-out; }
+  .bp .part.checked .crease { stroke: var(--accent-on-night); transition: none; }
+  .bp .icon { transition: opacity 200ms ease-out; }
+  .bp .check { opacity: 0; }
+  .bp .check :global(svg) { color: var(--accent-on-night); }
+  .bp .part.checked .icon:not(.check) { opacity: 0; }
+  .bp .part.checked .check { opacity: 1; }
+  .bp .icon :global(svg) { color: var(--ln-icon); overflow: visible; transition: color 500ms ease-out; }
+</style>

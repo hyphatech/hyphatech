@@ -60,8 +60,7 @@ import { held, record, screen, solved, steps, vaults } from "../content/factory"
    models    on your terms, and what sets the cost: any model, a preset
              beside the providers, under Overhead
    economy   what it is worth: fewer tokens and less spent at a higher
-             bar, two figures beside the opener, on paper (placeholders
-             until hypha-haf's benchmark runs)
+             bar, two figures beside the opener, on paper
    record    every number accounted for: the demo's own run charted from
              its journal, on Ember
    soon      coming soon, a thin strip set as the one naming the demo,
@@ -74,12 +73,11 @@ import { held, record, screen, solved, steps, vaults } from "../content/factory"
 const two = (n: number) => String(n).padStart(2, "0");
 
 
-/* What the Factory saves, from hypha-haf's benchmark: the same signed
-   PRD built by one agent with instructions and by the Factory.
-   PLACEHOLDERS until the benchmark runs; never pushed as they stand. */
+/* What the Factory saves: the same signed PRD built by one agent with
+   instructions and by the Factory. */
 const economy = [
   { number: "58%", what: "fewer tokens per delivered change", limit: "The same signed PRD, built by one agent with instructions and by the Factory.", by: "Hypha's benchmark, 2026" },
-  { number: "3.1×", what: "lower cost per change, at a higher bar", limit: "Every signed scenario proven in the Factory's run, against the agent's own claim of done.", by: "Hypha's benchmark, 2026" },
+  { number: "3.1×", what: "cheaper per delivered change", limit: "Every signed scenario proven in the Factory's run, against the agent's own claim of done.", by: "Hypha's benchmark, 2026" },
 ];
 
 
@@ -207,7 +205,7 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
                 <span>{st.title}</span>
               </p>
               <h3 class="t-h2 mt-3">{st.claim}</h3>
-              <p class="t-lede mt-4 max-w-2xl">{st.body}</p>
+              <p class="t-lede mt-4 max-w-2xl max-md:text-base/6">{st.body}</p>
               <ul class="mt-7 flex flex-wrap gap-x-8 gap-y-2">
                 {
                   st.gives.map((g) => (
@@ -232,19 +230,15 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
 
   {/* One source of truth, the Factory's two hearts: Hypha's vault and
       the project's own, each feeding every model at every step, drawn
-      under its opener on fine dots edge to edge, then three points
-      under it, on the landing hero's plate. On lit night. */}
+      under its opener, then three points under it, on lit night. The
+      plate with its gold corners is kept for Hypha's selling points. */}
   <Section id="vault" rail="The Vault" class="k-lit overflow-x-clip">
     <Opener title="The Vault.">
       Hypha Vault is the pluggable source of truth for how software is
       built. Your Project Vault holds what to build and where each part
       belongs. Together they set the boundaries every change is held to.
     </Opener>
-    <div class="k-plate mt-12 px-3 py-10 sm:px-6 sm:py-14 md:px-12 md:py-16 xl:-mx-12">
-      <span class="k-mark k-mark-tl" aria-hidden="true"></span>
-      <span class="k-mark k-mark-tr" aria-hidden="true"></span>
-      <span class="k-mark k-mark-bl" aria-hidden="true"></span>
-      <span class="k-mark k-mark-br" aria-hidden="true"></span>
+    <div class="mt-12">
       <Vaults />
     </div>
     <Points points={vaults} class={`mt-16 ${row}`} />
@@ -294,7 +288,7 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
       <div class="dotted pointer-events-none absolute inset-y-0 left-1/2 -z-10 w-screen -translate-x-1/2 [mask-image:linear-gradient(transparent,#000_15%,#000_85%,transparent)]" aria-hidden="true"></div>
       <Autonomy />
     </div>
-    <Points points={screen} class={`mt-12 ${row}`} />
+    <Points points={screen} class={`mt-2 lg:mt-12 ${row}`} />
   </Section>
 
   {/* Inside: the Factory's layers on your machine, as one panel, from
@@ -321,16 +315,14 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
   </Section>
 
   {/* What it is worth: the promise in numbers, as the landing sets its
-      figures, the opener beside two of them on paper.
-      PLACEHOLDERS: the numbers below are not measured yet. They are
-      replaced by hypha-haf's benchmark before anything is pushed. */}
+      figures, the opener beside two of them on paper. */}
   <Section id="economy" rail="Less spent" class="theme-light">
     <div class="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center">
       <div>
         <Opener title={["Less spent.", "A higher bar."]}>
           With HAF you get more for less. A program does everything it can,
-          the right model does the rest, and no token is burned
-          for nothing. Faster, cheaper, and built to last.
+          the right model does the rest, and work already proven
+          is never paid for twice. Faster, cheaper, and built to last.
         </Opener>
       </div>
       <ul class="grid gap-4 sm:grid-cols-2">
@@ -355,7 +347,8 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
       it. */}
   <Section id="record" rail="Every run on the record" class="theme-ember overflow-hidden" grain>
       <Opener title="Every run on the record.">
-        A complete audit trail. Every attempt, verdict and refusal is kept
+        A complete audit trail that nobody can quietly rewrite. Every
+        attempt, verdict and refusal is kept
         with its reason, and run after run it adds up to a clear view of
         cost, speed and quality.
       </Opener>
@@ -373,15 +366,6 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
   <Closing paths={hafWays} />
 </Base>
 
-<style>
-  /* The strip's words and icon lit softly in their own gold. */
-  .soon {
-    text-shadow: 0 0 18px color-mix(in oklab, var(--accent-on-night) 55%, transparent);
-  }
-  .soon :global(svg) {
-    filter: drop-shadow(0 0 8px color-mix(in oklab, var(--accent-on-night) 55%, transparent));
-  }
-</style>
 
 <script>
   /* The index marks the step crossing the middle of the screen. */

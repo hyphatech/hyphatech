@@ -76,11 +76,11 @@ const lanes = [
   </ol>
   <div class="factory">
     <ol class="steps">
-      {steps.map((s, i) => <li class="step"><span class="ring k-point-icon"><Icon icon={icons[i]!} /></span><span class="step-words"><span class="tabular-nums text-graphite">{String(i + 1).padStart(2, "0")}</span><span class="step-name">{s.title}</span></span></li>)}
+      {steps.map((s, i) => <li class="step"><span class="mark k-badge k-badge-lg k-badge-gold"><Icon icon={icons[i]!} /></span><span class="step-words"><span class="tabular-nums text-graphite">{String(i + 1).padStart(2, "0")}</span><span class="step-name">{s.title}</span></span></li>)}
     </ol>
   </div>
   <ol class="feeds" aria-hidden="true">
-    {steps.map((s) => { const t = takes[s.title] ?? { vault: [], project: [] }; return <li class:list={["feed", { on: t.project.length }]}>{t.project.length > 0 && <div class:list={["k-relation k-relation-v", { write: t.project.every((p) => p.write) }]}>{t.project.map((p) => <span class:list={{ write: p.write }}>{p.word}</span>)}</div>}</li>; })}
+    {steps.map((s) => { const t = takes[s.title] ?? { vault: [], project: [] }; return <li class:list={["feed", { on: t.project.length }]}>{t.project.length > 0 && <div class:list={["k-relation k-relation-v", { write: t.project.every((p) => p.write) }]}><span class:list={{ write: t.project.every((p) => p.write) }}>{t.project.map((p, j) => <Fragment>{j > 0 && " / "}<em class:list={["not-italic", { "text-accent": p.write && !t.project.every((q) => q.write) }]}>{p.word}</em></Fragment>)}</span></div>}</li>; })}
   </ol>
   <div class="k-panel lane">
     <p class="k-panel-head"><span class="k-panel-name inline-flex items-center gap-2"><Icon icon={lanes[1]!.icon} />{lanes[1]!.name}</span></p>
@@ -122,20 +122,14 @@ const lanes = [
     content: ""; position: absolute; top: calc(2.75rem / 2); left: 50%; width: 100%; height: 1px;
     background: var(--accent-on-night);
   }
-  .ring { position: relative; z-index: 1; }
+  .mark { position: relative; z-index: 1; background: var(--color-ivory); }
   .items { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .items > :nth-child(2) { border-top: 0; }
   .items > :nth-child(even) { border-left: 1px solid var(--color-rule); }
   .item { padding-inline: 0.75rem; }
   .item dd { white-space: nowrap; }
-  /* The Factory is the gold between the vaults: each ring the panel's
-     tone, edged in gold, its icon gold, on the gold line. */
-  .ring {
-    display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 999px;
-    color: var(--accent-on-night);
-    background: var(--color-panel);
-    box-shadow: 0 0 0 1px var(--accent-on-night);
-  }
+  /* The Factory is the gold between the vaults: each step a badge
+     edged in gold, on the gold line. */
   .step-words { display: flex; flex-direction: column; align-items: center; }
   .step-words > :first-child { font-size: 0.875rem; line-height: 1.25rem; }
   .step-name { color: var(--color-ink); font-size: 1rem; line-height: 1.5rem; }
@@ -161,8 +155,8 @@ const lanes = [
     .step { row-gap: 0.75rem; }
     .step::after { display: none; }
     .feeds { display: grid; grid-template-columns: repeat(6, 1fr); height: 4.5rem; padding-inline: 0.25rem; }
-    /* A step that both reads and writes keeps one line on its axis,
-       its relations stacked on it. */
+    /* A step that both reads and writes keeps one line on its axis and
+       one pill, the write in gold. */
     .feed { display: flex; justify-content: center; }
     .feed :global(.k-relation::before) { display: block; background: var(--color-ink); opacity: 0.35; }
     .feed :global(.k-relation span) { color: var(--color-ink); font-size: 0.75rem; }
@@ -174,7 +168,7 @@ const lanes = [
 
 <script>
   /* The Factory runs once, the first time the figure comes into view:
-     the gold line draws from the first step to the last, each ring lit
+     the gold line draws from the first step to the last, each badge lit
      gold as the line reaches it, and what the step takes from each vault
      drawn into it as it lights. Without scripts, with reduced motion, on
      a phone, or already in view on arrival, it simply stands whole. */
@@ -186,7 +180,7 @@ const lanes = [
     if (reducedMotion.matches || !matchMedia("(width >= 64rem)").matches) continue;
     if (fig.getBoundingClientRect().top < innerHeight * 0.6) continue;
     const steps = fig.querySelector<HTMLElement>(".steps")!;
-    const rings = [...fig.querySelectorAll<HTMLElement>(".ring")];
+    const rings = [...fig.querySelectorAll<HTMLElement>(".mark")];
     const [above, below] = [...fig.querySelectorAll<HTMLElement>(".feeds")].map((f) => [...f.children] as HTMLElement[]);
     onceVisible(
       fig,
@@ -194,7 +188,7 @@ const lanes = [
         steps.animate([{ clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0 0 0)" }], { duration: STEP * 5, easing: "linear", fill: "backwards", pseudoElement: "::before" });
         rings.forEach((ring, i) => {
           const at = i * STEP;
-          ring.animate([{ background: "var(--color-raised)", color: "var(--color-graphite)", boxShadow: "0 0 0 1px var(--color-rule)" }, { background: "var(--color-panel)", color: "var(--accent-on-night)", boxShadow: "0 0 0 1px var(--accent-on-night)" }], { duration: 600, delay: at, easing: EASE, fill: "backwards" });
+          ring.animate([{ color: "var(--color-graphite)", borderColor: "var(--color-rule)" }, { color: "var(--accent-on-night)", borderColor: "var(--accent-on-night)" }], { duration: 600, delay: at, easing: EASE, fill: "backwards" });
           for (const [feed, origin] of [[above![i], "center top"], [below![i], "center top"]] as const) {
             for (const rel of feed?.querySelectorAll<HTMLElement>(".k-relation") ?? []) {
               rel.animate([{ transform: "scaleY(0)", transformOrigin: origin }, { transform: "none", transformOrigin: origin }], { duration: 420, delay: at, easing: EASE, fill: "backwards", pseudoElement: "::before" });

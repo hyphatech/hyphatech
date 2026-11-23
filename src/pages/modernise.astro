@@ -4,20 +4,17 @@ import Section from "../components/Section.astro";
 import Opener from "../components/Opener.astro";
 import Hero from "../components/Hero.astro";
 import Closing from "../components/Closing.astro";
+import HyphaCard from "../components/HyphaCard.astro";
 import Icon from "../components/Icon.astro";
-import { modernWays } from "../content/ways";
+import { serviceWays } from "../content/ways";
 import { starts } from "../content/starts";
 import type { Card } from "../content/factory";
 import Mail from "@lucide/astro/icons/mail";
 import ArrowDown from "@lucide/astro/icons/arrow-down";
 import Check from "@lucide/astro/icons/check";
-import UserCheck from "@lucide/astro/icons/user-check";
 import MessagesSquare from "@lucide/astro/icons/messages-square";
 import Signature from "@lucide/astro/icons/signature";
 import Layers from "@lucide/astro/icons/layers";
-import Blocks from "@lucide/astro/icons/blocks";
-import ShieldCheck from "@lucide/astro/icons/shield-check";
-import FileCheck from "@lucide/astro/icons/file-check";
 import Monitor from "@lucide/astro/icons/monitor";
 import Globe from "@lucide/astro/icons/globe";
 import Server from "@lucide/astro/icons/server";
@@ -26,6 +23,10 @@ import Receipt from "@lucide/astro/icons/receipt";
 import User from "@lucide/astro/icons/user";
 import ShoppingCart from "@lucide/astro/icons/shopping-cart";
 import CreditCard from "@lucide/astro/icons/credit-card";
+import KeyRound from "@lucide/astro/icons/key-round";
+import Cloud from "@lucide/astro/icons/cloud";
+import ShieldCheck from "@lucide/astro/icons/shield-check";
+import BookOpenCheck from "@lucide/astro/icons/book-open-check";
 
 /* For an owner whose business runs on software grown tangled and costly
    to change, not for an engineer: no git, repositories or stack in its
@@ -44,7 +45,9 @@ import CreditCard from "@lucide/astro/icons/credit-card";
            in turn, all of it kept current. Each with
            what you keep and one example carried through: Foundation the
            map of a business, Reading one part's rules, Moving its log
-   people  built with Hypha, and what stays yours: cards, on paper
+   hypha   Hypha's card: the care of experts, the speed of agents, what
+           working with Hypha gives, on Ember
+   yours   what the business keeps, as the kit's points, on paper
    first   it starts with a conversation: the ask and its button beside
            what happens, in order, as a stepper, on lit night
    build   the ways in
@@ -78,7 +81,7 @@ const rules = [
 const log = [
   ["Mon 09:10", "Reading finished", "all of it recorded"],
   ["Tue 11:00", "New invoicing running", "on this week's orders"],
-  ["Wed 18:30", "Every invoice compared", "no difference found"],
+  ["Wed 18:30", "Every invoice compared", "only the agreed fixes differ"],
   ["Thu 07:00", "Switched over", "the old invoicing retired"],
 ];
 
@@ -100,8 +103,8 @@ const steps: { title: string; claim: [string, string]; body: string; keep: strin
   },
   {
     title: "Moving",
-    claim: ["Built alongside.", "Switched when every case matches."],
-    body: "Both run the same real work in parallel while everyone works as usual. The day nothing differs, the switch is made and the next part begins.",
+    claim: ["Built alongside.", "Switched once it does what was agreed."],
+    body: "Both run the same real work side by side while everyone works as usual. Every difference left at the switch is one you chose.",
     keep: ["The new part, running", "The old system retired"],
   },
   {
@@ -115,20 +118,19 @@ const steps: { title: string; claim: [string, string]; body: string; keep: strin
 /* What is modernised: what a business has, in its owner's words, and
    what it becomes. No phones yet. */
 const scope = [
+  { icon: Globe, title: "Web apps", body: "A website or portal your staff and customers rely on becomes a fast, secure web app, durable as the business grows." },
   { icon: Monitor, title: "Desktop apps", body: "A program the office depends on, in Access, Delphi or Visual Basic, becomes a modern app for Windows, macOS and Linux." },
-  { icon: Globe, title: "Web apps", body: "A website or portal your staff and customers rely on becomes a fast, secure web app that grows with the business." },
-  { icon: Server, title: "Infrastructure", body: "Wherever your software runs, its whole setup is written down as code, easy to audit and safe to change." },
+  { icon: Server, title: "Infrastructure", body: "Wherever your software runs, its whole setup automated, easy to audit and safe to change." },
   { icon: Sheet, title: "Automations", body: "Repetitive office work, from filling in documents to collecting data and writing reports, is automated end to end." },
 ];
 
-/* Why Hypha, then what stays the owner's whoever works on it next:
-   four cards, the heading naming the two halves. Hypha whole, never
-   a person or the Factory alone. */
-const people: Card[] = [
-  { icon: Blocks, title: "Designed together", body: "Every part made to fit the rest, and every change proven before it goes live." },
-  { icon: FileCheck, title: "Delivered with its proof", body: "Every change arrives with its tests, its documents and the record of how it was built." },
-  { icon: UserCheck, title: "Everything in your name", body: "Your code and your business's records, in your accounts for any engineer to carry on." },
-  { icon: ShieldCheck, title: "Runs where you choose", body: "Your cloud or your own machines, with your data and its privacy under your control." },
+
+/* What the business keeps: each a promise, never the doubt behind it. */
+const yours: Card[] = [
+  { icon: KeyRound, title: "Owned outright", body: "The software, its documents and the record of how your business works, in your own accounts." },
+  { icon: Cloud, title: "Runs where you choose", body: "On your own servers or the cloud you already use, and your data stays with you." },
+  { icon: ShieldCheck, title: "Proven, part by part", body: "Each part arrives with what was agreed, checked against everything the old system did." },
+  { icon: BookOpenCheck, title: "Ready for anyone", body: "Tested and documented throughout, ready for any engineer to take further." },
 ];
 
 /* How it starts, in the order it happens: a call, then a clear plan
@@ -137,7 +139,7 @@ const people: Card[] = [
 const first: Card[] = [
   { icon: MessagesSquare, title: "One call about your business", body: "What it runs on, what holds it back, and where it should start." },
   { icon: Signature, title: "A clear plan to start", body: "What is done first and what it gives you, agreed up front." },
-  { icon: Layers, title: "One step at a time", body: "Each part is its own decision, and you can stop after any of them." },
+  { icon: Layers, title: "One step at a time", body: "The next parts come as your business needs them." },
 ];
 ---
 
@@ -169,7 +171,7 @@ const first: Card[] = [
               <h3 class="t-h3 text-ink">{c.title}</h3>
             </div>
             <div class="relative border-t border-rule px-6 pt-8 pb-6">
-              <span class="absolute -top-4 left-6 grid size-8 place-items-center rounded-full border border-rule bg-ivory text-graphite" aria-hidden="true"><Icon icon={ArrowDown} /></span>
+              <span class="k-badge k-badge-round absolute -top-[1.125rem] left-6" aria-hidden="true"><Icon icon={ArrowDown} /></span>
               <p class="text-ink">{c.body}</p>
             </div>
           </li>
@@ -212,8 +214,8 @@ const first: Card[] = [
       Moving the log of that part switching over. */}
   <Section id="steps" rail="One part at a time" class="theme-light">
     <Opener title="One part at a time.">
-      A gradual move, where each step improves your system and the old one
-      keeps working until the new one takes over.
+      Your business is learned once and moved a part at a time, while the
+      old system keeps working until each new part takes over.
     </Opener>
     <div class="mt-12 grid gap-12 lg:grid-cols-[13rem_minmax(0,1fr)]">
       <nav class="sticky top-8 hidden self-start lg:block" aria-label="The steps">
@@ -241,7 +243,7 @@ const first: Card[] = [
               <h3 class="t-h2 mt-3">
                 {st.claim.map((l) => <span class="block">{l}</span>)}
               </h3>
-              <p class="t-lede mt-4 max-w-2xl">{st.body}</p>
+              <p class="t-lede mt-4 max-w-2xl max-md:text-base/6">{st.body}</p>
               <ul class="mt-7 flex flex-wrap gap-x-8 gap-y-2">
                 {
                   st.keep.map((k) => (
@@ -319,24 +321,26 @@ const first: Card[] = [
     </div>
   </Section>
 
-  {/* Why Hypha, and what stays the owner's: built on its foundation,
-      delivered with proof, theirs, run where they choose. Four stone
-      cards on paper, in one row, their lines of one length. */}
-  <Section id="people" rail="Built with Hypha" class="theme-light">
-    <Opener title={["Built with Hypha.", "Yours to keep."]}>
-      Every part stands on Hypha's foundation, and everything made stays
-      yours.
+  <HyphaCard
+    title={["The care of experts.", "The speed of agents."]}
+    lede="Senior engineers decide what is built and how it fits together, on the principles Hypha applies to every system. Agents build it, with every change checked against what was agreed."
+    rail="The care of experts"
+  />
+
+  {/* What the business keeps, as the kit's points, two by two on
+      paper, between Hypha's card and the conversation. */}
+  <Section id="yours" rail="Yours to keep" class="theme-light">
+    <Opener title="Yours to keep.">
+      Everything built for your business belongs to you from the first day.
     </Opener>
-    <ul class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <ul class="mt-12 grid gap-x-16 gap-y-12 md:grid-cols-2">
       {
-        people.map((c) => (
-          <li class="k-panel k-panel-card k-panel-stone">
-            <p class="k-panel-head items-center !justify-start"><Icon icon={c.icon} /><span class="k-panel-name">{c.title}</span></p>
-            <div class="k-panel-well flex-1">
-              <div class="k-panel-row !p-5">
-                <p class=" text-graphite">{c.body}</p>
-                {c.link && <a href={c.link.href} class="link mt-3 inline-block">{c.link.text}</a>}
-              </div>
+        yours.map((c) => (
+          <li class="k-point border-t border-rule pt-6">
+            <span class="k-point-icon"><Icon icon={c.icon} /></span>
+            <div>
+              <h3 class="t-h3">{c.title}</h3>
+              <p class="mt-2 max-w-md text-graphite">{c.body}</p>
             </div>
           </li>
         ))
@@ -361,10 +365,10 @@ const first: Card[] = [
       <ol class="relative">
         {
           first.map((f, i) => (
-            <li class="relative grid grid-cols-[3rem_1fr] gap-x-5 pb-10 last:pb-0">
-              {i < first.length - 1 && <span class="absolute top-14 bottom-2 left-6 w-px bg-rule" aria-hidden="true"></span>}
-              <span class:list={["k-point-icon !size-12 justify-center rounded-full border", i === 0 ? "border-accent !text-accent" : "border-rule"]}><Icon icon={f.icon} /></span>
-              <div class="pt-3">
+            <li class="relative grid grid-cols-[2.25rem_1fr] gap-x-4 pb-8 last:pb-0">
+              {i < first.length - 1 && <span class="absolute top-11 bottom-0 left-[calc(1.125rem-0.5px)] w-px bg-rule" aria-hidden="true"></span>}
+              <span class:list={["k-badge", i === 0 && "k-badge-gold"]}><Icon icon={f.icon} /></span>
+              <div class="pt-1.5">
                 <p class:list={["font-medium", { "text-accent": i === 0 }]}>{f.title}</p>
                 <p class="mt-1 text-balance text-graphite">{f.body}</p>
               </div>
@@ -375,7 +379,7 @@ const first: Card[] = [
     </div>
   </section>
 
-  <Closing paths={modernWays} />
+  <Closing paths={serviceWays} />
 </Base>
 
 <script>

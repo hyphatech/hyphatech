@@ -45,7 +45,7 @@ export const steps: Step[] = [
     title: "Intent",
     claim: "Decided up front.",
     body: "Each decision only you can make comes one at a time, with the answer the Factory recommends and why it matters. Everything else is assumed in plain sight, for you to correct. The agreed decisions become PRDs, and nothing is built until they are signed.",
-    gives: ["One question at a time", "Every assumption shown", "Your signature starts the work"],
+    gives: ["Reads what you bring", "Every assumption shown", "Your signature starts the work"],
   },
   {
     title: "Mapping",
@@ -74,7 +74,7 @@ export const steps: Step[] = [
   {
     title: "Release",
     claim: "Ready to run.",
-    body: "Every part of your project is released together, exactly as it passed. Explore in the Workbench, it's ready to deploy.",
+    body: "Every part of your project is released together, exactly as it passed, with the record of what was signed and proven. Explore it running in the Workbench.",
     gives: ["Versioned and tagged"],
   },
 ];
@@ -120,8 +120,8 @@ export const held = {
 /* The screen: autonomy you can see. */
 export const screen: Card[] = [
   { title: "Keeps pushing", icon: RotateCcw, body: "A refused piece goes back with what was wrong, then starts afresh." },
-  { title: "Never stuck on one piece", icon: Split, body: "A piece that still fails is set aside with its diagnosis, and everything that does not need it goes on." },
-  { title: "Nothing lost", icon: StepForward, body: "Work outlives the screen, and a stopped run resumes exactly where it left off." },
+  { title: "Never stuck on one piece", icon: Split, body: "Whatever keeps failing is set aside with its diagnosis while the rest carries on." },
+  { title: "Nothing lost", icon: StepForward, body: "Work outlives the screen, and a stopped run resumes where it left off." },
 ];
 
 /* What the journal keeps: an account of every run without anyone
@@ -129,6 +129,6 @@ export const screen: Card[] = [
 export const record: Card[] = [
   { title: "Traced to its reason", icon: ScrollText, body: "Every change leads back to the requirement behind it and the checks that passed it." },
   { title: "Priced as you were billed", icon: Receipt, body: "Every call kept with its usage as your provider reported it, priced to the last fraction of a cent." },
-  { title: "Kept within budget", icon: Gauge, body: "Each request carries a cost estimated at signing, and the work stays within it." },
+  { title: "Within your limit", icon: Gauge, body: "Spending stops at the limit you set, and goes on only once you raise it." },
 ];
 

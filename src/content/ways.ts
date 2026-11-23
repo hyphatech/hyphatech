@@ -2,30 +2,31 @@ import type { Path } from "../components/Paths.astro";
 import Mail from "@lucide/astro/icons/mail";
 import Layers from "@lucide/astro/icons/layers";
 import Factory from "@lucide/astro/icons/factory";
-import Split from "@lucide/astro/icons/split";
+import Handshake from "@lucide/astro/icons/handshake";
 
 /* Every page ends on "Build with Hypha." and the same three, in the same
-   order: the conversation first, on paper, then modernisation, then the
-   one of the Factory and the Stack the page is not about. A page that is
-   itself one of them takes the next in that order instead. Each card's
-   line is its page's hero in brief, then the reader's reason, two
-   sentences each, so any three read together on every page. */
+   order: the conversation first, on paper, then Services, then the one
+   of the Stack and the Factory the page is not about. A page that is
+   itself one of them, or under Services, takes the next in that order
+   instead. Each card's line is its page's hero in brief, then the
+   reader's reason, two sentences each, so any three read together on
+   every page. */
 
 const talk: Path = {
   title: "Talk to us",
-  body: "Bring an idea, a product, a system or a partnership. Questions and feedback are just as welcome.",
+  body: "Bring an idea, a product or a system. Questions and feedback are just as welcome.",
   href: "mailto:hello@hyphatech.io",
   action: "Get in touch",
   icon: Mail,
   primary: true,
 };
 
-const modernise: Path = {
-  title: "Modernise",
-  body: "Whether it's old code nobody dares touch or a fragile prototype, Hypha rebuilds it at the speed of agents, while your business keeps running.",
-  href: "/modernise/",
-  action: "See how it moves",
-  icon: Split,
+const services: Path = {
+  title: "Services",
+  body: "A new product built to last, or the system your business runs on rebuilt. Hypha's expertise and its foundation, end to end.",
+  href: "/services/",
+  action: "Work with Hypha",
+  icon: Handshake,
   primary: false,
 };
 
@@ -48,10 +49,10 @@ const stack: Path = {
 };
 
 /* The landing, Hypha Stack and each component's page. */
-export const ways: Path[] = [talk, modernise, factory];
+export const ways: Path[] = [talk, services, factory];
 
 /* The Factory's page. */
-export const hafWays: Path[] = [talk, modernise, stack];
+export const hafWays: Path[] = [talk, services, stack];
 
-/* The modernisation page. */
-export const modernWays: Path[] = [talk, factory, stack];
+/* Services, and the two pages under it. */
+export const serviceWays: Path[] = [talk, stack, factory];

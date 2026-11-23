@@ -1,0 +1,154 @@
+---
+/* Modernising, drawn on a board like the Startups card's (Blueprint.astro),
+   its parts laid out its own way: each part rises out of its gold outline
+   with its old icon, grey, and lands renewed, its icon new and its edge
+   gold for a moment. Played once, as soon as it is seen; renewed and
+   still under reduced motion. */
+
+import Users from "@lucide/astro/icons/users";
+import CreditCard from "@lucide/astro/icons/credit-card";
+import Server from "@lucide/astro/icons/server";
+import Globe from "@lucide/astro/icons/globe";
+import Mail from "@lucide/astro/icons/mail";
+import ChartLine from "@lucide/astro/icons/chart-line";
+import BookUser from "@lucide/astro/icons/book-user";
+import Receipt from "@lucide/astro/icons/receipt";
+import HardDrive from "@lucide/astro/icons/hard-drive";
+import Monitor from "@lucide/astro/icons/monitor";
+import Printer from "@lucide/astro/icons/printer";
+import Sheet from "@lucide/astro/icons/sheet";
+import * as k from "./iso/iso-kit";
+import { WIDTH, P, baseOf, gridOf, pointOf, iconMatrix } from "./decisions-geometry";
+import { litSides } from "./iso/lit";
+import "./iso/lit.css";
+
+const id = `renew-${Math.random().toString(36).slice(2, 8)}`;
+const rise = k.screenRise(1, P);
+const parts = [
+  { plan: { x: 0, y: -56, w: 56, d: 24, r: 3 }, h: 12, icon: Users, was: BookUser },
+  { plan: { x: 0, y: -24, w: 24, d: 48, r: 3 }, h: 16, icon: CreditCard, was: Receipt },
+  { plan: { x: -56, y: -56, w: 48, d: 48, r: 3 }, h: 22, icon: Server, was: HardDrive },
+  { plan: { x: -56, y: 0, w: 48, d: 56, r: 3 }, h: 14, icon: Globe, was: Monitor },
+  { plan: { x: 32, y: -24, w: 24, d: 24, r: 3 }, h: 8, icon: Mail, was: Printer },
+  { plan: { x: 32, y: 8, w: 24, d: 48, r: 3 }, h: 10, icon: ChartLine, was: Sheet },
+].map((p, i) => {
+  const c: k.Point3 = [p.plan.x + p.plan.w / 2, p.plan.y + p.plan.d / 2, 0];
+  const ring = k.ringOf(p.plan, 8);
+  const foot = ring.map(([x, y]) => pointOf([x, y, 0]));
+  const hull = k.screenHull([...foot, ...foot.map(([x, y]) => [x, y - 400] as k.Flat)]);
+  return {
+    ...p,
+    order: i,
+    depth: k.depthOf(c, P),
+    outline: k.planOutline(p.plan, 0, P),
+    clip: k.pathOf(hull, true),
+    slab: k.slabOf(p.plan, 0, p.h, P, 4, 0),
+    sides: litSides(ring, 0, p.h, P),
+    mark: iconMatrix({ at: [c[0], c[1], p.h], size: Math.min(p.plan.w, p.plan.d) * 0.9, icon: "globe" }),
+    sink: p.h * rise,
+  };
+});
+const built = [...parts].sort((a, b) => a.depth - b.depth);
+
+const base = baseOf();
+const baseSides = litSides(k.ringOf({ x: -64, y: -64, w: 128, d: 128, r: 4 }, 8), -4, 0, P);
+const grid = gridOf();
+const ys = ([[-64, -64, 30], [64, 64, -4], [64, -64, 0], [-64, 64, 0]] as k.Point3[]).map((c) => pointOf(c)[1]);
+const top = Math.floor(Math.min(...ys)) - 4;
+const viewBox = `0 ${top} ${WIDTH} ${Math.ceil(Math.max(...ys)) + 4 - top}`;
+const focus = pointOf([0, 0, 0]);
+---
+
+<div class="renew lit-night" data-renew aria-hidden="true">
+  <svg viewBox={viewBox} class="rn">
+    <defs>
+      <radialGradient id={`${id}-light`} gradientUnits="userSpaceOnUse" cx={focus[0]} cy={focus[1]} r="140">
+        <stop offset="0" style="stop-color:var(--ln-pool)" />
+        <stop offset="1" style="stop-color:var(--ln-pool);stop-opacity:0" />
+      </radialGradient>
+      {(["base", "part"] as const).map((n) => (
+        <linearGradient id={`${id}-${n}`} x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0" style={`stop-color:var(--ln-${n}-lit)`} />
+          <stop offset="1" style={`stop-color:var(--ln-${n}-far)`} />
+        </linearGradient>
+      ))}
+      {parts.map((p) => <clipPath id={`${id}-clip-${p.order}`}><path d={p.clip} /></clipPath>)}
+    </defs>
+
+    <g class="solid base">
+      <path class="fill" d={base.fill} />
+      {baseSides.map((f) => <path class="face" d={f.d} style={`--t:${f.t}%`} />)}
+      <path class="top" d={base.top} fill={`url(#${id}-base)`} />
+      <path d={base.top} fill={`url(#${id}-light)`} />
+      <path class="grid" d={grid} />
+      <path class="edge" d={base.outline} />
+      <path class="crease" d={base.crease} />
+    </g>
+    {parts.map((p) => <path class="plan" d={p.outline} data-plan={p.order} />)}
+    {
+      built.map((p) => (
+        <g clip-path={`url(#${id}-clip-${p.order})`}>
+          <g class="solid part" data-part={p.order} data-sink={p.sink.toFixed(2)}>
+            <path class="fill" d={p.slab.fill} />
+            {p.sides.map((f) => <path class="face" d={f.d} style={`--t:${f.t}%`} />)}
+            <path class="top" d={p.slab.top} fill={`url(#${id}-part)`} />
+            <path class="edge" d={p.slab.outline} />
+            <path class="crease" d={p.slab.crease} />
+            <g class="icon was" transform={p.mark}><p.was size={24} stroke-width={1.6} /></g>
+            <g class="icon is" transform={p.mark}><p.icon size={24} stroke-width={1.6} /></g>
+          </g>
+        </g>
+      ))
+    }
+  </svg>
+</div>
+
+<style>
+  .renew .rn { display: block; width: 100%; height: auto; overflow: visible; }
+  .rn .base .fill { fill: var(--ln-base-dark); }
+  .rn .part .fill { fill: var(--ln-part-dark); }
+  .rn .base .face { --c: color-mix(in oklab, var(--ln-base-light) var(--t), var(--ln-base-dark)); }
+  .rn .part .face { --c: color-mix(in oklab, var(--ln-part-light) var(--t), var(--ln-part-dark)); }
+  .rn .face { fill: var(--c); stroke: var(--c); stroke-width: 0.6; stroke-linejoin: round; }
+  .rn .edge { fill: none; stroke: var(--ln-edge); stroke-width: 0.8; stroke-linejoin: round; }
+  .rn .crease { fill: none; stroke: var(--ln-crease); stroke-width: 0.9; stroke-linecap: round; stroke-linejoin: round; transition: stroke 500ms ease-out; }
+  .rn .grid { fill: none; stroke: var(--ln-grid); stroke-width: 0.6; }
+  .rn .plan { fill: none; stroke: var(--accent-on-night); stroke-width: 1; stroke-linejoin: round; opacity: 0; transition: opacity 300ms ease-out; }
+  .rn .plan.on { opacity: 1; }
+  .rn .icon :global(svg) { color: var(--ln-icon); overflow: visible; }
+  .rn .icon.was :global(svg) { color: var(--color-graphite); }
+  .rn .icon { transition: opacity 350ms cubic-bezier(0.45, 0, 0.55, 1); }
+  .rn .icon.is { opacity: 0; }
+  .rn .part.renewed .icon.was { opacity: 0; }
+  .rn .part.renewed .icon.is { opacity: 1; }
+  .rn .part.lit .crease { stroke: var(--accent-on-night); transition: stroke 150ms ease-out; }
+</style>
+
+<script>
+  import { reducedMotion, onceVisible, whileVisible } from "../lib/motion";
+
+  const ease = (t: number) => 1 - Math.pow(1 - t, 3);
+  const clamp = (t: number) => Math.max(0, Math.min(1, t));
+  const RISE = 0.6, STAGGER = 0.12, LAND = 0.35, FLASH = 0.9;
+
+  for (const root of document.querySelectorAll<HTMLElement>("[data-renew]")) {
+    const plans = [...root.querySelectorAll<SVGPathElement>("[data-plan]")];
+    const parts = [...root.querySelectorAll<SVGGElement>("[data-part]")].map((el) => {
+      const i = Number(el.dataset.part);
+      return { el, i, sink: Number(el.dataset.sink), plan: plans.find((p) => p.dataset.plan === String(i))! };
+    });
+    const show = (t: number) => {
+      for (const p of parts) {
+        const up = ease(clamp((t - p.i * STAGGER) / RISE));
+        p.el.setAttribute("transform", `translate(0 ${(p.sink * (1 - up)).toFixed(2)})`);
+        const s = t - p.i * STAGGER - RISE * LAND;
+        p.el.classList.toggle("renewed", s > 0);
+        p.el.classList.toggle("lit", s > 0 && s < FLASH);
+        p.plan.classList.toggle("on", up < 1);
+      }
+    };
+    if (reducedMotion.matches) { show(99); continue; }
+    show(0);
+    onceVisible(root, () => { let t = 0; whileVisible(root, (dt) => { t += dt; show(t); }); }, { threshold: 0.25 });
+  }
+</script>

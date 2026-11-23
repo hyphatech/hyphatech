@@ -1,0 +1,252 @@
+---
+import Base from "../layouts/Base.astro";
+import Section from "../components/Section.astro";
+import Opener from "../components/Opener.astro";
+import Hero from "../components/Hero.astro";
+import Closing from "../components/Closing.astro";
+import HyphaCard from "../components/HyphaCard.astro";
+import Points from "../components/Points.astro";
+import Icon from "../components/Icon.astro";
+import { serviceWays } from "../content/ways";
+import type { Card } from "../content/factory";
+import Mail from "@lucide/astro/icons/mail";
+import ArrowDown from "@lucide/astro/icons/arrow-down";
+import Check from "@lucide/astro/icons/check";
+import MessagesSquare from "@lucide/astro/icons/messages-square";
+import Signature from "@lucide/astro/icons/signature";
+import Layers from "@lucide/astro/icons/layers";
+import Globe from "@lucide/astro/icons/globe";
+import Server from "@lucide/astro/icons/server";
+import Webhook from "@lucide/astro/icons/webhook";
+import Landmark from "@lucide/astro/icons/landmark";
+import Package from "@lucide/astro/icons/package";
+import Lightbulb from "@lucide/astro/icons/lightbulb";
+import Rocket from "@lucide/astro/icons/rocket";
+import Compass from "@lucide/astro/icons/compass";
+import Split from "@lucide/astro/icons/split";
+import DoorOpen from "@lucide/astro/icons/door-open";
+import Eye from "@lucide/astro/icons/eye";
+import ShieldCheck from "@lucide/astro/icons/shield-check";
+import Repeat from "@lucide/astro/icons/repeat";
+import LifeBuoy from "@lucide/astro/icons/life-buoy";
+import KeyRound from "@lucide/astro/icons/key-round";
+import Cloud from "@lucide/astro/icons/cloud";
+import FileCheck from "@lucide/astro/icons/file-check";
+import Users from "@lucide/astro/icons/users";
+
+/* For founders who build: a new product, or one growing faster than
+   what it was first built on. The page /modernise is for those who
+   rebuild; this one tells the same engagement with no old system to
+   read. Its frame is /modernise's, so the two read as one offer to two
+   readers, and its centre is its own: /modernise sells a safe move, a
+   step at a time; a founder fears slowing down, so this page sells
+   speed that lasts, never a sequence of phases, which reads as
+   waterfall:
+
+   top     the offer, its second line in gold, on Ember
+   start   where a startup stands, each with what changes, on paper
+   scope   what is built, as the kit's points, on Ember mirrored
+   pace    as fast in a year as on day one: a log of parts released
+           week after week beside three points, on paper
+   hypha   Hypha's card: the care of experts, the speed of agents, on
+           Ember
+   yours   what the founder keeps, as their investors will check it, as
+           the kit's points, on paper
+   first   it starts with a conversation, a stepper, on lit night
+   build   the ways in
+
+   Every example is illustrative, never measured. No price, no
+   programme, no competitor, no roadmap. */
+
+const subject = (s: string) => `mailto:hello@hyphatech.io?subject=${encodeURIComponent(s)}`;
+
+/* Where a startup stands, in a founder's words, and what changes. */
+const starts: Card[] = [
+  { icon: Lightbulb, title: "An idea, and nobody to build it", body: "It is built with you from the first decision, every one of them on record." },
+  { icon: Rocket, title: "A prototype customers now depend on", body: "What it proved is kept, and the rest is rebuilt to hold as it grows." },
+  { icon: Compass, title: "No CTO yet, and the product can't wait", body: "Hypha leads the engineering until you hire your own." },
+  { icon: Split, title: "Every release breaks something", body: "Every change is checked before it ships, and the product moves fast and stays whole." },
+  { icon: DoorOpen, title: "An agency built it and moved on", body: "Hypha works out what they built and moves it onto a sound foundation." },
+  { icon: Eye, title: "Days spent reviewing agents' code", body: "Every change arrives proven, leaving you free to work on what matters." },
+];
+
+/* What is built: what a growing product needs, in a founder's words. */
+const scope = [
+  { icon: Globe, title: "Web apps", body: "A fast, secure web app, durable from its first release and holding together as it grows." },
+  { icon: Webhook, title: "APIs", body: "An API your customers and partners build on, its documentation written from the code itself." },
+  { icon: Server, title: "Infrastructure", body: "Its whole setup automated, on the cloud you choose, ready to scale with your customers." },
+  { icon: Landmark, title: "Payments and data", body: "Payments through the provider you choose and a ledger of your own, correct from the first transaction." },
+];
+
+/* The product's parts released, week after week, as its log reads: an
+   example, never a measured pace. */
+const log = [
+  ["Week 1", "Accounts released", "sign-up, roles and invites"],
+  ["Week 2", "Billing released", "plans, invoices and payments"],
+  ["Week 3", "Reports released", "every earlier part untouched"],
+  ["Week 4", "Team spaces released", "as fast as the first"],
+];
+
+/* Why the pace holds, each a promise. */
+const pace: Card[] = [
+  { icon: ShieldCheck, title: "Nothing behind it breaks", body: "Each new part is checked against everything before it, and the next one never waits on a fix." },
+  { icon: Repeat, title: "No rewrite ahead", body: "The first version is the one that grows, never thrown away after the next round." },
+  { icon: LifeBuoy, title: "Kept current", body: "Support, maintenance and security updates from Hypha for as long as you need." },
+];
+
+/* What the founder keeps, as their investors will check it. */
+const yours: Card[] = [
+  { icon: KeyRound, title: "Owned outright", body: "The code, its documents and every decision behind it, in your own accounts." },
+  { icon: Cloud, title: "Runs where you choose", body: "On the cloud you already use or a new account in your name, and your customers' data stays with you." },
+  { icon: FileCheck, title: "Ready for due diligence", body: "Tested, documented and traced to what was agreed, for any investor who looks under the hood." },
+  { icon: Users, title: "Ready for your team", body: "Tested and documented throughout, ready for your engineers to take further." },
+];
+
+const first: Card[] = [
+  { icon: MessagesSquare, title: "One call about your product", body: "What it does, where it stands, and what to build first." },
+  { icon: Signature, title: "A clear plan to start", body: "What is built first and what it gives you, agreed up front." },
+  { icon: Layers, title: "One step at a time", body: "The next parts come as your product needs them." },
+];
+---
+
+<Base
+  title="Startups · Hypha"
+  description="Build your product to last from day one. Hypha builds it at the speed of agents, on a foundation made to grow with it."
+>
+  <Hero slot="band" rail="Build to last" title={["Build fast.", "Build to last."]}>
+    From a fresh idea to a growing product, Hypha builds at the speed of agents, and the product you launch is the one you scale.
+    <Fragment slot="actions">
+      <a href={subject("Our product")} class="btn-primary"><Icon icon={Mail} />Talk to us</a>
+      <a href="#pace" class="btn"><Icon icon={ArrowDown} />How it's built</a>
+    </Fragment>
+  </Hero>
+
+  <Section id="start" rail="Wherever you are" class="theme-light">
+    <Opener title="Wherever you are.">
+      From an idea on paper to a product customers pay for, each stage has
+      a clear next step.
+    </Opener>
+    <ul class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        starts.map((c) => (
+          <li class="row-span-2 grid grid-rows-subgrid gap-0 overflow-hidden rounded-panel border border-rule">
+            <div class="flex flex-col gap-4 bg-panel p-6 pb-9">
+              <Icon icon={c.icon} size="md" class="text-graphite" />
+              <h3 class="t-h3 text-ink">{c.title}</h3>
+            </div>
+            <div class="relative border-t border-rule px-6 pt-8 pb-6">
+              <span class="k-badge k-badge-round absolute -top-[1.125rem] left-6" aria-hidden="true"><Icon icon={ArrowDown} /></span>
+              <p class="text-ink">{c.body}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  <section id="scope" data-rail-name="Everything a product needs" class="theme-ember k-mirrored relative scroll-mt-8 overflow-hidden border-t border-rule">
+    <div class="k-grain" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-page px-4 py-12 sm:px-6 md:py-16">
+      <Opener title="Everything a product needs.">
+        Built on <a href="/stack/" class="link-inline text-ink">Hypha Stack</a>, open components made to fit together and
+        designed from the ground up to build software that lasts.
+      </Opener>
+      <ul class="mt-12 grid gap-x-16 gap-y-12 md:grid-cols-2">
+        {
+          scope.map((c) => (
+            <li class="k-point border-t border-rule pt-6">
+              <span class="k-point-icon"><Icon icon={c.icon} /></span>
+              <div>
+                <h3 class="t-h3">{c.title}</h3>
+                <p class="mt-2 max-w-md text-graphite">{c.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {/* Speed that lasts: the opener, then the log of parts released
+      week after week beside why the pace holds, three points. */}
+  <Section id="pace" rail="As fast in a year" class="theme-light">
+    <Opener title={["As fast in a year", "as on day one."]}>
+      Each part is agreed with you and released once it does exactly what
+      you asked for, and the next one ships just as fast.
+    </Opener>
+    <div class="mt-12 grid items-center gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+      <div class="k-panel k-panel-stone">
+        <p class="k-panel-head"><span class="k-panel-name inline-flex items-center gap-2"><Icon icon={Package} />Your product</span></p>
+        <ol class="k-panel-well">
+          {
+            log.map(([when, what, detail], i) => (
+              <li class="k-panel-row grid grid-cols-[5.5rem_1.25rem_1fr] items-start gap-x-3">
+                <span class="tabular-nums text-graphite">{when}</span>
+                <span class:list={["k-tick h-6", i < log.length - 1 && "k-tick-quiet"]}><Check size={12} stroke-width={3} /></span>
+                <p><span class:list={["text-ink", i === log.length - 1 && "font-medium"]}>{what}</span><span class="block text-graphite">{detail}</span></p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+      <Points points={pace} class="space-y-8" />
+    </div>
+  </Section>
+
+  <HyphaCard
+    title={["The care of experts.", "The speed of agents."]}
+    lede="Senior engineers decide what is built and how it fits together, on the principles Hypha applies to every system. Agents build it, with every change checked against what was agreed."
+    rail="The care of experts"
+  />
+
+  {/* What the founder keeps, as the kit's points, two by two on paper,
+      between Hypha's card and the conversation. */}
+  <Section id="yours" rail="Yours to keep" class="theme-light">
+    <Opener title="Yours to keep.">
+      Everything built for your product belongs to you from the first
+      day.
+    </Opener>
+    <ul class="mt-12 grid gap-x-16 gap-y-12 md:grid-cols-2">
+      {
+        yours.map((c) => (
+          <li class="k-point border-t border-rule pt-6">
+            <span class="k-point-icon"><Icon icon={c.icon} /></span>
+            <div>
+              <h3 class="t-h3">{c.title}</h3>
+              <p class="mt-2 max-w-md text-graphite">{c.body}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  <section id="first" data-rail-name="It starts with a conversation" class="k-lit relative scroll-mt-8 overflow-hidden border-t border-rule">
+    <div class="relative mx-auto grid max-w-page items-center gap-14 px-4 py-12 sm:px-6 md:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div>
+        <Opener title="It starts with a conversation.">
+          No commitment, and nothing technical to prepare.
+        </Opener>
+        <div class="mt-10 flex flex-wrap gap-3">
+          <a href={subject("Our product")} class="btn-primary"><Icon icon={Mail} />Talk to us</a>
+        </div>
+      </div>
+      <ol class="relative">
+        {
+          first.map((f, i) => (
+            <li class="relative grid grid-cols-[2.25rem_1fr] gap-x-4 pb-8 last:pb-0">
+              {i < first.length - 1 && <span class="absolute top-11 bottom-0 left-[calc(1.125rem-0.5px)] w-px bg-rule" aria-hidden="true"></span>}
+              <span class:list={["k-badge", i === 0 && "k-badge-gold"]}><Icon icon={f.icon} /></span>
+              <div class="pt-1.5">
+                <p class:list={["font-medium", { "text-accent": i === 0 }]}>{f.title}</p>
+                <p class="mt-1 text-balance text-graphite">{f.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <Closing paths={serviceWays} />
+</Base>

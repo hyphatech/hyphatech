@@ -1,21 +1,25 @@
 ---
 import type { AstroComponent } from "@lucide/astro";
 
-/* One set: Lucide. Every icon is rendered at one of
-   three sizes with the stroke scaled by the size, so the LINE is 1.35px
-   whichever is asked for: a set drawn at one stroke-width and rendered at
-   three sizes has three weights in it. Icons beside words are `sm` and
+/* One set: Lucide, on one ladder, as the type has one: a glyph is 16px
+   beside words (`sm`) or 20px heading a point or a card (`md`), and a
+   badge holds the same two, 16 in its 36px circle (`k-badge`) and 20 in
+   its 44px (`k-badge-lg`), only where a badge heads a column of its own.
+   Nothing larger: a big icon cheapens what it stands for. The stroke is
+   scaled by the size, so the LINE is 1.35px whichever is asked for: a
+   set drawn at one stroke-width and rendered at two sizes has two
+   weights in it. Icons beside words are `sm` and
    say nothing to a screen reader; the words do. `cap` follows the type
    it heads, its drawing as tall as the capitals; beside the slab's
    stems a 1.35px line reads as a hairline, so its line is 2.25px, held
    by a stroke the scaling leaves alone. */
 interface Props {
   icon: AstroComponent;
-  size?: "sm" | "md" | "lg" | "cap";
+  size?: "sm" | "md" | "cap";
   class?: string;
 }
 
-const ICON_PX = { sm: 16, md: 20, lg: 24 } as const;
+const ICON_PX = { sm: 16, md: 20 } as const;
 const LINE_PX = 1.35;
 const CAP_LINE_PX = 2.25;
 

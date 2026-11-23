@@ -1,0 +1,102 @@
+---
+import Base from "../layouts/Base.astro";
+import Section from "../components/Section.astro";
+import Opener from "../components/Opener.astro";
+import Hero from "../components/Hero.astro";
+import Closing from "../components/Closing.astro";
+import Blueprint from "../components/Blueprint.astro";
+import Renew from "../components/Renew.astro";
+import Icon from "../components/Icon.astro";
+import { serviceWays } from "../content/ways";
+import Mail from "@lucide/astro/icons/mail";
+import ArrowDown from "@lucide/astro/icons/arrow-down";
+import Check from "@lucide/astro/icons/check";
+import Rocket from "@lucide/astro/icons/rocket";
+import Split from "@lucide/astro/icons/split";
+
+/* Services: what Hypha sells, to the two who buy it, each sent on to
+   their own page. Those who build (/startups) and those who rebuild
+   (/modernise) share one foundation and one way of working, told here
+   once, and nothing either page tells:
+
+   top     the offer, its second line in gold, on Ember
+   ways    the two, side by side, each a card on night: its drawing,
+           as the jig draws the landing's boundaries, then whom it is for.
+           building, the board's parts rising out of their gold plan
+           (the Hypha card's board); rebuilding, the same board old, a
+           gold foundation rising under each part as it is renewed
+   build   the ways in
+
+   No price, no roadmap. */
+
+const subject = (s: string) => `mailto:hello@hyphatech.io?subject=${encodeURIComponent(s)}`;
+
+const ways = [
+  {
+    figure: Blueprint,
+    icon: Rocket,
+    title: "Startups",
+    body: "From a fresh idea to a growing product, built at the speed of agents, and the product you launch is the one you scale.",
+    for: ["An idea, and nobody to build it", "A prototype customers now depend on", "No CTO yet, and the product can't wait"],
+    href: "/startups/",
+    action: "See how it's built",
+  },
+  {
+    figure: Renew,
+    icon: Split,
+    title: "Modernise",
+    body: "Old code nobody dares touch or a fragile prototype, rebuilt at the speed of agents while your business keeps running.",
+    for: ["Only a few people understand it", "Fixing one thing breaks another", "Its technology is no longer supported"],
+    href: "/modernise/",
+    action: "See how it moves",
+  },
+];
+
+---
+
+<Base
+  title="Services · Hypha"
+  description="Work with Hypha. A new product built to last, or the system your business runs on rebuilt, with Hypha's expertise and its foundation."
+>
+  <Hero slot="band" rail="Work with Hypha" title={["Work with Hypha.", "Build durable software."]}>
+    A new product, or the system your business already runs on. Hypha brings the expertise and the foundation to build software that grows with you.
+    <Fragment slot="actions">
+      <a href={subject("Working with Hypha")} class="btn-primary"><Icon icon={Mail} />Talk to us</a>
+      <a href="#ways" class="btn"><Icon icon={ArrowDown} />Find your way in</a>
+    </Fragment>
+  </Hero>
+
+  <Section id="ways" rail="Build, or rebuild">
+    <Opener title="Build, or rebuild.">
+      One foundation under both, and one way of working, with everything
+      decided before it is built and proven before it counts.
+    </Opener>
+    <ul class="mt-12 grid gap-4 md:grid-cols-2">
+      {
+        ways.map((w) => (
+          <li class="relative isolate flex flex-col overflow-hidden rounded-panel border border-rule p-6 md:p-8 [&>*:not(.k-halftone)]:relative">
+            <div class="k-halftone" aria-hidden="true"></div>
+            <div class="mx-auto w-full max-w-[26rem] pb-4">{w.figure === Blueprint ? <Blueprint checks={false} /> : <Renew />}</div>
+            <h3 class="t-h2 mt-6">{w.title}</h3>
+            <p class="mt-3 max-w-md text-graphite">{w.body}</p>
+            <ul class="mt-6 grow space-y-2">
+              {
+                w.for.map((f) => (
+                  <li class="flex items-center gap-2">
+                    <span class="k-tick !size-4"><Check size={10} stroke-width={3.5} /></span>
+                    {f}
+                  </li>
+                ))
+              }
+            </ul>
+            <div class="mt-8">
+              <a href={w.href} class="btn"><Icon icon={w.icon} />{w.action}</a>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  <Closing paths={serviceWays} />
+</Base>

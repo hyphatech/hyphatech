@@ -9,41 +9,10 @@
    docs say (server.md, journal.md, tools.md, gates.md, build.md,
    models.md, vaults.md, connectors.md). On a phone the cards stack. */
 
-import Server from "@lucide/astro/icons/server";
-import Monitor from "@lucide/astro/icons/monitor";
-import SquareTerminal from "@lucide/astro/icons/square-terminal";
-import Plug from "@lucide/astro/icons/plug";
-import Check from "@lucide/astro/icons/check";
-import X from "@lucide/astro/icons/x";
-import Zap from "@lucide/astro/icons/zap";
-import RotateCcw from "@lucide/astro/icons/rotate-ccw";
-import FileCode from "@lucide/astro/icons/file-code";
-import Globe from "@lucide/astro/icons/globe";
-import KeyRound from "@lucide/astro/icons/key-round";
-import Ban from "@lucide/astro/icons/ban";
-import Factory from "@lucide/astro/icons/factory";
-import Sparkles from "@lucide/astro/icons/sparkles";
-import MessageSquareText from "@lucide/astro/icons/message-square-text";
-import Hammer from "@lucide/astro/icons/hammer";
-import Eye from "@lucide/astro/icons/eye";
-import GitCommit from "@lucide/astro/icons/git-commit-horizontal";
-import Tag from "@lucide/astro/icons/tag";
-import ListChecks from "@lucide/astro/icons/list-checks";
-import FolderGit from "@lucide/astro/icons/folder-git";
-import CircleDot from "@lucide/astro/icons/circle-dot";
-import Mail from "@lucide/astro/icons/mail";
-import Ticket from "@lucide/astro/icons/ticket";
-import { marks } from "../content/marks";
-import { WIDTH, HEIGHT, P, SIZE, tileOf, iconMatrix, baseOf, gridOf, linkOf, pointOf, boundOf, byDepth, type Scene, type Tile, type IconName } from "./decisions-geometry";
-import * as k from "./iso/iso-kit";
-import { litSides } from "./iso/lit";
+import Board from "./Board.astro";
+import type { Scene } from "./decisions-geometry";
 import "./iso/lit.css";
 
-const icons: Partial<Record<IconName, any>> = {
-  server: Server, monitor: Monitor, terminal: SquareTerminal, plug: Plug, check: Check, x: X, zap: Zap, resume: RotateCcw,
-  code: FileCode, globe: Globe, key: KeyRound, ban: Ban, factory: Factory, sparkles: Sparkles, questions: MessageSquareText,
-  hammer: Hammer, eye: Eye, commit: GitCommit, tag: Tag, repo: FolderGit, gates: ListChecks, issue: CircleDot, mail: Mail, ticket: Ticket,
-};
 
 /* Links run on the base, along its grid lines: `on` lifts a path of
    plan points to just over it. */
@@ -88,7 +57,7 @@ const cards: { title: string; body: string; scene: Scene }[] = [
   },
   {
     title: "Modular by design",
-    body: "Every part speaks MCP, so whatever comes next plugs straight in.",
+    body: "Built around an MCP server, so any editor, client or agent plugs straight in.",
     /* Three clients on one line, MCP, into the one socket of the server. */
     scene: {
       tiles: [
@@ -170,77 +139,22 @@ interface Props {
 }
 const list = Astro.props.whole ? [{ title: "", body: "", scene: whole }] : cards;
 
-/* What a scene draws, in order: what stands behind the tiles first. */
-/* Lit night (iso/lit.ts): every side face shaded by its turn to the
-   light, every top a fall-off from it. */
-const base = baseOf();
-const baseSides = litSides(k.ringOf({ x: -64, y: -64, w: 128, d: 128, r: 4 }, 8), -4, 0, P);
-const grid = gridOf();
-const sidesOfTile = ({ at: [x, y, z], size = SIZE }: Tile) => litSides(k.ringOf({ x: x - size / 2, y: y - size / 2, w: size, d: size, r: 2.5 }, 8), z - 3, z, P);
-const draw = (s: Scene) => {
-  const focus = s.tiles.find((t) => t.gold)!;
-  return {
-    focus: pointOf(focus.at),
-    bound: s.bound ? boundOf(s.bound) : null,
-    boundSides: s.bound ? litSides(k.ringOf({ ...s.bound, r: 3 }, 8), 0, 2, P) : [],
-    tiles: byDepth(s.tiles).map((t: Tile) => ({ t, paths: tileOf(t), sides: sidesOfTile(t) })),
-    links: s.links.map((l) => ({ l, d: linkOf(l) })),
-  };
-};
 ---
 
 <ul class:list={["decisions lit-night", { whole: Astro.props.whole }]}>
   {
     list.map((c, i) => {
-      const d = draw(c.scene);
       const n = Astro.props.whole ? 100 + i : i;
       return (
         <li class:list={["decision", { flip: Math.floor(i / 2) % 2 === 1, right: i % 2 === 1 }]} style={`--row:${Math.floor(i / 2) + 1};--one:${i + 1}`}>
           <span class="mark" aria-hidden="true"></span>
           <div class="stage" aria-hidden="true">
-            <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} class="dg">
-              <defs>
-                <filter id="dg-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7" /></filter>
-                <filter id="dg-soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.5" /></filter>
-                <radialGradient id={`dg-light-${n}`} gradientUnits="userSpaceOnUse" cx={d.focus[0]} cy={d.focus[1]} r="120">
-                  <stop offset="0" stop-color="var(--accent-on-night)" stop-opacity="0.22" />
-                  <stop offset="1" stop-color="var(--accent-on-night)" stop-opacity="0" />
-                </radialGradient>
-                <radialGradient id={`dg-fade-${n}`} gradientUnits="userSpaceOnUse" cx={d.focus[0]} cy={d.focus[1]} r="90">
-                  <stop offset="0" stop-color="#fff" stop-opacity="1" />
-                  <stop offset="1" stop-color="#fff" stop-opacity="0" />
-                </radialGradient>
-                <linearGradient id={`dg-base-${n}`} x1="1" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ln-base-lit)" /><stop offset="1" style="stop-color:var(--ln-base-far)" /></linearGradient>
-                <linearGradient id={`dg-tile-${n}`} x1="1" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ln-part-lit)" /><stop offset="1" style="stop-color:var(--ln-part-far)" /></linearGradient>
-                <mask id={`dg-near-${n}`} maskUnits="userSpaceOnUse" x="0" y="0" width={WIDTH} height={HEIGHT}><rect width={WIDTH} height={HEIGHT} fill={`url(#dg-fade-${n})`} /></mask>
-              </defs>
-              <path class="base-side" d={base.fill} />
-              {baseSides.map((f) => <path class="face base-face" d={f.d} style={`--t:${f.t}%`} />)}
-              <path class="base-top" d={base.top} fill={`url(#dg-base-${n})`} />
-              <path d={base.top} fill={`url(#dg-light-${n})`} />
-              <path class="grid" d={grid} />
-              <path class="grid grid-lit" d={grid} mask={`url(#dg-near-${n})`} />
-              <path class="edge" d={base.outline} />
-              <path class="crease" d={base.crease} />
-              {d.bound && <g class="bound"><path class="side" d={d.bound.fill} />{d.boundSides.map((f) => <path class="face" d={f.d} style={`--t:${f.t}%`} />)}<path class="top" d={d.bound.top} /><path class="edge" d={d.bound.outline} /></g>}
-              {d.links.map(({ l, d: dd }) => <path class:list={["link", { gold: l.gold, solid: l.solid }]} d={dd} />)}
-              {d.tiles.map(({ t, paths, sides }) => (
-                <g class:list={["tile", { gold: t.gold }]}>
-                  {t.gold && <path class="glow" d={paths.top} filter="url(#dg-glow)" />}
-                  <path class="side" d={paths.fill} />
-                  {sides.map((f) => <path class="face" d={f.d} style={`--t:${f.t}%`} />)}
-                  <path class="top" d={paths.top} fill={t.gold ? undefined : `url(#dg-tile-${n})`} />
-                  <path class="edge" d={paths.outline} />
-                  <path class="crease" d={paths.crease} />
-                  <g class="icon" transform={iconMatrix(t)}>{marks[t.icon] ? <svg viewBox="0 0 24 24" width="20" height="20" x="2" y="2"><path d={marks[t.icon]} fill="currentColor" /></svg> : (() => { const I = icons[t.icon]; return <I size={24} stroke-width={2} />; })()}</g>
-                </g>
-              ))}
-            </svg>
+            <Board scene={c.scene} n={n} />
           </div>
           {c.title && (
             <div class="words">
               <h3 class="t-h2">{c.title}</h3>
-              <p class="t-lede">{c.body}</p>
+              <p class="t-lede max-md:text-base/6">{c.body}</p>
             </div>
           )}
         </li>
@@ -304,49 +218,6 @@ const draw = (s: Scene) => {
   .whole .mark { display: none; }
   .whole .stage { padding: 0; border: 0; }
   .whole .stage :global(svg) { max-width: none; }
-  .dg { display: block; width: 100%; height: auto; overflow: visible; }
-
-  /* Lit night (iso/lit.ts, as the landing's jig): night materials, one
-     warm light from the top right; a face mixes its dark and its lit by
-     its turn to it, stroked in its own colour so no seam shows. */
-  .dg .face { --c: color-mix(in oklab, var(--ln-part-light) var(--t), var(--ln-part-dark)); fill: var(--c); stroke: var(--c); stroke-width: 0.5; stroke-linejoin: round; }
-  .dg .base-face { --c: color-mix(in oklab, var(--ln-base-light) var(--t), var(--ln-base-dark)); }
-  .dg .bound .face { --c: color-mix(in oklab, color-mix(in oklab, #d0574a 45%, var(--night)) var(--t), color-mix(in oklab, #d0574a 25%, #000)); }
-  .dg .crease { fill: none; stroke: var(--ln-crease); stroke-width: 0.8; stroke-linecap: round; stroke-linejoin: round; }
-  .dg .gold .face { --c: color-mix(in oklab, color-mix(in oklab, var(--accent-on-night) 30%, #241e16) var(--t), color-mix(in oklab, var(--accent-on-night) 12%, #0d0b08)); }
-
-  /* The base: a plate of night, its grid barely there. */
-  .dg .base-side { fill: color-mix(in oklab, #000 30%, var(--color-ivory)); }
-  .dg .base-top { fill: color-mix(in oklab, var(--color-graphite) 7%, var(--color-ivory)); }
-  .dg .grid { fill: none; stroke: color-mix(in oklab, var(--color-graphite) 18%, transparent); stroke-width: 0.6; }
-  .dg .edge { fill: none; stroke: color-mix(in oklab, #000 45%, transparent); stroke-width: 0.8; stroke-linejoin: round; }
-
-  /* A tile: its sides a step darker than its top; gold where it lands. */
-  .dg .side { fill: color-mix(in oklab, #000 25%, var(--color-ivory)); }
-  .dg .top { fill: color-mix(in oklab, var(--color-graphite) 14%, var(--color-ivory)); }
-  .dg .icon :global(svg) { color: color-mix(in oklab, var(--color-ink) 85%, transparent); overflow: visible; }
-  .dg .gold .top { fill: color-mix(in oklab, var(--accent-on-night) 14%, var(--color-ivory)); }
-  .dg .gold .edge { stroke: var(--accent-on-night); stroke-width: 1; }
-  .dg .gold .icon :global(svg) { color: var(--accent-on-night); }
-  .dg .glow { fill: var(--accent-on-night); opacity: 0.35; }
-  /* A boundary, a thin red plate under what it holds: what it stops
-     needs no word, and the links that reach it end at its edge. */
-  .dg .bound .top { fill: color-mix(in oklab, #d0574a 22%, var(--color-ivory)); }
-  .dg .bound .side { fill: color-mix(in oklab, #d0574a 40%, var(--night)); }
-  .dg .bound .edge { fill: none; stroke: #d0574a; stroke-width: 1.2; stroke-linejoin: round; }
-
-  .dg .grid-lit { stroke: color-mix(in oklab, var(--accent-on-night) 45%, transparent); }
-  .dg .shadow { fill: #000; opacity: 0.45; }
-
-  /* Links carry their dashes toward what they reach; the gold tile's
-     light breathes. Still under reduced motion. */
-  .dg .link { fill: none; stroke: color-mix(in oklab, var(--color-graphite) 80%, transparent); stroke-width: 1; stroke-dasharray: 2.5 3; stroke-linejoin: round; animation: dg-flow 1.4s linear infinite; }
-  .dg .link.solid { stroke-dasharray: none; animation: none; }
-  .dg .link.gold { stroke: var(--accent-on-night); stroke-width: 1.3; }
-  .dg .glow { animation: dg-breathe 3.2s ease-in-out infinite; }
-  @keyframes dg-flow { to { stroke-dashoffset: -11; } }
-  @keyframes dg-breathe { 0%, 100% { opacity: 0.28; } 50% { opacity: 0.55; } }
-  @media (prefers-reduced-motion: reduce) { .dg .link, .dg .glow { animation: none; } }
 
 
   .words { margin-top: 0.25rem; }

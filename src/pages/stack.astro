@@ -13,13 +13,12 @@ import Activity from "@lucide/astro/icons/activity";
 import KeyRound from "@lucide/astro/icons/key-round";
 import ListTodo from "@lucide/astro/icons/list-todo";
 import AppWindow from "@lucide/astro/icons/app-window";
-import ChartColumn from "@lucide/astro/icons/chart-column";
 import Webhook from "@lucide/astro/icons/webhook";
 import ArrowDown from "@lucide/astro/icons/arrow-down";
 import CodeXml from "@lucide/astro/icons/code-xml";
-import Shapes from "@lucide/astro/icons/shapes";
 import Lock from "@lucide/astro/icons/lock";
-import ScanText from "@lucide/astro/icons/scan-text";
+import Cpu from "@lucide/astro/icons/cpu";
+import Milestone from "@lucide/astro/icons/milestone";
 import FileCode from "@lucide/astro/icons/file-code";
 
 /* Hypha Stack, the open half of Hypha: what anyone can read and build
@@ -29,7 +28,8 @@ import FileCode from "@lucide/astro/icons/file-code";
    top           what it is in two lines, its name in the lede, the
                  ways in
    components    capabilities, each with the libraries that provide it
-   ocaml         OCaml, the outermost boundary, not the thing sold
+   ocaml         OCaml, sold by what it catches and who trusts it, the
+                 stack's outermost boundary, never the thing sold
    build         the ways in
 
    Claim only what the repositories bear out; where a thing holds only
@@ -93,29 +93,26 @@ const capabilities = [
   },
 ];
 
-/* Work in progress, filling the grid's last row. */
 const coming = [
-  { name: "Analytics", icon: ChartColumn, is: "Typed dataframes and an embedded OLAP engine." },
   { name: "Integrations", icon: Webhook, is: "Webhooks, notifications and SDKs for third-party services." },
 ];
 
 
-/* OCaml's properties, each as what the stack uses it for. */
 const ocaml = [
   {
-    icon: Shapes,
-    title: "Types that model the domain",
-    body: "Variants and records name each state, pattern matching handles each one, and the compiler warns of a case left out.",
-  },
-  {
     icon: Lock,
-    title: "Boundaries in the language",
-    body: "Module signatures and abstract types say what a component exposes, and every caller is held to it.",
+    title: "Boundaries built in",
+    body: "Signatures say what a component exposes, and its callers are held to it.",
   },
   {
-    icon: ScanText,
-    title: "Code that reads as its model",
-    body: "Concise, with types inferred, keeping intent and every error path in plain sight.",
+    icon: Cpu,
+    title: "Native speed",
+    body: "Every core at work, quick to start, light on memory and steady under load.",
+  },
+  {
+    icon: Milestone,
+    title: "Proven over time",
+    body: "Thirty years mature, stable, and trusted where a mistake costs money.",
   },
 ];
 
@@ -130,7 +127,7 @@ const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", 
 >
   {/* The hero every product page has. */}
   <Hero slot="band" rail="Components" title={["Components made", "to fit together."]}>
-    Designed from the ground up to build software that lasts.
+    Designed from the ground up to build durable software.
     <Fragment slot="actions">
       <a href="#components" class="btn-primary"><Icon icon={ArrowDown} />See the components</a>
       <a href="https://github.com/hyphatech" class="btn"><Icon icon={CodeXml} />GitHub</a>
@@ -149,7 +146,7 @@ const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", 
       {
         capabilities.map((c) => (
           <li id={`cap-${c.id}`} data-part={c.id} class="flex scroll-mt-24 flex-col bg-ivory p-7">
-            <Icon icon={c.icon} size="lg" />
+            <Icon icon={c.icon} size="md" />
             <h3 class="t-h3 mt-5">{c.name}</h3>
             <p class="mt-2 grow text-graphite">{c.is}</p>
             <p class="mt-6 flex flex-wrap gap-x-5 gap-y-2">
@@ -166,22 +163,24 @@ const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", 
       {
         coming.map((c) => (
           <li class="flex flex-col bg-ivory p-7">
-            <Icon class="text-graphite" icon={c.icon} size="lg" />
+            <Icon class="text-graphite" icon={c.icon} size="md" />
             <h3 class="t-h3 mt-5 text-graphite">{c.name}</h3>
             <p class="mt-2 grow text-graphite">{c.is}</p>
             <p class="mt-6"><span class="k-tag ml-0">WIP</span></p>
           </li>
         ))
       }
+      {(capabilities.length + coming.length) % 2 === 1 && <li aria-hidden="true" class="hidden bg-ivory md:block lg:hidden"><div class="dotted size-full" /></li>}
+      {[...Array((3 - ((capabilities.length + coming.length) % 3)) % 3)].map(() => <li aria-hidden="true" class="hidden bg-ivory lg:block"><div class="dotted size-full" /></li>)}
     </ul>
   </Section>
 
   {/* The need, then what the language states as three points beside
       the compiler catching a case left out, and OCaml's users, labelled
       as OCaml's. The code is an example, not taken from a product. */}
-  <Section id="ocaml" rail="What the language cannot say" class="k-lit">
-    <Opener title={["What the language cannot say,", "the system cannot get wrong."]}>
-      <a href="https://ocaml.org" class="link-inline group text-ink">OCaml<Arrow way="out" class="ml-1 inline size-[0.8em] align-[-0.05em]" /></a> meets every need at once, and the whole stack is built on its strengths. It makes contracts and failure cases explicit. Its fast, uncompromising compiler checks every change an agent makes in seconds, and stops a mistake before the code ever runs.
+  <Section id="ocaml" rail="OCaml holds the line" class="k-lit">
+    <Opener title="OCaml holds the line.">
+      Hypha Stack is built in <a href="https://ocaml.org" class="link-inline group text-ink">OCaml<Arrow way="out" class="ml-1 inline size-[0.8em] align-[-0.05em]" /></a>, a language that makes contracts and failure cases explicit, with a fast, uncompromising compiler that checks every change an agent makes in seconds, stopping a mistake before the code ever runs.
     </Opener>
     <div class="mt-12 grid grid-cols-1 items-center gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
       <ul class="space-y-6">
@@ -199,7 +198,7 @@ const users = ["Jane Street", "Bloomberg", "Meta", "Docker", "Ahrefs", "Tezos", 
           two lines as OCaml 5.5 prints them. */}
       <div class="k-panel">
         <p class="k-panel-head"><span class="k-panel-name inline-flex items-center gap-2 font-mono"><Icon icon={FileCode} />invoice.ml</span><span class="font-mono">dune build</span></p>
-        <pre tabindex="0" class="k-panel-well overflow-x-auto px-5 py-4 font-mono text-sm leading-6"><code><span class="text-accent">type</span> draft <span class="text-accent">and</span> sent <span class="text-accent">and</span> paid
+        <pre tabindex="0" class="k-panel-well overflow-x-auto px-5 py-4 font-mono text-sm"><code><span class="text-accent">type</span> draft <span class="text-accent">and</span> sent <span class="text-accent">and</span> paid
 
 <span class="text-accent">module</span> Invoice <span class="text-graphite">:</span> <span class="text-accent">sig</span>
   <span class="text-accent">type</span> 'state t

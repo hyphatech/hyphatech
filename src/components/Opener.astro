@@ -15,7 +15,7 @@ const lede = Astro.slots.has("default") ? await Astro.slots.render("default") : 
 const paragraphs = lede?.trimStart().startsWith("<p");
 ---
 
-<h2 id={id} class="t-h1 max-w-4xl">
+<h2 id={id} class="t-h1 max-w-2xl">
   {lines.length === 1 ? lines[0] : lines.map((l, i) => <span class:list={["block", mark && i === lines.length - 1 && "text-accent"]}>{l}</span>)}
 </h2>
 {

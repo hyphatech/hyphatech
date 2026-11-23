@@ -14,7 +14,7 @@ const { card } = Astro.props;
 ---
 
 <li class="bg-ivory p-7">
-  <Icon icon={card.icon} size="lg" />
+  <Icon icon={card.icon} size="md" />
   <h3 class="t-h3 mt-5">{card.title}</h3>
   <p class="mt-2 text-graphite">{card.body}</p>
   {card.link && <a href={card.link.href} class="link mt-4 inline-block">{card.link.text}</a>}

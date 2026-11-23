@@ -93,8 +93,7 @@ const style = ([, fg, bg]: Run) => `${fg ? `color:${fg};` : ""}${bg && bg !== "#
     {boxes.length > 0 && <div class="crop-dim" style={veil} />}
     
     {
-      shown.map((line, k) => {
-        const at = focus ? kept[k]! : rows[0] + k;
+      shown.map((line) => {
         const runs = cut(line);
         return (
         <p>

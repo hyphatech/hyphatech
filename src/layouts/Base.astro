@@ -8,7 +8,7 @@ import Compass from "@lucide/astro/icons/compass";
 import Factory from "@lucide/astro/icons/factory";
 import Newspaper from "@lucide/astro/icons/newspaper";
 import CodeXml from "@lucide/astro/icons/code-xml";
-import Split from "@lucide/astro/icons/split";
+import Handshake from "@lucide/astro/icons/handshake";
 import "../styles/site.css";
 /* Preloaded: every page opens in the slab, and the moving bands wait for
    it before they measure. */
@@ -30,18 +30,16 @@ const within = (href: string) => path.startsWith(href);
 const canonical = new URL(path, Astro.site);
 
 const nav = [
+  { label: "Services", href: "/services/", icon: Handshake },
   { label: "Stack", href: "/stack/", icon: Layers },
   { label: "Factory", href: "/haf/", icon: Factory },
-  { label: "Blog", href: "https://hypha.pub/", icon: Newspaper },
   { label: "GitHub", href: "https://github.com/hyphatech", icon: CodeXml },
 ];
-/* The footer keeps every page, Modernise and Principles too, which the
-   header leaves out. */
 const everything = [
-  ...nav.slice(0, 2),
-  { label: "Modernise", href: "/modernise/", icon: Split },
+  ...nav.slice(0, 3),
   { label: "Principles", href: "/principles/", icon: Compass },
-  ...nav.slice(2),
+  { label: "Blog", href: "https://hypha.pub/", icon: Newspaper },
+  ...nav.slice(3),
 ];
 ---
 
@@ -123,7 +121,7 @@ const everything = [
                 <a
                   href={item.href}
                   aria-current={path === item.href ? "page" : within(item.href) ? "true" : undefined}
-                  class="nav-item gap-2 px-2 py-2 min-[22.5rem]:px-3"
+                  class="nav-item gap-2 px-2 py-2 min-[24.5rem]:px-3"
                 >
                   <Icon icon={item.icon} />
                   {item.label}
@@ -166,7 +164,6 @@ const everything = [
             <span class="block">
               <span class="inline-block">Registered office:</span> <span class="inline-block">86–90&nbsp;Paul Street, London EC2A&nbsp;4NE.</span>
             </span>
-            <span class="mt-3 block">Made in London.</span>
           </p>
         </div>
         <ul class="t-control grid grid-cols-2 content-start gap-x-10 gap-y-3 text-graphite pointer-coarse:gap-y-0">

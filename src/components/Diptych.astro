@@ -1,0 +1,228 @@
+---
+/* The card's two lines as two halves. On paper, the care of experts:
+   a business's meaning drawn as a map, its things and how they relate,
+   drawn slowly once. On night, the speed of agents: changes to those
+   things landing fast, each checked, one refused and made right; each
+   lights the thing it touched on the map. Still and whole under
+   reduced motion. */
+
+import Users from "@lucide/astro/icons/users";
+import Package from "@lucide/astro/icons/package";
+import Receipt from "@lucide/astro/icons/receipt";
+import CreditCard from "@lucide/astro/icons/credit-card";
+import Check from "@lucide/astro/icons/check";
+import X from "@lucide/astro/icons/x";
+import * as k from "./iso/iso-kit";
+import { WIDTH, P, baseOf, gridOf, pointOf, iconMatrix } from "./decisions-geometry";
+import { litSides } from "./iso/lit";
+import "./iso/lit.css";
+
+interface Props {
+  title: [string, string];
+  care: string;
+  speed: string;
+}
+const { title, care, speed } = Astro.props;
+
+const H = 6;
+const S = 34;
+const things = [
+  { name: "Customer", icon: Users, at: [-32, -32, H] as k.Point3 },
+  { name: "Plan", icon: Package, at: [32, -32, H] as k.Point3 },
+  { name: "Invoice", icon: Receipt, at: [32, 32, H] as k.Point3 },
+  { name: "Payment", icon: CreditCard, at: [-32, 32, H] as k.Point3 },
+].map((t) => {
+  const [x, y, z] = t.at;
+  const plan = { x: x - S / 2, y: y - S / 2, w: S, d: S, r: 3 };
+  const front = pointOf([x + S / 2, y + S / 2, 0]);
+  return {
+    ...t,
+    paths: k.slabOf(plan, 0, z, P, 4, 0),
+    sides: litSides(k.ringOf(plan, 8), 0, z, P),
+    mark: iconMatrix({ at: t.at, size: S, icon: "globe" }),
+    label: front,
+  };
+});
+const ordered = [...things].sort((a, b) => k.depthOf(a.at, P) - k.depthOf(b.at, P));
+const links = [
+  [[-32 + S / 2, -32, 0], [32 - S / 2, -32, 0]],
+  [[32, -32 + S / 2, 0], [32, 32 - S / 2, 0]],
+  [[32 - S / 2, 32, 0], [-32 + S / 2, 32, 0]],
+  [[-32, 32 - S / 2, 0], [-32, -32 + S / 2, 0]],
+].map(([a, b]) => k.pathOf([pointOf(a as k.Point3), pointOf(b as k.Point3)]));
+const base = baseOf();
+const baseSides = litSides(k.ringOf({ x: -64, y: -64, w: 128, d: 128, r: 4 }, 8), -4, 0, P);
+const grid = gridOf();
+const ys = ([[-64, -64, 20], [64, 64, -4], [64, -64, 0], [-64, 64, 0]] as k.Point3[]).map((c) => pointOf(c)[1]);
+const top = Math.floor(Math.min(...ys)) - 4;
+const viewBox = `0 ${top} ${WIDTH} ${Math.ceil(Math.max(...ys)) + 4 - top}`;
+
+const changes: { thing: string; text: string; refused?: boolean }[] = [
+  { thing: "Customer", text: "email validated where it enters" },
+  { thing: "Plan", text: "monthly and yearly prices" },
+  { thing: "Invoice", text: "issued on each renewal" },
+  { thing: "Payment", text: "provider's signature checked" },
+  { thing: "Plan", text: "trial with no end", refused: true },
+  { thing: "Plan", text: "trial ends after fourteen days" },
+  { thing: "Invoice", text: "totals kept in minor units" },
+  { thing: "Customer", text: "removed on request, with its data" },
+  { thing: "Payment", text: "retried when a card is declined" },
+  { thing: "Plan", text: "upgrade mid-cycle, charged pro rata" },
+  { thing: "Invoice", text: "sent by email as a PDF" },
+  { thing: "Customer", text: "one account per company" },
+];
+const SHOWN = 7;
+---
+
+<div class="diptych grid overflow-hidden rounded-panel border border-rule lg:grid-cols-2" data-diptych>
+  <div class="theme-dark px-6 py-10 md:p-12 lg:border-r lg:border-rule">
+    <p class="t-hero lg:text-5xl" aria-hidden="true">{title[0]}</p>
+    <p class="t-lede mt-6 max-w-md">{care}</p>
+    <svg class="map lit-night mt-10" viewBox={viewBox} aria-hidden="true">
+      <defs>
+        <linearGradient id="dp-base" x1="1" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ln-base-lit)" /><stop offset="1" style="stop-color:var(--ln-base-far)" /></linearGradient>
+        <linearGradient id="dp-part" x1="1" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ln-part-lit)" /><stop offset="1" style="stop-color:var(--ln-part-far)" /></linearGradient>
+      </defs>
+      <path class="fill base-fill" d={base.fill} />
+      {baseSides.map((f) => <path class="face base-face" d={f.d} style={`--t:${f.t}%`} />)}
+      <path d={base.top} fill="url(#dp-base)" />
+      <path class="grid" d={grid} />
+      <path class="edge" d={base.outline} />
+      {links.map((d) => <path class="link" d={d} data-rel />)}
+      {ordered.map((t) => (
+        <g class="thing" data-thing={t.name}>
+          <path class="fill" d={t.paths.fill} />
+          {t.sides.map((f) => <path class="face" d={f.d} style={`--t:${f.t}%`} />)}
+          <path class="top" d={t.paths.top} fill="url(#dp-part)" />
+          <path class="edge" d={t.paths.outline} />
+          <path class="crease" d={t.paths.crease} />
+          <g class="icon" transform={t.mark}><t.icon size={24} stroke-width={1.6} /></g>
+          <text x={t.label[0]} y={t.label[1] + 11} text-anchor="middle">{t.name}</text>
+        </g>
+      ))}
+    </svg>
+  </div>
+  <div class="diptych-speed theme-dark px-6 py-10 md:p-12">
+    <p class="t-hero text-accent lg:text-5xl" aria-hidden="true">{title[1]}</p>
+    <p class="t-lede mt-6 max-w-md">{speed}</p>
+    <ol class="stream mt-10" style={`--rows:${SHOWN}`} data-stream>
+      {changes.slice(0, SHOWN).map((c, i) => (
+        <li class:list={["change", c.refused ? "refused" : "done"]} style={`transform:translateY(calc(${i} * var(--row)))`}>
+          <span class="state">{c.refused ? <X /> : <Check />}</span>
+          <span class="thing-name">{c.thing}</span>
+          <span class="text">{c.text}</span>
+        </li>
+      ))}
+    </ol>
+    <template data-changes>
+      {changes.map((c) => (
+        <li class="change" data-thing={c.thing} data-refused={c.refused ? "" : undefined}>
+          <span class="state"><span class="spin"></span><Check class="ok" /><X class="no" /></span>
+          <span class="thing-name">{c.thing}</span>
+          <span class="text">{c.text}</span>
+        </li>
+      ))}
+    </template>
+  </div>
+</div>
+
+<style>
+  .map { display: block; width: 100%; height: auto; overflow: visible; font-family: var(--font-sans); }
+  .map .fill { fill: var(--ln-part-dark); }
+  .map .base-fill { fill: var(--ln-base-dark); }
+  .map .face { --c: color-mix(in oklab, var(--ln-part-light) var(--t), var(--ln-part-dark)); fill: var(--c); stroke: var(--c); stroke-width: 0.5; stroke-linejoin: round; }
+  .map .base-face { --c: color-mix(in oklab, var(--ln-base-light) var(--t), var(--ln-base-dark)); }
+  .map .grid { fill: none; stroke: var(--ln-grid); stroke-width: 0.6; }
+  .map .edge { fill: none; stroke: var(--ln-edge); stroke-width: 0.8; stroke-linejoin: round; transition: stroke 500ms ease-out; }
+  .map .crease { fill: none; stroke: var(--ln-crease); stroke-width: 0.8; stroke-linecap: round; stroke-linejoin: round; }
+  .map .link { fill: none; stroke: color-mix(in oklab, var(--color-graphite) 80%, transparent); stroke-width: 1; stroke-dasharray: 2.5 3; }
+  .map .icon :global(svg) { color: var(--ln-icon); overflow: visible; transition: color 500ms ease-out; }
+  .map text { font-size: 7px; fill: var(--color-graphite); transition: fill 500ms ease-out; }
+  .map .thing.touched .edge { stroke: var(--accent-on-night); stroke-width: 1; transition: none; }
+  .map .thing.touched .icon :global(svg) { color: var(--accent-on-night); transition: none; }
+  .map .thing.touched text { fill: var(--color-ink); transition: none; }
+  .diptych-speed { background-color: color-mix(in oklab, #000 25%, var(--night)); }
+
+  .stream { --row: 2.75rem; position: relative; height: calc(var(--rows) * var(--row)); overflow: hidden; mask-image: linear-gradient(transparent, #000 18%); }
+  .change { position: absolute; inset-inline: 0; top: 0; height: var(--row); display: flex; align-items: center; gap: 0.75rem; border-bottom: 1px solid var(--color-rule); font-size: 0.9375rem; transition: transform 280ms ease-out, opacity 280ms ease-out; }
+  .state { display: inline-flex; width: 1.125rem; height: 1.125rem; flex-shrink: 0; align-items: center; justify-content: center; color: var(--color-accent); }
+  .state :global(svg) { width: 100%; height: 100%; stroke-width: 2.5; }
+  .thing-name { font-family: var(--font-mono); font-size: 0.8125rem; padding: 0.125rem 0.5rem; border: 1px solid var(--color-rule); border-radius: 999px; color: var(--color-ink); }
+  .text { color: var(--color-graphite); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .refused .state { color: var(--color-graphite); }
+  .refused .text { text-decoration: line-through; }
+  .change :is(.ok, .no) { display: none; }
+  .change .spin { width: 0.8rem; height: 0.8rem; border-radius: 999px; border: 1.5px solid var(--color-rule); border-top-color: var(--color-ink); animation: spin 0.6s linear infinite; }
+  .change.done .spin, .change.refused .spin { display: none; }
+  .change.done .ok, .change.refused .no { display: block; }
+  .change.entering { opacity: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<script>
+  import { reducedMotion, onceVisible, whileVisible } from "../lib/motion";
+
+  /* The map drawn once with care; then the changes land, fast. */
+  const DRAW = 0.9;
+  const EVERY = 0.7;
+  const CHECK = 0.4;
+  const TOUCH = 0.7;
+
+  if (!reducedMotion.matches)
+    for (const root of document.querySelectorAll<HTMLElement>("[data-diptych]")) {
+      const rels = [...root.querySelectorAll<SVGPathElement>("[data-rel]")];
+      const things = new Map([...root.querySelectorAll<SVGGElement>("[data-thing]")].map((g) => [g.dataset.thing!, g]));
+      const stream = root.querySelector<HTMLOListElement>("[data-stream]")!;
+      const pool = [...root.querySelector<HTMLTemplateElement>("[data-changes]")!.content.children] as HTMLLIElement[];
+      const rows = Number(getComputedStyle(stream).getPropertyValue("--rows"));
+      rels.forEach((r) => (r.style.opacity = "0"));
+      for (const t of things.values()) t.style.opacity = "0";
+      stream.replaceChildren();
+
+      const live: HTMLLIElement[] = [];
+      const place = () => {
+        const over = Math.max(0, live.length - rows);
+        live.forEach((li, i) => {
+          li.style.transform = `translateY(calc(${i - over} * var(--row)))`;
+          li.style.opacity = i < over ? "0" : "";
+        });
+        while (live.length > rows + 1) live.shift()!.remove();
+      };
+      const touch = (name: string) => {
+        const g = things.get(name);
+        if (!g) return;
+        g.classList.add("touched");
+        setTimeout(() => g.classList.remove("touched"), TOUCH * 1000);
+      };
+
+      onceVisible(root, () => {
+        let t = 0;
+        let next = 0;
+        let n = 0;
+        const drawn = rels.length * DRAW;
+        whileVisible(root, (dt) => {
+          t += dt;
+          [...things.values()].forEach((g, i) => (g.style.opacity = String(Math.max(0, Math.min(1, (t - i * DRAW) / 0.3)))));
+          rels.forEach((r, i) => (r.style.opacity = String(Math.max(0, Math.min(1, (t - (i + 1) * DRAW) / 0.4)))));
+          if (t < drawn * 0.6) return;
+          if (t >= next) {
+            next = t + EVERY;
+            const li = pool[n++ % pool.length]!.cloneNode(true) as HTMLLIElement;
+            li.classList.add("entering");
+            stream.append(li);
+            live.push(li);
+            place();
+            li.style.transform = `translateY(calc(${Math.min(rows, live.length) - 1} * var(--row) + 0.5rem))`;
+            requestAnimationFrame(() => {
+              li.classList.remove("entering");
+              place();
+            });
+            setTimeout(() => {
+              li.classList.add(li.hasAttribute("data-refused") ? "refused" : "done");
+              touch(li.dataset.thing!);
+            }, CHECK * 1000);
+          }
+        });
+      });
+    }
+</script>

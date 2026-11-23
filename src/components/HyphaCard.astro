@@ -1,0 +1,43 @@
+---
+/* Hypha's card: one form that recurs from page to page, as the closing
+   does, so a reader knows it as Hypha's. The landing's climax form:
+   Ember, the plate with its gold corners, a heading at the hero's scale
+   with its second line in gold and its lede, beside the board of parts
+   (Blueprint). No list: the heading says it. Side by side only from
+   80rem, where the heading keeps its two lines beside the board. Once a page; its heading never "Built
+   with", which would echo the closing's "Build with Hypha." Its one
+   action leads to the Principles, the proof behind its words, never to
+   a conversation the page asks for elsewhere. */
+
+import Blueprint from "./Blueprint.astro";
+import Icon from "./Icon.astro";
+import Compass from "@lucide/astro/icons/compass";
+
+interface Props {
+  title: [string, string];
+  lede: string;
+  /* Its name on the page's rail of sections. */
+  rail: string;
+}
+const { title, lede, rail } = Astro.props;
+---
+
+<section id="hypha" data-rail-name={rail} class="theme-ember relative scroll-mt-8 overflow-hidden border-t border-rule">
+  <div class="k-grain" aria-hidden="true"></div>
+  <div class="relative mx-auto max-w-page px-4 py-12 sm:px-6 md:py-16">
+    <div class="k-plate px-4 py-12 sm:px-6 md:px-12 md:py-16 xl:-mx-12">
+      <span class="k-mark k-mark-tl" aria-hidden="true"></span>
+      <span class="k-mark k-mark-tr" aria-hidden="true"></span>
+      <span class="k-mark k-mark-bl" aria-hidden="true"></span>
+      <span class="k-mark k-mark-br" aria-hidden="true"></span>
+      <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+        <div>
+          <h2 class="t-hero lg:text-5xl xl:text-6xl"><span>{title[0]}</span> <span class="block text-accent">{title[1]}</span></h2>
+          <p class="t-lede mt-8 max-w-xl">{lede}</p>
+          <p class="mt-10"><a href="/principles/" class="btn"><Icon icon={Compass} />Hypha's principles</a></p>
+        </div>
+        <Blueprint />
+      </div>
+    </div>
+  </div>
+</section>

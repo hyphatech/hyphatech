@@ -12,11 +12,11 @@
    from these, never from a raw value. */
 :root {
   --night: #15120e;
-  --paper: #f3efe8;
+  --paper: #f2f0ec;
   --graphite-on-night: #948c83; /* 5.6:1 */
   --graphite-on-paper: #655d54; /* 5.6:1 */
   --rule-on-night: #3d362c;
-  --rule-on-paper: #d6cfc2;
+  --rule-on-paper: #d6d2cb;
   --accent-on-night: #d4a820; /* 8.4:1: one gold on either ground */
   --accent-on-paper: #d4a820; /* 1.9:1: marks only */
   --rust: #b0541e; /* Ember's second light */
@@ -752,14 +752,33 @@
      cell between two, a label on its line. Labels, never links. */
   .k-map { display: grid; grid-template-columns: minmax(0, 1fr) 7rem minmax(0, 1fr); grid-template-rows: auto 5.5rem auto; }
   .k-map:has(.k-badge) { grid-template-columns: minmax(0, 1fr) 4.5rem minmax(0, 1fr); grid-template-rows: auto 4.5rem auto; }
-  .k-concept { padding: 1rem; border-radius: 16px; background: var(--color-panel); box-shadow: 0 0 0 1px var(--color-rule), 0 16px 32px -20px rgb(0 0 0 / 0.8); }
-  .k-concept-hypha { box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-on-night) 70%, transparent), 0 16px 32px -20px rgb(0 0 0 / 0.8); }
+  .k-concept { padding: 1rem; border-radius: 16px; background: var(--color-panel); box-shadow: 0 0 0 1px var(--color-rule); }
+  .k-concept-hypha { box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-on-night) 70%, transparent); }
   .k-relation { position: relative; display: flex; align-items: center; justify-content: center; }
   .k-relation::before { content: ""; position: absolute; background: var(--color-graphite); opacity: 0.6; }
   .k-relation-h::before { left: 0; right: 0; top: 50%; height: 1px; }
   .k-relation-v::before { top: 0; bottom: 0; left: 50%; width: 1px; }
   .k-relation span { position: relative; font-size: 0.75rem; line-height: 1rem; color: var(--color-graphite); background: var(--color-ivory); border: 1px solid var(--color-rule); border-radius: 999px; padding: 0.25rem 0.5rem; white-space: nowrap; }
-  .k-relation .k-badge { display: grid; place-items: center; width: 1.875rem; height: 1.875rem; padding: 0; border-radius: 7px; color: var(--color-ink); background: color-mix(in oklab, var(--color-ink) 9%, var(--color-ivory)); border-color: color-mix(in oklab, var(--color-ink) 22%, var(--color-ivory)); box-shadow: 0 2.5px 0 color-mix(in oklab, #000 55%, var(--color-ivory)); }
+  /* Flat: nothing on the page casts a shadow or stands on an edge. A
+     card, a panel and a badge are each drawn by a hairline in the
+     rule's colour; gold edges only what a figure points at. Depth is
+     the isometric drawings'. Every icon that marks a step or a node
+     takes a badge: a circle drawn by a hairline, open to the ground, a
+     stop on the line it sits on; where a line runs behind it, it is
+     filled with the ground's own colour. Its glyph is under half its
+     width, 16 in 36 and 20 in 44, since a circle holds less than a
+     square. Containers are square-cornered
+     and every connective (a badge, a relation's pill, a direction cue)
+     is round. */
+  .k-badge, .k-relation .k-badge { display: grid; place-items: center; flex-shrink: 0; width: 2.25rem; height: 2.25rem; padding: 0; border: 1px solid color-mix(in oklab, var(--color-ink) 22%, var(--color-ivory)); border-radius: 999px; color: var(--color-ink); background: transparent; transition: color 300ms ease-out, border-color 300ms ease-out; }
+  .k-badge svg { width: 1rem; height: 1rem; stroke-width: 1.6; }
+  .k-badge-lg, .k-relation .k-badge-lg { width: 2.75rem; height: 2.75rem; }
+  .k-relation .k-badge { background: var(--color-ivory); }
+  .k-badge-lg svg { width: 1.25rem; height: 1.25rem; }
+  /* A direction cue, an arrow on a seam, is round: it names nothing. */
+  .k-badge-round, .k-relation .k-badge-round { border-radius: 999px; background: var(--color-ivory); color: var(--color-graphite); border-color: var(--color-rule); }
+  .k-badge-gold { color: var(--accent-on-night); border-color: var(--accent-on-night); }
+  .theme-light .k-badge-gold { color: var(--color-accent); border-color: var(--color-accent); }
   /* Before a map assembles (src/lib/map.ts) its cards and labels are
      veiled and its lines undrawn; only the script sets this. */
   .k-map[data-veiled] :is(.k-concept, .k-relation span) { opacity: 0; }
@@ -790,7 +809,7 @@
   .k-figure-number { font-family: var(--font-serif); font-weight: 400; font-size: 3rem; letter-spacing: -0.04em; line-height: 1; @media (width >= 48rem) { font-size: 4rem; } @media (width >= 64rem) { font-size: 5rem; } }
 
   /* A sheet: a document lying on paper, nothing under it. */
-  .k-sheet { background: #fbf9f5; color: var(--night); border-radius: 16px; box-shadow: 0 0 0 1px var(--color-rule), 0 24px 48px -28px rgb(40 28 12 / 0.35); }
+  .k-sheet { background: #fbf9f5; color: var(--night); border-radius: 16px; box-shadow: 0 0 0 1px var(--color-rule); }
 
   /* A statement: one line at poster scale, over the sand. */
   .k-statement { font-family: var(--font-serif); font-weight: 400; font-size: 3rem; line-height: 1; letter-spacing: -0.03em; text-wrap: balance; @media (width >= 48rem) { font-size: 4rem; } @media (width >= 64rem) { font-size: 5rem; } }

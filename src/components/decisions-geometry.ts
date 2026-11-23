@@ -9,6 +9,7 @@
 
 import * as k from "./iso/iso-kit";
 import type { Point3 } from "./iso/iso-kit";
+import type { AstroComponent } from "@lucide/astro";
 
 export const WIDTH = 320;
 export const HEIGHT = 214;
@@ -22,7 +23,7 @@ export const P = k.fitProjection(reach, WIDTH, HEIGHT, { pad: 6, azimuth: 45, el
 export type IconName = "server" | "monitor" | "terminal" | "plug" | "check" | "x" | "zap" | "resume" | "code" | "globe" | "key" | "ban" | "factory" | "sparkles" | "questions" | "hammer" | "eye" | "commit" | "tag" | "repo" | "gates" | "issue" | "mail" | "ticket" | "github" | "slack";
 /* A tile at a crossing of the grid ([x, y], multiples of 16), filling
    the two cells by two around it less a hair. */
-export interface Tile { at: Point3; size?: number; icon: IconName; gold?: boolean }
+export interface Tile { at: Point3; size?: number; icon: IconName | AstroComponent; gold?: boolean }
 export interface Link { from: Point3; to: Point3; gold?: boolean; solid?: boolean; via?: Point3[] }
 /* A boundary: a thin square plate on the base, under what it holds. */
 export interface Bound { x: number; y: number; w: number; d: number }
