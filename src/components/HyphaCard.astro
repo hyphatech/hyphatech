@@ -6,20 +6,21 @@
    (Blueprint). No list: the heading says it. Side by side only from
    80rem, where the heading keeps its two lines beside the board. Once a page; its heading never "Built
    with", which would echo the closing's "Build with Hypha." Its one
-   action leads to the Principles, the proof behind its words, never to
-   a conversation the page asks for elsewhere. */
+   action asks for a quote, what a reader wants to know before any
+   call. */
 
 import Blueprint from "./Blueprint.astro";
 import Icon from "./Icon.astro";
-import Compass from "@lucide/astro/icons/compass";
+import ReceiptPoundSterling from "@lucide/astro/icons/receipt-pound-sterling";
 
 interface Props {
   title: [string, string];
   lede: string;
   /* Its name on the page's rail of sections. */
   rail: string;
+  contact: string;
 }
-const { title, lede, rail } = Astro.props;
+const { title, lede, rail, contact } = Astro.props;
 ---
 
 <section id="hypha" data-rail-name={rail} class="theme-ember relative scroll-mt-8 overflow-hidden border-t border-rule">
@@ -34,7 +35,7 @@ const { title, lede, rail } = Astro.props;
         <div>
           <h2 class="t-hero lg:text-5xl xl:text-6xl"><span>{title[0]}</span> <span class="block text-accent">{title[1]}</span></h2>
           <p class="t-lede mt-8 max-w-xl">{lede}</p>
-          <p class="mt-10"><a href="/principles/" class="btn"><Icon icon={Compass} />Hypha's principles</a></p>
+          <p class="mt-10"><a href={contact} class="btn-primary"><Icon icon={ReceiptPoundSterling} />Get a quote</a></p>
         </div>
         <Blueprint />
       </div>

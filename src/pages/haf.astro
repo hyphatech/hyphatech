@@ -4,13 +4,13 @@ import Hero from "../components/Hero.astro";
 import Icon from "../components/Icon.astro";
 import ArrowDown from "@lucide/astro/icons/arrow-down";
 import Clock from "@lucide/astro/icons/clock";
-import CirclePlay from "@lucide/astro/icons/circle-play";
-import Check from "@lucide/astro/icons/check";
+import Laptop from "@lucide/astro/icons/laptop";
+import Scale from "@lucide/astro/icons/scale";
 import Section from "../components/Section.astro";
 import Opener from "../components/Opener.astro";
 import Closing from "../components/Closing.astro";
 import Demo from "../components/Demo.astro";
-import Crop from "../components/Crop.astro";
+import Steps from "../components/Steps.astro";
 import Graph from "../components/Graph.astro";
 import Compare from "../components/Compare.astro";
 import DecisionCards from "../components/DecisionCards.astro";
@@ -19,7 +19,6 @@ import Vaults from "../components/Vaults.astro";
 import Autonomy from "../components/Autonomy.astro";
 import Presets from "../components/Presets.astro";
 import Points from "../components/Points.astro";
-import Factory from "@lucide/astro/icons/factory";
 import { hafWays } from "../content/ways";
 import { held, record, screen, solved, steps, vaults } from "../content/factory";
 
@@ -40,14 +39,17 @@ import { held, record, screen, solved, steps, vaults } from "../content/factory"
 
    top       the promise: the factory for durable software, nothing to
              babysit, and that it is coming soon, with no date
-   showcase  shown: the demo, in HAF's room (k-haf), its own palette
+   showcase  shown: the demo, in the hero's band under its buttons, the
+             hero's ground following its chapter: Ember, Overhead, lit
+             night, Ember mirrored, Horizon
    solved    what it solves: each problem taken off your hands, a cell
              each linking to the section that proves it, as the kit's points,
-             as /modernise sets what it covers, on lit night
-   steps     how it works: six steps beside an index, each step's screens
-             under it, on paper
+             as /modernise sets what it covers, on paper
+   steps     how it works: six steps as a magazine, each the step live
+             on HAF's screen across the page, its words under it, on
+             Ember, its light following the step in view
    vault     why it gets it right, 1: Hypha Vault and the Project Vault,
-             the boundaries both set, on lit night
+             the boundaries both set, on Horizon
    ontology  why it gets it right, 2: what software is made of, under
              the Ontology's map, on night over fine dots
    harness   why it is safe: a model proposes, the Factory decides, an
@@ -56,21 +58,18 @@ import { held, record, screen, solved, steps, vaults } from "../content/factory"
              and the Factory's over time, the scroll its clock, on night
              over fine dots, its steps raised tiles
    inside    how it is engineered: the decisions it rests on, a drawing
-             each, on lit night
+             each, on Ember, its grounds blending as the decisions pass
    models    on your terms, and what sets the cost: any model, a preset
-             beside the providers, under Overhead
+             beside the providers, on lit night
    economy   what it is worth: fewer tokens and less spent at a higher
              bar, two figures beside the opener, on paper
    record    every number accounted for: the demo's own run charted from
              its journal, on Ember
-   soon      coming soon, a thin strip set as the one naming the demo,
-             in gold
    build     the ways in
 
    No eyebrow over a heading, no legend under a figure, no prices, no
    prerequisite. */
 
-const two = (n: number) => String(n).padStart(2, "0");
 
 
 /* What the Factory saves: the same signed PRD built by one agent with
@@ -81,38 +80,13 @@ const economy = [
 ];
 
 
-/* The region of HAF's screens that shows each step. */
-const shown: Record<string, { screen: string; rows: [number, number]; cols?: [number, number]; label: string }[]> = {
-  Intent: [
-    { screen: "question-0", rows: [8, 17], cols: [0, 82], label: "A question, with the answer it recommends and why it is asked." },
-    { screen: "signing", rows: [25, 32], cols: [0, 82], label: "The PRD, waiting for your signature." },
-  ],
-  Mapping: [{ screen: "snap-gallery-gaps", rows: [4, 11], cols: [0, 71], label: "What the Stack lacks, each gap named by the stage that builds it." }],
-  Scaffold: [{ screen: "snap-gallery-scaffold", rows: [4, 12], cols: [0, 71], label: "The scaffold written, with nobody asked." }],
-  Composition: [
-    { screen: "build-101", rows: [2, 10], cols: [0, 82], label: "The stages: one at work, one to come, one done." },
-    { screen: "build-101", rows: [21, 30], cols: [82, 137], label: "A stage's items, each passed or building, a refusal at its line." },
-  ],
-  Validation: [{ screen: "snap-done-requirement", rows: [21, 29], cols: [71, 120], label: "A requirement, proven by the scenarios that passed." }],
-  Release: [
-    { screen: "done", rows: [2, 7], cols: [0, 82], label: "Released, with what it spent and how long it took." },
-    { screen: "workbench", rows: [2, 10], cols: [0, 82], label: "The Workbench: every repository running at its main." },
-  ],
-};
 
-/* A step's regions as whole screens: each screen once, every region
-   of it marked on it. */
-const screensOf = (regions: (typeof shown)[string]) => {
-  const out: { screen: string; label: string; focus: { rows: [number, number]; cols?: [number, number] }[] }[] = [];
-  for (const { screen, rows, cols, label } of regions) {
-    const seen = out.find((s) => s.screen === screen);
-    if (seen) {
-      seen.focus.push({ rows, cols });
-      seen.label = `${seen.label} ${label}`;
-    } else out.push({ screen, label, focus: [{ rows, cols }] });
-  }
-  return out;
-};
+/* What the Factory will be, bare labels beside the hero's button, as
+   its coming soon is, from a tablet up, where they keep its one row. */
+const facts = [
+  { icon: Laptop, label: "macOS, Linux" },
+  { icon: Scale, label: "Apache-2.0" },
+];
 
 /* Three points under a section's words and figure, in a row. */
 const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
@@ -127,31 +101,31 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
     <Fragment slot="actions">
       <a href="#showcase" class="btn-primary"><Icon icon={ArrowDown} />See it at work</a>
       <span class="t-control inline-flex items-center gap-2 self-center px-1 text-graphite"><Icon icon={Clock} />Coming soon</span>
+      {
+        facts.map((f) => (
+          <span class="t-control inline-flex items-center gap-2 self-center px-1 text-graphite max-md:hidden">
+            <Icon icon={f.icon} />
+            {f.label}
+          </span>
+        ))
+      }
     </Fragment>
+    <div slot="ground" class="grounds" aria-hidden="true">
+      <div data-ground="overhead"></div>
+      <div data-ground="lit"></div>
+      <div data-ground="mirrored"></div>
+      <div data-ground="horizon"></div>
+    </div>
+    <div slot="after" id="showcase" class="scroll-mt-8">
+      <Demo label="A session of Hypha Autonomous Factory, from a request to a released change." />
+    </div>
   </Hero>
-
-  {/* The demo on its own, under the hero, as termilly.com shows its
-      app: a strip ruled across the page names it, then HAF's app in its
-      frame, its chapters under it, all in HAF's room: the one section in
-      HAF's palette. */}
-  <section id="showcase" class="k-haf scroll-mt-8 border-t border-rule">
-    <div class="border-b border-rule">
-      <p class="mx-auto flex max-w-page items-center gap-2 px-4 py-3 text-graphite sm:px-6"><Icon icon={CirclePlay} />See the Factory at work</p>
-    </div>
-    <div class="relative isolate">
-      <div class="dotted pointer-events-none absolute inset-0 -z-10 [mask-image:linear-gradient(transparent,#000_15%,#000_85%,transparent)]" aria-hidden="true"></div>
-      <div class="relative mx-auto max-w-page px-4 py-12 sm:px-6 md:py-16">
-        <Demo label="A session of Hypha Autonomous Factory, from a request to a released change." />
-      </div>
-    </div>
-  </section>
 
   {/* What it solves, answered at once: each problem the Factory takes
       off your hands, a cell of the ruled grid /modernise starts with,
       linking down to the section that proves it, in the page's order.
-      On Ember, its cells part-clear so its light comes through, between
-      the demo's room and the steps' paper. */}
-  <Section id="solved" rail="The hard parts, handled" class="k-lit overflow-hidden">
+      On paper, between the hero's light and the steps' night. */}
+  <Section id="solved" rail="The hard parts, handled" class="theme-light">
     <Opener title="The hard parts, handled.">
       Agents write fast, and someone still has to watch them, guess with
       them and pay for their guesses. The Factory takes all of it off your
@@ -173,67 +147,30 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
     </ul>
   </Section>
 
-  {/* The six steps beside an index marking the one in view, as
-      Modernise tells its four: each a claim, why it matters, what it
-      gives, and the region of HAF's screen that shows it. */}
-  <Section id="steps" rail="Six steps" class="theme-light">
+  {/* The six steps on Ember, its light following the step in view as
+      the hero's follows the demo, read in order as a magazine: each step
+      live on HAF's screen across the page, its words under it. */}
+  <Section id="steps" rail="Six steps" class="theme-ember isolate overflow-hidden" grain>
+    <div slot="ground" class="grounds step-grounds" data-chapter="overhead" aria-hidden="true">
+      <div data-ground="overhead"></div>
+      <div data-ground="lit"></div>
+      <div data-ground="mirrored"></div>
+      <div data-ground="horizon"></div>
+    </div>
     <Opener title="Six steps.">
       It begins by settling your requirements, question by question, until
       nothing is left to guess. Once you agree, the Factory runs the rest.
     </Opener>
-    <div class="mt-12 grid gap-12 lg:grid-cols-[13rem_minmax(0,1fr)]">
-      <nav class="sticky top-8 hidden self-start lg:block" aria-label="The steps">
-        <ol class="border-l border-rule">
-          {
-            steps.map((st, i) => (
-              <li>
-                <a href={`#step-${i + 1}`} class="-ml-px flex items-baseline gap-2 border-l-2 font-sans text-sm border-transparent py-2 pl-5 text-graphite transition-colors hover:text-ink aria-[current]:border-ink aria-[current]:text-ink" data-step-link>
-                  <span class="tabular-nums">{two(i + 1)}</span>
-                  {st.title}
-                </a>
-              </li>
-            ))
-          }
-        </ol>
-      </nav>
-      <ol>
-        {
-          steps.map((st, i) => (
-            <li id={`step-${i + 1}`} class="scroll-mt-8 border-rule py-12 first:pt-0 last:pb-0 not-first:border-t" data-step>
-              <p class="t-control flex items-baseline gap-2 text-graphite">
-                <span class="tabular-nums">{two(i + 1)}</span>
-                <span>{st.title}</span>
-              </p>
-              <h3 class="t-h2 mt-3">{st.claim}</h3>
-              <p class="t-lede mt-4 max-w-2xl max-md:text-base/6">{st.body}</p>
-              <ul class="mt-7 flex flex-wrap gap-x-8 gap-y-2">
-                {
-                  st.gives.map((g) => (
-                    <li class="flex items-center gap-2">
-                      <span class="k-tick !size-4"><Check size={10} stroke-width={3.5} /></span>
-                      {g}
-                    </li>
-                  ))
-                }
-              </ul>
-              {shown[st.title] && (
-                <div class="mt-10 grid gap-4">
-                  {screensOf(shown[st.title]!).map((c) => <Crop {...c} />)}
-                </div>
-              )}
-            </li>
-          ))
-        }
-      </ol>
-    </div>
+    <Steps steps={steps} />
   </Section>
 
   {/* One source of truth, the Factory's two hearts: Hypha's vault and
       the project's own, each feeding every model at every step, drawn
-      under its opener, then three points under it, on lit night. The
+      under its opener, then three points under it, on Horizon after
+      the steps' Ember, handing over to the Ontology. The
       plate with its gold corners is kept for Hypha's selling points. */}
-  <Section id="vault" rail="The Vault" class="k-lit overflow-x-clip">
-    <Opener title="The Vault.">
+  <Section id="vault" rail="Two vaults" class="k-horizon overflow-x-clip" grain>
+    <Opener title={["Two vaults.", "One system."]} mark>
       Hypha Vault is the pluggable source of truth for how software is
       built. Your Project Vault holds what to build and where each part
       belongs. Together they set the boundaries every change is held to.
@@ -291,9 +228,16 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
     <Points points={screen} class={`mt-2 lg:mt-12 ${row}`} />
   </Section>
 
-  {/* Inside: the Factory's layers on your machine, as one panel, from
-      what you touch to what it reaches. On lit night. */}
-  <Section id="inside" rail="Under the hood" class="k-lit">
+  {/* Inside: the decisions the Factory rests on, a drawing each, on
+      Ember, its grounds blending one into the next as the decisions
+      pass, as the hero's follow the demo. */}
+  <Section id="inside" rail="Under the hood" class="theme-ember isolate overflow-hidden" grain>
+    <div slot="ground" class="grounds hood-grounds" data-chapter="overhead" aria-hidden="true">
+      <div data-ground="overhead"></div>
+      <div data-ground="lit"></div>
+      <div data-ground="mirrored"></div>
+      <div data-ground="horizon"></div>
+    </div>
     <Opener title="Under the hood.">
       Models write the code. The difference is in the design decisions around them.
     </Opener>
@@ -301,9 +245,9 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
   </Section>
 
   {/* The models: a preset names one for each kind of work, one drawn
-      mixing providers, the providers today and coming under it, under
-      Overhead's one lamp. */}
-  <Section id="models" rail="Any model" class="k-overhead overflow-hidden" grain>
+      mixing providers, the providers today and coming under it, on lit
+      night, its light under the presets. */}
+  <Section id="models" rail="Any model" class="k-lit">
     <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
       <div>
         <Opener title={["Any model.", "The right one for each job."]} mark>
@@ -356,31 +300,92 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
       <Points points={record} class={`mt-16 ${row} [&>li]:border-t [&>li]:border-rule [&>li]:pt-6`} />
   </Section>
 
-  {/* Coming soon as a separator strip: the factory icon and the words
-      on the page's edge, set as the strip that names the demo, in gold
-      with a soft gold light round them. No platform, no date. */}
-  <section id="soon" class="scroll-mt-8 border-t border-rule">
-    <p class="soon mx-auto flex max-w-page items-center gap-2 px-4 py-3 text-accent sm:px-6"><Icon icon={Factory} />Coming soon</p>
-  </section>
 
   <Closing paths={hafWays} />
 </Base>
 
 
+
 <script>
-  /* The index marks the step crossing the middle of the screen. */
-  const links = [...document.querySelectorAll<HTMLAnchorElement>("[data-step-link]")];
-  const watch = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        for (const a of links) {
-          if (a.hash === `#${e.target.id}`) a.setAttribute("aria-current", "step");
-          else a.removeAttribute("aria-current");
-        }
-      }
-    },
-    { rootMargin: "-45% 0px -50% 0px" },
-  );
-  for (const step of document.querySelectorAll("[data-step]")) watch.observe(step);
+  /* The hero's ground follows the demo's chapter, one of the legal
+     grounds each, cross-fading between them. */
+  const grounds = document.querySelector<HTMLElement>(".grounds");
+  if (grounds) {
+    const of: Record<string, string> = { Decisions: "overhead", PRD: "lit", Build: "mirrored", Release: "horizon" };
+    const set = (chapter: string) => (grounds.dataset.chapter = of[chapter] ?? "ember");
+    set(document.querySelector(".demo .tab[aria-current]")?.getAttribute("aria-label") ?? "");
+    document.querySelector("#top .demo")?.addEventListener("haf:frame", (e) => set((e as CustomEvent<{ chapter: string }>).detail.chapter));
+  }
+
+  const hood = document.querySelector<HTMLElement>(".hood-grounds");
+  const marks = [...document.querySelectorAll<HTMLElement>("#inside .decision > .mark")];
+  if (hood && marks.length && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const light = ["overhead", "lit", "ember", "mirrored", "horizon"];
+    let at = -1;
+    const draw = () => {
+      const y = innerHeight * 0.6;
+      let on = 0;
+      marks.forEach((m, i) => {
+        if (m.getBoundingClientRect().top <= y) on = i;
+      });
+      if (on === at) return;
+      at = on;
+      hood.dataset.chapter = light[on % light.length]!;
+    };
+    let queued = false;
+    addEventListener("scroll", () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        draw();
+      });
+    }, { passive: true });
+    draw();
+  }
 </script>
+
+<style is:global>
+  /* Each ground a layer over Ember, under its grain and halftone, shown
+     while its chapter plays in the hero, or while its step is in view in
+     the six steps, or its decision under the hood. Projects, the
+     Workbench, the scaffold and the modular decision keep Ember itself. */
+  .grounds { display: contents; }
+  .grounds > div {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.6s var(--ease-state);
+    background-color: var(--night);
+  }
+  .grounds[data-chapter="overhead"] > [data-ground="overhead"],
+  .grounds[data-chapter="lit"] > [data-ground="lit"],
+  .grounds[data-chapter="mirrored"] > [data-ground="mirrored"],
+  .grounds[data-chapter="horizon"] > [data-ground="horizon"] { opacity: 1; }
+  [data-ground="overhead"] {
+    background-image: radial-gradient(70% 70% at 50% -10%, color-mix(in oklab, var(--accent-on-night) 17%, transparent), transparent 70%);
+  }
+  [data-ground="lit"] {
+    background-image: radial-gradient(60% 55% at var(--lit-x) var(--lit-y), color-mix(in oklab, var(--accent-on-night) 11%, transparent), transparent 75%);
+    animation: lit-drift 19s steps(50) infinite alternate;
+  }
+  .grounds > [data-ground="mirrored"] {
+    background-color: #1a150f;
+    background-image:
+      radial-gradient(70% 90% at var(--gold-x) calc(100% - var(--gold-y)), color-mix(in oklab, var(--accent-on-night) 20%, transparent), transparent 70%),
+      radial-gradient(60% 80% at var(--rust-x) calc(100% - var(--rust-y)), color-mix(in oklab, var(--rust) 18%, transparent), transparent 70%);
+    animation: ember-drift 26s steps(70) infinite alternate;
+  }
+  [data-ground="horizon"] {
+    background-image:
+      radial-gradient(120% 50% at 50% 110%, color-mix(in oklab, var(--accent-on-night) 16%, transparent), transparent 60%),
+      radial-gradient(90% 35% at 50% 115%, color-mix(in oklab, var(--rust) 16%, transparent), transparent 60%);
+  }
+  /* Under the hood's lamp: a warm light centred on the drawing in view,
+     gliding to the next; the drawings and words out of its light dim. */
+  @media (prefers-reduced-motion: reduce) {
+    .grounds > div { transition: none; animation: none; }
+  }
+</style>

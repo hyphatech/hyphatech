@@ -191,12 +191,11 @@ const classAt = (g: Group) =>
         })
       }
     </svg>
-    {/* The concept in focus, said in a card beside it: its capability,
-        what it is, and the open component that provides it, or that it
-        is built where it is needed. Hidden from screen readers, which
+    {/* The concept in focus, said in a card beside it: what it is, and
+        the open component that provides it, or that it is built where it
+        is needed. Hidden from screen readers, which
         hear the same from the concept itself. */}
     <div class="peek" data-peek hidden aria-hidden="true">
-      <p class="peek-group" data-peek-group></p>
       <p class="peek-name" data-peek-name></p>
       <p class="peek-is" data-peek-is></p>
       <ul class="peek-refusals" data-peek-refusals></ul>
@@ -231,8 +230,7 @@ const classAt = (g: Group) =>
   @media (width < 40rem) { .peek { width: calc(100% - 16px); } }
   @keyframes peek { from { opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .peek { animation: none; } }
-  .peek-group { font-size: 0.875rem; line-height: 1.25rem; color: var(--color-graphite); }
-  .peek-name { margin-top: 0.25rem; font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.75rem; color: var(--color-ink); }
+  .peek-name { font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.75rem; color: var(--color-ink); }
   .peek-is { margin-top: 0.25rem; font-size: 0.875rem; line-height: 1.25rem; color: var(--color-graphite); }
   .peek-refusals { margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.25rem; }
   .peek-refusals[hidden], .peek-proof[hidden] { display: none; }
@@ -723,7 +721,6 @@ const classAt = (g: Group) =>
     const peek = field.querySelector<HTMLElement>("[data-peek]")!;
     const said = (k: string) => peek.querySelector<HTMLElement>(`[data-peek-${k}]`)!;
     const show = (n: N) => {
-      said("group").textContent = groups.find((g) => g.id === n.t.group)?.name ?? "";
       said("name").textContent = n.t.name;
       said("is").textContent = n.t.is;
       said("by").textContent = n.t.entry ? n.t.module ?? n.t.entry : "Built where it is needed";

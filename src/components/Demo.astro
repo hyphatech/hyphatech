@@ -2,8 +2,8 @@
 /* The Factory's demo: HAF's own screens, as HAF draws them, through the
    run hypha-haf keeps as examples/task-tracker/journal.jsonl, from its
    projects to trying what it released in the Workbench. Each frame is a screen HAF wrote
-   cell by cell at 137 columns by 34 rows, a wide
-   screen (src/content/haf-screens, and its
+   cell by cell at 160 columns by 42 rows, a widescreen terminal
+   (src/content/haf-screens, and its
    README for writing them again as HAF changes); nothing here draws HAF by
    hand. The chapters are a line under it, each as long as its chapter: the
    line fills in gold as the demo plays, the chapter playing named in
@@ -14,56 +14,36 @@
    The screen is drawn at one size and scaled to the page's width, as a
    video is, so its rows never wrap differently on a phone. */
 
+type Chapter = { title: string; frames: [string, number][] };
 interface Props {
   label: string;
+  /* Its own frames, for a part of the run shown alone, as a step is; the
+     whole run when left out. */
+  chapters?: Chapter[];
+  /* The screen alone, with no chapters under it. */
+  bare?: boolean;
 }
-const { label } = Astro.props;
+const { label, bare = false } = Astro.props;
 
-type Run = [string, string | null, string | null, boolean];
-type Frame = { cols: number; rows: number; lines: Run[][] };
-const files = import.meta.glob<{ default: Frame }>("../content/haf-screens/*.json", { eager: true });
-const frame = (name: string) => files[`../content/haf-screens/${name}.json`]!.default;
-
-/* The build, a frame for each item started, each call to the model and
-   each gate's verdict, in the order the journal has them: quick, as a
-   build's log runs. */
-const build = Object.keys(files)
-  .map((f) => f.match(/build-(\d+)\.json$/)?.[1])
-  .filter((n): n is string => n !== undefined)
-  .sort()
-  .map((n) => [`build-${n}`, 0.42] as [string, number]);
+import { frame, runSteps, type Run } from "../content/screens";
 
 /* Each chapter: its name, and its frames with how long each shows. The
    moments between screens are HAF's own frames too: the model's thinking
    streaming in, an answer typed, the spend rising call by call. */
-const chapters: { title: string; frames: [string, number][] }[] = [
-  { title: "Projects", frames: [["projects", 3], ["project", 3]] },
+const chapters: Chapter[] = Astro.props.chapters ?? [
+  { title: "Projects", frames: [["i-projects", 2], ["i-projects-1", 1.2], ["i-projects-2", 1.4], ["i-project", 3]] },
+  { title: "Decisions", frames: runSteps.intent },
+  { title: "PRD", frames: runSteps.prd },
   {
-    title: "Decisions",
-    frames: [
-      ["question-0", 3.5],
-      ["thinking-0", 1.1],
-      ["thinking-1", 1.3],
-      ["thinking-2", 2.2],
-      ["question-1", 3],
-      ["question-2", 3],
-      ["question-3", 2.5],
-      ["own-words", 1.2],
-      ["own-words-typed-0", 0.7],
-      ["own-words-typed-1", 0.8],
-      ["own-words-typed-2", 2],
-      ["question-4", 3],
-      ["decided", 2.5],
-    ],
+    title: "Build",
+    frames: [...runSteps.mapping, ...runSteps.scaffold, ...runSteps.composition, ...runSteps.validation],
   },
-  { title: "PRD", frames: [["signing", 7]] },
-  { title: "Build", frames: build },
-  { title: "Release", frames: [["done", 6]] },
-  { title: "Workbench", frames: [["workbench", 5]] },
+  { title: "Release", frames: [["released", 6]] },
+  { title: "Workbench", frames: runSteps.release.slice(1) },
 ];
 /* The demo opens on the decisions, its busiest screens; the projects
-   come round again at its end. */
-const first = 1;
+   come round again at its end. A part shown alone opens on its own. */
+const first = Astro.props.chapters ? 0 : 1;
 const lens = chapters.map((c) => c.frames.reduce((s, [, d]) => s + d, 0));
 
 /* A run's text with its spaces kept as the terminal's cells, split where
@@ -86,17 +66,32 @@ const cells = (t: string) =>
     .split(/(─+|[│┃╭╮╰╯├┤┼█▀▄▌▐⏸⏵✎⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏•])/u)
     .filter((part) => part !== "")
     .map((part) => ({ part, box: box(part), tall: tall.test(part), cell: lacking.test(part), spin: turn.test(part), dot: part === "•", block: part.length === 1 && blocks.includes(part) }));
-const style = ([, fg, bg]: Run) => `${fg ? `color:${fg};` : ""}${bg && bg !== "#1c1e20" ? `background:${bg};` : ""}`;
+/* Garoa's greys as Hypha's warm night, each at its own step, so the
+   screen sits on the page's ground; its role colours stay as HAF draws
+   them. */
+const warm: Record<string, string> = {
+  "#151719": "#15120e",
+  "#1c1e20": "#1a150f",
+  "#26282a": "#262019",
+  "#313436": "#322b22",
+  "#414346": "#3d362c",
+  "#c7cdd6": "#d9d3c9",
+  "#dae1ea": "#f2f0ec",
+  "#8d949f": "#948c83",
+  "#767d88": "#7b7369",
+};
+const tone = (c: string) => warm[c] ?? c;
+const style = ([, fg, bg]: Run) => `${fg ? `color:${tone(fg)};` : ""}${bg && bg !== "#1c1e20" ? `background:${tone(bg)};` : ""}`;
 ---
 
-<figure class="demo" aria-label={label} data-first={first} style={`--cols:${frame("projects").cols};--rows:${frame("projects").rows}`}>
+<figure class="demo" aria-label={label} data-first={first} style={`--cols:${frame("i-projects").cols};--rows:${frame("i-projects").rows}`}>
   <noscript><style>.demo .term { opacity: 1; }</style></noscript>
   <div class="window overflow-hidden">
-    <div class="stage relative overflow-hidden bg-[#1c1e20]">
+    <div class="stage relative overflow-hidden bg-[#1a150f]">
       <div class="term absolute top-0 left-0 origin-top-left" aria-hidden="true">
         {
           chapters.map((c, i) => (
-            <section class="scene" data-len={lens[i]} hidden={i !== first}>
+            <section class="scene" data-len={lens[i]} data-title={c.title} hidden={i !== first}>
               {c.frames.map(([name, d], k) => {
                 const from = c.frames.slice(0, k).reduce((s, [, x]) => s + x, 0);
                 const lines = frame(name).lines.map((line) => (
@@ -113,7 +108,7 @@ const style = ([, fg, bg]: Run) => `${fg ? `color:${fg};` : ""}${bg && bg !== "#
                    until it plays, so the page holds one frame at a time
                    and not seventy. */
                 return (
-                  <div class="frame" data-t={from} data-until={from + d} data-last={k === c.frames.length - 1 ? "" : undefined}>
+                  <div class="frame" data-name={name} data-t={from} data-until={from + d} data-last={k === c.frames.length - 1 ? "" : undefined}>
                     {i === first && k === 0 ? lines : <template>{lines}</template>}
                   </div>
                 );
@@ -128,7 +123,7 @@ const style = ([, fg, bg]: Run) => `${fg ? `color:${fg};` : ""}${bg && bg !== "#
       phone the six names cannot stand side by side, so the bars stand
       alone, tall enough to tap, and the one playing is named once under
       them. */}
-  <div class="mt-5 flex min-w-0 gap-2" role="group" aria-label="Chapters">
+  {!bare && (<div class="mt-5 flex min-w-0 gap-2" role="group" aria-label="Chapters">
     {
       chapters.map((c, i) => (
         <button type="button" aria-current={i === first ? "true" : undefined} aria-label={c.title} class="tab group min-w-6 py-3 text-left sm:min-w-20 sm:pt-1 sm:pb-2" style={`flex:${lens[i]} 1 0`}>
@@ -137,8 +132,8 @@ const style = ([, fg, bg]: Run) => `${fg ? `color:${fg};` : ""}${bg && bg !== "#
         </button>
       ))
     }
-  </div>
-  <p class="t-control text-ink sm:hidden" aria-hidden="true" data-now>{chapters[first]!.title}</p>
+  </div>)}
+  {!bare && <p class="t-control text-ink sm:hidden" aria-hidden="true" data-now>{chapters[first]!.title}</p>}
 </figure>
 
 <style>
@@ -169,7 +164,7 @@ const style = ([, fg, bg]: Run) => `${fg ? `color:${fg};` : ""}${bg && bg !== "#
     .term { transition: none; }
   }
   .window {
-    box-shadow: 0 0 0 1px #414346;
+    box-shadow: 0 0 0 1px #3d362c;
   }
   .term {
     box-sizing: content-box;
@@ -178,8 +173,8 @@ const style = ([, fg, bg]: Run) => `${fg ? `color:${fg};` : ""}${bg && bg !== "#
     font-family: "HAF Mono", var(--font-mono);
     font-size: 13px;
     line-height: 1.3;
-    color: #c7cdd6;
-    background: #1c1e20;
+    color: #d9d3c9;
+    background: #1a150f;
     transform: scale(var(--s, 1));
     font-variant-ligatures: none;
   }
@@ -304,12 +299,13 @@ const style = ([, fg, bg]: Run) => `${fg ? `color:${fg};` : ""}${bg && bg !== "#
     const scenes = [...demo.querySelectorAll<HTMLElement>(".scene")];
     const frames = scenes.map((s) => [...s.querySelectorAll<HTMLElement>(".frame")]);
     const tabs = [...demo.querySelectorAll<HTMLButtonElement>(".tab")];
-    const now = demo.querySelector<HTMLElement>("[data-now]")!;
+    const now = demo.querySelector<HTMLElement>("[data-now]");
     const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
     let at = Number(demo.dataset.first ?? 0);
     let t = 0;
     let seen = false;
     let last = 0;
+    let shown = "";
 
     /* A real terminal: its type at its own size and its window as wide as
        its cells. Only where the page is narrower than the window is it
@@ -339,7 +335,13 @@ const style = ([, fg, bg]: Run) => `${fg ? `color:${fg};` : ""}${bg && bg !== "#
           else if (!on && f.childElementCount > 1) while (f.lastElementChild !== kept) f.lastElementChild!.remove();
         }
       });
-      now.textContent = tabs[at]!.getAttribute("aria-label");
+      /* The frame showing, told to the page, whose ground follows it. */
+      const name = frames[at]!.find((f) => !f.hidden)?.dataset.name ?? "";
+      if (name !== shown) {
+        shown = name;
+        demo.dispatchEvent(new CustomEvent("haf:frame", { bubbles: true, detail: { chapter: scenes[at]!.dataset.title, frame: name } }));
+      }
+      if (now) now.textContent = scenes[at]!.dataset.title ?? "";
       tabs.forEach((tab, i) => {
         if (i === at) tab.setAttribute("aria-current", "true");
         else tab.removeAttribute("aria-current");

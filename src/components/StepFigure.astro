@@ -1,0 +1,1244 @@
+---
+/* A step of the Factory as HAF's own screen shows it, live, in HAF's
+   panes and palette and the design its meters lab settled. The left
+   pane is where a person works: the talk, the lists, the cursor. The
+   right pane is what stands beside it: the steps as six segments with
+   the one at work named over them, htop's meters coloured by role, the
+   details of what the cursor is on, the logs. ⏺ marks what is going on,
+   a step, a stage, a service; a spinner what runs this second, a gate,
+   a scenario, a build.
+   Each plays the sample task tracker's run (hypha-haf's
+   examples/task-tracker), filling its figure edge to edge.
+
+   Intent       the questions one at a time, the model thinking between,
+                one answered in your own words, then the PRD drafted,
+                read and signed
+   Mapping      the plan, computed at once and read item by item, each
+                one's lookup and the plan's meters beside it
+   Scaffold     the application's parts and the scaffold its shape
+                takes, laid and built before any model is called
+   Composition  a stage's items, the gates on the one at work, one refused
+                and tried again, the budget beside them
+   Validation   each requirement proven, scenario by scenario, on the
+                running service
+   Release      released, tagged and pushed, then the Workbench running it
+
+   The questions, the PRD, the requirements, scenarios and the release
+   are the run's own. The items past those the docs print, the lookups,
+   meters, numbers and logs are an example. One clock plays a figure
+   while it is in view and loops: `data-at` shows an element from its
+   second and `data-until` takes it away, `data-seq` steps its state,
+   `data-type` types it, `data-roll` scrolls it as a reader would. What
+   grows fills from its top and keeps its last line in view, as a
+   terminal does. The markup stands at the loop's end, so reduced motion
+   and no script show the whole step. */
+
+interface Props {
+  step: string;
+  label: string;
+}
+const { step, label } = Astro.props;
+
+/* A sequence's last state, the one the markup stands in. */
+const fin = (s: string) => s.trim().split(/\s+/).at(-1)!.split(":").slice(1).join(":");
+const seq = (s: string) => ({ "data-seq": s, "data-state": fin(s) });
+const f2 = (n: number) => n.toFixed(2);
+
+/* The six steps as segments: those done, the one at work, and, from
+   second `next`, the one after it at work instead. */
+const stepNames = ["Intent", "Mapping", "Scaffold", "Composition", "Validation", "Release"];
+const segs = (n: number, next?: number) =>
+  stepNames.map((_, i) =>
+    i < n ? "0:done" : i === n ? (next === undefined ? "0:now" : `0:now ${f2(next)}:done`) : i === n + 1 && next !== undefined && n + 1 < stepNames.length ? `0:wait ${f2(next)}:now` : "0:wait",
+  );
+const cells = 24;
+/* A meter's cells: the first `lit` of them shown, each from its second. */
+const bar = (lit: (number | true)[]) => Array.from({ length: cells }, (_, i) => lit[i]);
+
+/* ---------- Intent ---------- */
+const questions = [
+  { q: "Can a done task be reopened?", why: "It decides a task's states and who may act on it.", opts: ["Yes, by its assignee or its owner.", "No", "In my own words"], answer: "Yes, by its assignee or its owner.", think: "A reopened task goes back to open, so a task is open, done or reopened. Whether a due date may lie in the past decides a rule." },
+  { q: "A task due in the past: refuse it, or accept it as overdue?", why: "It decides the rule a due date is held to.", opts: ["Refuse it.", "Accept it, marked overdue."], answer: "Refuse it.", think: "The reminder is a job that runs on its own. When it runs is the person's to say." },
+  { q: "When is the reminder sent?", why: "It decides the job that sends it, and when it runs.", opts: ["A day before it is due.", "An hour before it is due.", "In my own words"], answer: "A day before, at 09:00 in the assignee's time.", own: true, think: "" },
+];
+const asks = (() => {
+  let t = 0.6;
+  return questions.map((q) => {
+    const at = t;
+    const off = at + (q.own ? 4.2 : 2.4);
+    const thinkUntil = q.think ? off + 2.4 : off;
+    t = thinkUntil + 0.2;
+    return { ...q, at, off, thinkUntil };
+  });
+})();
+const drafting = asks.at(-1)!.off + 0.3;
+const drafted = drafting + 1.6;
+const reading = drafted + 0.6;
+const read = reading + 6.5;
+const signed = read + 1.6;
+const intentLoop = signed + 3.2;
+const prd = {
+  problem: "A small team keeps its tasks in a chat thread, and nobody knows what is due, who has it, or what is done. They want an API their own tools call: projects of tasks, each task with an owner, an assignee and a due date, kept honest.",
+  scenarios: [
+    "A person sees their own account. Someone signed in asks who they are. Accepted when the answer is their account.",
+    "A person makes a project. Someone signed in names a new project. Accepted when the project is made, and is theirs.",
+    "A project with a blank name is refused. Accepted when it is refused, and says the name must not be blank.",
+    "A task due in the past is refused. Someone creates a task due yesterday. Accepted when it is refused.",
+    "A stranger cannot complete a task. Accepted when it is refused as forbidden.",
+    "The assignee completes and reopens a task. Accepted when a task completed by its assignee can be reopened by them.",
+  ],
+  requirements: [
+    "A person signs in with their email, and sees and changes their name and time zone.",
+    "A person creates a task in a project, with a title, a due instant after now, an assignee and notes if they like, and owns it.",
+    "A task's assignee or its owner completes it, and reopens it.",
+    "A task's owner moves its due instant, never into the past.",
+    "Anyone signed in lists the tasks.",
+    "A person makes a project with a name that is not blank, which is theirs, and lists the projects.",
+  ],
+};
+
+/* ---------- Mapping ---------- */
+type Kind = "provided" | "own" | "build";
+const kindName: Record<Kind, string> = { provided: "provided", own: "the product's own", build: "to build" };
+const plan: { stage: string; items: { name: string; kind: Kind; concepts: string[]; paths: string; gates: string }[] }[] = [
+  {
+    stage: "S1 The application's own",
+    items: [{ name: "Processes and the route table", kind: "build", concepts: ["config → belongs in spindle", "database → Rowtype_migrate_postgres"], paths: "server/app/ bin/server/", gates: "build verify layout" }],
+  },
+  {
+    stage: "S2 Accounts",
+    items: [
+      { name: "Account: shape, table, statements", kind: "build", concepts: ["json-shape → Wiretype", "statement → Rowtype", "id → belongs in rowtype"], paths: "server/accounts/model/", gates: "build tests verify paths layout" },
+      { name: "Signing in", kind: "provided", concepts: ["session → Spindle"], paths: "server/accounts/http/", gates: "build tests paths layout" },
+      { name: "Account: routes", kind: "provided", concepts: ["route → Spindle"], paths: "server/accounts/http/", gates: "build tests verify paths layout" },
+    ],
+  },
+  {
+    stage: "S3 Tasks",
+    items: [
+      { name: "Project: shape, table, statements", kind: "build", concepts: ["json-shape → Wiretype", "statement → Rowtype"], paths: "server/projects/model/", gates: "build tests verify paths layout" },
+      { name: "Task: shape, table, statements", kind: "build", concepts: ["json-shape → Wiretype", "statement → Rowtype", "migration → Rowtype_migrate"], paths: "server/tasks/model/", gates: "build tests verify paths layout" },
+      { name: "Task states: open, done", kind: "own", concepts: ["task: open → done → open"], paths: "server/tasks/model/", gates: "build tests paths layout" },
+      { name: "Rule: name not blank", kind: "own", concepts: ["the product's own"], paths: "server/projects/model/", gates: "build tests paths layout" },
+      { name: "Rule: due after now", kind: "own", concepts: ["the product's own"], paths: "server/tasks/model/", gates: "build tests paths layout" },
+      { name: "Who may see and do tasks", kind: "build", concepts: ["permission → belongs in spindle"], paths: "server/tasks/access/", gates: "build tests paths layout" },
+      { name: "Project: routes", kind: "provided", concepts: ["route → Spindle"], paths: "server/projects/http/", gates: "build tests verify paths layout" },
+      { name: "Task: routes", kind: "provided", concepts: ["route → Spindle", "Spindle.Path, Spindle.Route"], paths: "server/tasks/http/", gates: "build tests verify paths layout" },
+    ],
+  },
+  {
+    stage: "S4 The whole",
+    items: [
+      { name: "The API's document", kind: "provided", concepts: ["spec → Spindle"], paths: "api/", gates: "build fresh" },
+      { name: "The scenarios", kind: "build", concepts: ["scenario → computed by HAF"], paths: "test/scenarios/", gates: "build tests" },
+    ],
+  },
+];
+const flat = plan.flatMap((s) => s.items);
+const computed = 0.8;
+const browse = 1.8;
+const per = 1.1;
+const cursorAt = (i: number) => browse + i * per;
+const mapLoop = cursorAt(flat.length) + 1.4;
+const kinds: { k: Kind; name: string }[] = [
+  { k: "provided", name: "Provided" },
+  { k: "own", name: "Own" },
+  { k: "build", name: "To build" },
+];
+const count = (k: Kind) => flat.filter((x) => x.kind === k).length;
+
+/* ---------- Scaffold ---------- */
+/* Hypha Stack's scaffolds, the shapes an application takes; the task
+   tracker, a server alone, takes hypha-api. */
+const shapes = [
+  { name: "hypha-api", parts: "a server", chosen: true },
+  { name: "hypha-web", parts: "a front end" },
+  { name: "hypha-fullstack", parts: "a server and its front end" },
+];
+const starts = [
+  { what: "the route table, empty of its routes", at: 1.6 },
+  { what: "Spindle's log", at: 2 },
+  { what: "the API's document at /docs", at: 2.4 },
+  { what: "/livez, /readyz, /metrics", at: 2.8 },
+  { what: "make setup, build, test, lint, run", at: 3.2 },
+];
+const taken = 1;
+const building = 3.8;
+const built = 6.6;
+
+/* ---------- Composition ---------- */
+const gates = ["build", "tests", "lint", "verify", "paths", "layout"];
+/* What each gate holds, how HAF runs it, and what it found, as the
+   gates' docs say them. */
+const held = ["the whole compiles", "every test, one of its work", "Hypha's rules, by litany", "statements on a fresh database", "only the paths it may touch", "the application's layout"];
+const how = ["make build, in a container", "make test, in a container", "make lint, in a container", "make verify, in a container", "its change, read from git", "its change, read from git"];
+const found = ["compiles, 4.1s", "16 passed, 2 new", "nothing found", "6 statements agree", "server/tasks/ only", "kept"];
+const pieces = [
+  { name: "Task: shape, table, statements", from: 0.6 },
+  { name: "Task: routes", from: 2.8 },
+  { name: "Task states: open, done", from: 5 },
+  { name: "Rule: due after now", from: 7.2, refused: { gate: 1, again: 9.8 } },
+];
+const later = ["Rule: name not blank", "Who may see and do tasks", "Project: shape, table, statements", "Project: routes"];
+const gap = 0.32;
+const runs = pieces.map((p) => {
+  const passFrom = p.refused ? p.refused.again + 0.5 : p.from + 0.3;
+  const done = passFrom + gates.length * gap;
+  return { ...p, passFrom, done };
+});
+const composeLoop = runs.at(-1)!.done + 3.6;
+const rule = runs[3]!;
+const refusedAt = rule.from + 0.3 + rule.refused!.gate * gap;
+const again = rule.refused!.again;
+const gateSeq = (g: number) => {
+  const ev: string[] = ["0:wait"];
+  for (const r of runs) {
+    ev.push(`${f2(r.from)}:wait`);
+    if (r.refused && g <= r.refused.gate) {
+      const at = r.from + 0.3 + g * gap;
+      ev.push(`${f2(at - gap)}:run`, `${f2(at)}:${g === r.refused.gate ? "fail" : "pass"}`);
+    }
+    if (r.refused) ev.push(`${f2(r.refused.again)}:wait`);
+    ev.push(`${f2(r.passFrom + g * gap - gap)}:run`, `${f2(r.passFrom + g * gap)}:pass`);
+  }
+  return ev.join(" ");
+};
+const pieceSeq = (r: (typeof runs)[number]) => `0:wait ${f2(r.from)}:work ${r.refused ? `${f2(refusedAt)}:refused ${f2(r.refused.again)}:work ` : ""}${f2(r.done)}:done`;
+const spark = "▂▃▅▆▅▃▂▁▂▄▆▇▆▄▃▂▃▅▇▆▄▂▁▂▃▄▆▅▃▂▁▂▃▅▆▇";
+
+/* ---------- Validation ---------- */
+const reqs: { fr: string; text: string; scenarios: string[] }[] = [
+  { fr: "FR-1", text: "A person signs in with their email, and sees and changes their name and time zone.", scenarios: ["a person sees their own account", "a person renames their account"] },
+  { fr: "FR-2", text: "A person creates a task in a project, with a title, a due instant after now, an assignee and notes if they like, and owns it.", scenarios: ["a task due in the past is refused"] },
+  { fr: "FR-3", text: "A task's assignee or its owner completes it, and reopens it.", scenarios: ["a stranger cannot complete a task", "the assignee completes and reopens a task"] },
+  { fr: "FR-4", text: "A task's owner moves its due instant, never into the past.", scenarios: ["the owner moves a task's due date"] },
+  { fr: "FR-5", text: "Anyone signed in lists the tasks.", scenarios: ["the tasks are listed"] },
+  { fr: "FR-6", text: "A person makes a project with a name that is not blank, which is theirs, and lists the projects.", scenarios: ["a person makes a project", "a project with a blank name is refused", "the projects are listed"] },
+];
+const proving = (() => {
+  let t = 0.6;
+  return reqs.map((r) => {
+    const from = t;
+    const sc = r.scenarios.map((s, k) => ({ s, at: from + 0.4 + k * 1.1, pass: from + 0.4 + (k + 1) * 1.1 - 0.15 }));
+    const done = sc.at(-1)!.pass + 0.2;
+    t = done + 0.5;
+    return { ...r, from, sc, done, until: t };
+  });
+})();
+const validLoop = proving.at(-1)!.until + 2.6;
+const total = reqs.reduce((n, r) => n + r.scenarios.length, 0);
+const passes = proving.flatMap((r) => r.sc.map((s) => s.pass)).sort((a, b) => a - b);
+const passSeq = `0:0 ${passes.map((t, i) => `${f2(t)}:${i + 1}`).join(" ")}`;
+
+/* ---------- Release ---------- */
+const releasing = [
+  { what: "Validated whole", note: "1635b79", at: 0.4, done: 1 },
+  { what: "main fast-forwarded", note: "", at: 1, done: 1.8 },
+  { what: "Tagged", note: "0.1.0", at: 1.8, done: 2.6 },
+  { what: "Pushed", note: "origin", at: 2.6, done: 3.4 },
+];
+const released = 3.6;
+const bench = 7.6;
+const logs = ["migrated: 3 changes", "listening on :8080", "POST /projects 201 5ms", "POST /tasks 201 4ms", "GET /tasks 200 2ms", "POST /tasks/{id}:complete 200 3ms", "POST /tasks/{id}:reopen 200 3ms", "GET /tasks 200 2ms"];
+const logAt = (i: number) => bench + 1.6 + i * 0.9;
+const releaseLoop = logAt(logs.length) + 2.4;
+
+/* HAF's top line and status bar, as its captures show them: the tabs
+   of a scope's work with what is done ticked and what is at work
+   playing, and the state over the keys that act on it. The Workbench
+   has its own. */
+const tabNames = ["Intent", "PRD", "Tasks", "Done"];
+const tabAt: Record<string, number> = { Intent: 0, Mapping: 2, Scaffold: 2, Composition: 2, Validation: 2, Release: 3 };
+const tabs = tabNames.map((name, i) => ({
+  name,
+  state: i < tabAt[step]! || (step === "Release" && i === 3) ? "done" : i === tabAt[step] ? "now" : "wait",
+  on: i === tabAt[step],
+}));
+const status: Record<string, { state: string; spin?: boolean; keys: [string, string][] }> = {
+  Intent: { state: "waiting", keys: [["↑↓", "choose"], ["enter", "answer"], ["o", "discuss"], ["→", "what is decided"], ["tab", "next"]] },
+  working: { state: "working", spin: true, keys: [["P", "pause"], ["D", "stop"], ["a", "amend the PRD"], ["tab", "next"], ["esc", "acme"]] },
+  Release: { state: "released", keys: [["↑↓", "move"], ["enter", "try it"], ["tab", "next"], ["esc", "acme"], ["?", "help"]] },
+};
+const now = status[step] ?? status.working!;
+const benchBar = { state: "1 needs you", keys: [["↑↓", "move"], ["tab", "next"], ["esc", "HAF"], ["q", "quit"]] as [string, string][] };
+
+const loop = ({ Intent: intentLoop, Mapping: mapLoop, Scaffold: built + 4, Composition: composeLoop, Validation: validLoop, Release: releaseLoop } as Record<string, number>)[step]!;
+---
+
+<figure class:list={["haf", `haf-${step.toLowerCase()}`]} data-loop={loop} aria-label={label}>
+  <div class="screen" aria-hidden="true">
+    <p class:list={["topline", step === "Release" && "one"]} data-at={step === "Release" ? 0 : undefined} data-until={step === "Release" ? bench : undefined}>
+      <span class="badge">HAF</span><span class="scope">acme</span>
+      {tabs.map((t) => <span class:list={["tab", t.on && "on"]}>{t.name}{t.state === "done" ? <span class="tick">✓</span> : t.state === "now" ? (step === "Intent" ? <span class="ask">?</span> : <span class="play">⏺</span>) : null}</span>)}
+    </p>
+    {step === "Release" && (
+      <p class="topline one" data-at={bench}>
+        <span class="badge">HAF</span><span class="scope">acme</span>
+        <span class="tab">Scopes</span><span class="tab">Facts</span><span class="tab on">Workbench</span>
+      </p>
+    )}
+    {
+      step === "Intent" && (
+        <div class="panes">
+          <div class="pane main stack">
+            <div class="lay scroll" data-at="0" data-until={drafted}>
+              <div class="said">
+                <p><span class="ok">✓</span>What would you like to build?</p>
+                <p class="ans"><span class="dim">›</span>A team task tracker: tasks with a due date and an assignee, done or reopened, and an email reminder before a task is due.</p>
+              </div>
+              <p class="pad">Hi! I'll ask only what changes what gets built.</p>
+              {asks.map((a) => (
+                <>
+                  <div class="ask flow" data-at={a.at} data-until={a.off}>
+                    <p><span class="purple">?</span><span class="hi">{a.q}</span></p>
+                    <p class="pad dim">{a.why}</p>
+                    <ul class="opts">
+                      {a.opts.map((o, k) => (
+                        <li class="opt" {...seq(a.own ? (k === 0 ? `0:cur ${f2(a.at + 1.3)}:no` : k === a.opts.length - 1 ? `0:no ${f2(a.at + 1.3)}:cur` : "0:no") : k === 0 ? "0:cur" : "0:no")}>
+                          {o}
+                          {k === 0 && " (recommended)"}
+                        </li>
+                      ))}
+                    </ul>
+                    {a.own && (
+                      <p class="typed flow" data-at={a.at + 1.7}>
+                        <span class="dim">›</span>
+                        <span data-type={`${f2(a.at + 1.8)} 1.8`}>{a.answer}</span>
+                        <span class="cursor" />
+                      </p>
+                    )}
+                  </div>
+                  <div class="said flow" data-at={a.off}>
+                    <p><span class="ok">✓</span>{a.q}</p>
+                    <p class="ans"><span class="dim">›</span>{a.answer}</p>
+                  </div>
+                  {a.think && (
+                    <div class="think flow" data-at={a.off + 0.2} data-until={a.thinkUntil}>
+                      <p><span class="spin">⠋</span>Thinking, <span class="val" {...seq(`0:1s ${f2(a.off + 1.2)}:2s`)}>2s</span></p>
+                      <p class="pad teal" data-type={`${f2(a.off + 0.3)} 1.8`}>{a.think}</p>
+                    </div>
+                  )}
+                </>
+              ))}
+              <p class="flow" data-at={drafting}><span class="spin">⠋</span>Drafting the PRD</p>
+            </div>
+            <div class="lay col" data-at={drafted}>
+              <p>
+                <span class="hi">A team task tracker, API only</span>{" "}
+                <span class="swap dim">
+                  <span data-at="0" data-until={signed}>(v1, not signed)</span>
+                  <span data-at={signed}>(v1, signed)</span>
+                </span>
+              </p>
+              <div class="doc" data-roll={`${f2(reading)} ${f2(read - reading)}`}>
+                <p class="hi gap">A team task tracker, API only</p>
+                <p class="gap swap">
+                  <span data-at="0" data-until={signed}>Status: Draft</span>
+                  <span data-at={signed}>Status: Accepted</span>
+                </p>
+                <p class="hi gap">The problem</p>
+                <p class="wrap">{prd.problem}</p>
+                <p class="hi gap">User scenarios</p>
+                {prd.scenarios.map((sc, i) => (
+                  <p class="wrap num-item"><span class="dim">{i + 1}.</span>{sc}</p>
+                ))}
+                <p class="hi gap">Requirements</p>
+                {prd.requirements.map((r, i) => (
+                  <p class="wrap num-item"><span class="dim">FR-{i + 1}</span>{r}</p>
+                ))}
+              </div>
+              <div class="swap">
+                <div class="ask" data-at="0" data-until={signed}>
+                  <p><span class="purple">?</span><span class="hi">Sign A team task tracker, API only?</span></p>
+                  <p class="pad dim">Nothing is built until you sign it.</p>
+                  <ul class="opts">
+                    <li class="opt" data-state="cur">Yes, sign it</li>
+                    <li class="opt" data-state="no">Change it, in your words</li>
+                  </ul>
+                </div>
+                <div class="said" data-at={signed}>
+                  <p><span class="ok">✓</span>Sign A team task tracker, API only?</p>
+                  <p class="ans"><span class="dim">›</span>Yes, sign it</p>
+                  <p class="gap"><span class="spin">⠋</span>Starting its work</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="pane side">
+            <p class="hi">
+              <span class="rec">⏺</span>
+              <span class="swap">
+                <span data-at="0" data-until={signed}>Intent</span>
+                <span data-at={signed}>Mapping</span>
+              </span>
+            </p>
+            <p class="segs">{segs(0, signed).map((s) => <span {...seq(s)} />)}</p>
+            <p class="hi gap">Recap</p>
+            <dl class="facts">
+              <dt>Working on</dt>
+              <dd class="swap">
+                <span data-at="0" data-until={signed}>your request</span>
+                <span data-at={signed}>the plan</span>
+              </dd>
+              <dt>Done</dt>
+              <dd><span class="val" {...seq(`0:0 ${asks.map((a, i) => `${f2(a.off)}:${i + 1}`).join(" ")}`)}>{asks.length}</span> <span class="val" {...seq(`0:questions ${f2(asks[0]!.off)}:question ${f2(asks[1]!.off)}:questions`)}>questions</span> settled</dd>
+              <dt>Next</dt>
+              <dd class="swap">
+                <span data-at="0" data-until={signed}>the PRD, drafted for you to sign</span>
+                <span data-at={signed}>the build</span>
+              </dd>
+              <dt>Model</dt>
+              <dd>claude-opus-5-5</dd>
+            </dl>
+            <p class="hi gap">Versions</p>
+            <div class="swap">
+              <p class="dim" data-at="0" data-until={drafting}>none yet</p>
+              <p data-at={drafting} data-until={drafted}><span class="spin">⠋</span>v1  drafting</p>
+              <p data-at={drafted} data-until={signed}><span class="purple">?</span>v1  to sign</p>
+              <p data-at={signed}><span class="ok">✓</span>v1  signed</p>
+            </div>
+            <p class="meter gap">
+              <span class="label">Spent</span>
+              <span class="br">[</span>
+              <span class="cells c-money">{bar([drafted]).map((at) => (at === undefined ? <span /> : <span data-at={at}>|</span>))}</span>
+              <span class="num"><span class="val" {...seq(`0:$0.00 ${f2(asks[0]!.off)}:$0.01 ${f2(drafted)}:$0.02`)}>$0.02</span>/$100</span>
+              <span class="br">]</span>
+            </p>
+          </div>
+        </div>
+      )
+    }
+    {
+      step === "Mapping" && (
+        <div class="panes">
+          <div class="pane main col">
+            <p><span class="hi">A team task tracker, API only</span> <span class="dim">(Mapping)</span></p>
+            <p class="gap"><span class="hi">The plan</span> <span class="dim">({flat.length} items, {plan.length} stages)</span></p>
+            <div class="scroll follow plan" data-at={computed}>
+              {(() => {
+                let n = 0;
+                return plan.map((s) => (
+                  <>
+                    <p class="stage-name">{s.stage}</p>
+                    {s.items.map((it) => {
+                      const i = n++;
+                      return (
+                        <p class="row item" {...seq(`0:no ${f2(cursorAt(i))}:cur ${f2(cursorAt(i + 1))}:no`)}>
+                          <span class="pad">{it.name}</span>
+                          <span class:list={["kind", `k-${it.kind}`]}>{it.kind === "own" ? "own" : kindName[it.kind]}</span>
+                        </p>
+                      );
+                    })}
+                  </>
+                ));
+              })()}
+            </div>
+          </div>
+          <div class="pane side col">
+            <p class="hi"><span class="rec">⏺</span>Mapping</p>
+            <p class="segs">{segs(1).map((s) => <span {...seq(s)} />)}</p>
+            <div class="meters">
+              {kinds.map(({ k, name }) => (
+                <p class="meter">
+                  <span class="label">{name}</span>
+                  <span class="br">[</span>
+                  <span class:list={["cells", `c-${k}`]}>{bar(Array.from({ length: Math.round((cells * count(k)) / flat.length) }, (_, i) => computed + i * 0.03)).map((at) => (at === undefined ? <span /> : <span data-at={at}>|</span>))}</span>
+                  <span class="num">{count(k)}/{flat.length}</span>
+                  <span class="br">]</span>
+                </p>
+              ))}
+              <p class="meter">
+                <span class="label">Asked</span>
+                <span class="br">[</span>
+                <span class="cells">{bar([]).map(() => <span />)}</span>
+                <span class="num">no model</span>
+                <span class="br">]</span>
+              </p>
+            </div>
+            <div class="detail">
+              <div class="one" data-at="0" data-until={browse}>
+                <dl class="facts">
+                  <dt>Working on</dt>
+                  <dd>the plan, by lookup</dd>
+                  <dt>From</dt>
+                  <dd>the signed PRD, the Ontology 0.1.0</dd>
+                </dl>
+              </div>
+              {flat.map((it, i) => (
+                <div class="one" data-at={cursorAt(i)} data-until={i === flat.length - 1 ? undefined : cursorAt(i + 1)}>
+                  <p class="hi wrap">{it.name}</p>
+                  <dl class="facts">
+                    <dt>Kind</dt>
+                    <dd class:list={[`k-${it.kind}`]}>{kindName[it.kind]}</dd>
+                    <dt>Concepts</dt>
+                    <dd>
+                      {it.concepts.map((c) => (
+                        <p>{c}</p>
+                      ))}
+                    </dd>
+                    <dt>Paths</dt>
+                    <dd>{it.paths}</dd>
+                    <dt>Gates</dt>
+                    <dd>{it.gates}</dd>
+                  </dl>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )
+    }
+    {
+      step === "Scaffold" && (
+        <div class="panes">
+          <div class="pane main col">
+            <p><span class="hi">A team task tracker, API only</span> <span class="dim">(Scaffold, 1 of 4)</span></p>
+            <p class="hi gap">Parts <span class="dim">(1)</span></p>
+            <p class="row"><span><span class="ok">✓</span>server</span><span class="dim">on Hypha Stack</span></p>
+            <p class="hi gap">Scaffolds of Hypha Stack <span class="dim">(3)</span></p>
+            {shapes.map((sh) => (
+              <p class="row item" {...seq(sh.chosen ? `0:cur ${f2(built)}:no` : "0:no")}>
+                <span>
+                  {sh.chosen ? (
+                    <span class="swap mk2">
+                      <span data-at="0" data-until={taken}> </span>
+                      <span class="spin" data-at={taken} data-until={built}>⠋</span>
+                      <span class="ok" data-at={built}>✓</span>
+                    </span>
+                  ) : (
+                    <span class="mk2"> </span>
+                  )}
+                  <span class:list={[!sh.chosen && "faint"]}>{sh.name}</span>
+                </span>
+                <span class:list={[!sh.chosen && "faint"]}>{sh.parts}</span>
+              </p>
+            ))}
+            <p class="hi gap">Stages <span class="dim">(4)</span></p>
+            <p class="row">
+              <span>
+                <span class="swap mk2">
+                  <span class="rec" data-at="0" data-until={built}>⏺</span>
+                  <span class="ok" data-at={built}>✓</span>
+                </span>
+                S1 The application's own
+              </span>
+              <span class="swap dim">
+                <span data-at="0" data-until={built}>at work</span>
+                <span data-at={built}>done</span>
+              </span>
+            </p>
+            <p class="row"><span class="pad faint">S2 Accounts</span><span class="dim">after S1</span></p>
+            <p class="row"><span class="pad faint">S3 Tasks</span><span class="dim">after S2</span></p>
+            <p class="row"><span class="pad faint">S4 The whole</span><span class="dim">after S3</span></p>
+          </div>
+          <div class="pane side col">
+            <p class="hi"><span class="rec">⏺</span>Scaffold</p>
+            <p class="segs">{segs(2, built).map((s) => <span {...seq(s)} />)}</p>
+            <p class="hi gap">S1 The application's own</p>
+            <dl class="facts">
+              <dt>State</dt>
+              <dd class="swap">
+                <span data-at="0" data-until={building}><span class="spin">⠋</span>laying hypha-api</span>
+                <span data-at={building} data-until={built}><span class="spin">⠋</span>building</span>
+                <span data-at={built}><span class="ok">✓</span>built, it compiles</span>
+              </dd>
+              <dt>From</dt>
+              <dd>Hypha's vault 0.1.0</dd>
+              <dt>Lands in</dt>
+              <dd>task-tracker</dd>
+            </dl>
+            <p class="hi gap">It starts</p>
+            <ul>
+              {starts.map((st) => (
+                <li class="tick" {...seq(`0:wait ${f2(st.at)}:pass`)}>{st.what}</li>
+              ))}
+            </ul>
+            <div class="meters">
+              <p class="meter">
+                <span class="label">Build</span>
+                <span class="br">[</span>
+                <span class="cells c-model">{bar(Array.from({ length: cells }, (_, i) => building + 0.15 + (i * (built - building - 0.4)) / cells)).map((at) => <span data-at={at}>|</span>)}</span>
+                <span class="num swap">
+                  <span data-at="0" data-until={built}>make build</span>
+                  <span data-at={built}>built</span>
+                </span>
+                <span class="br">]</span>
+              </p>
+              <p class="meter">
+                <span class="label">Calls</span>
+                <span class="br">[</span>
+                <span class="cells">{bar([]).map(() => <span />)}</span>
+                <span class="num">0, no model</span>
+                <span class="br">]</span>
+              </p>
+              <p class="meter">
+                <span class="label">Spent</span>
+                <span class="br">[</span>
+                <span class="cells c-money">{bar([true]).map((at) => (at === undefined ? <span /> : <span>|</span>))}</span>
+                <span class="num">$0.02/$100</span>
+                <span class="br">]</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      )
+    }
+    {
+      step === "Composition" && (
+        <div class="panes">
+          <div class="pane main col">
+            <p><span class="hi">A team task tracker</span> <span class="dim">(Composition, 3 of 4)</span></p>
+            <p class="hi gap">Stages</p>
+            <p><span class="ok">✓</span>S1 The application's own</p>
+            <p><span class="ok">✓</span>S2 Accounts</p>
+            <p class="row"><span><span class="rec">⏺</span>S3 Tasks</span><span class="dim">at work</span></p>
+            <p class="row"><span class="pad faint">S4 The whole</span><span class="dim">after S3</span></p>
+            <p class="hi gap">Items of S3 <span class="dim">(8)</span></p>
+            {runs.map((r) => (
+              <p class="piece" {...seq(pieceSeq(r))}>{r.name}</p>
+            ))}
+            {later.map((n) => (
+              <p class="row"><span class="pad faint">{n}</span></p>
+            ))}
+          </div>
+          <div class="pane side col">
+            <p class="hi"><span class="rec">⏺</span>Composition</p>
+            <p class="segs">{segs(3).map((s) => <span {...seq(s)} />)}</p>
+            <div class="meters">
+              <p class="meter">
+                <span class="label">Spent</span>
+                <span class="br">[</span>
+                <span class="cells c-money">{bar([true]).map((at) => (at === undefined ? <span /> : <span>|</span>))}</span>
+                <span class="num"><span class="val" {...seq(`0:$0.06 ${runs.map((r, i) => `${f2(r.done)}:$0.${String(7 + i).padStart(2, "0")}`).join(" ")}`)}>$0.10</span>/$100</span>
+                <span class="br">]</span>
+              </p>
+              <p class="meter">
+                <span class="label">Proof</span>
+                <span class="br">[</span>
+                <span class="cells c-ok">{bar([]).map(() => <span />)}</span>
+                <span class="num">0/10 proven</span>
+                <span class="br">]</span>
+              </p>
+              <p class="meter">
+                <span class="label">Tok/s</span>
+                <span class="spark">{spark}</span>
+                <span class="num"><span class="val" {...seq(`0:86 ${f2(refusedAt)}:12 ${f2(again)}:79`)}>79</span> now</span>
+              </p>
+            </div>
+            <p class="gap row">
+              <span class="hi">Gates</span>
+              <span class="swap dim">
+                <span data-at="0" data-until={again}>round 1</span>
+                <span data-at={again}>round 2</span>
+              </span>
+            </p>
+            <div class="swap">
+              {runs.map((r, i) => (
+                <p class="dim" data-at={i === 0 ? 0 : r.from} data-until={runs[i + 1]?.from}>{r.name}</p>
+              ))}
+            </div>
+            <ul class="gates">
+              {gates.map((g, k) => (
+                <li class="gate" {...seq(gateSeq(k))}>
+                  <span class="gname">{g}</span>
+                  <span class="gsay">
+                    <span class="g-wait">{held[k]}</span>
+                    <span class="g-run">{how[k]}</span>
+                    <span class="g-pass">{found[k]}</span>
+                    {k === rule.refused!.gate && <span class="g-fail">needs a test of its work</span>}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )
+    }
+    {
+      step === "Validation" && (
+        <div class="panes">
+          <div class="pane main col">
+            <p><span class="hi">A team task tracker</span> <span class="dim">(Validation)</span></p>
+            <p class="hi gap">Requirements <span class="dim">({reqs.length})</span></p>
+            <ul class="reqs">
+              {proving.map((r) => (
+                <li class="req" {...seq(`0:wait ${f2(r.from)}:cur ${f2(r.done)}:curdone ${f2(r.until)}:done`)}>
+                  <span class="mk" />
+                  <span class="fr">{r.fr}</span>
+                  <span class="txt">{r.text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div class="pane side col">
+            <p class="hi"><span class="rec">⏺</span>Validation</p>
+            <p class="segs">{segs(4).map((s) => <span {...seq(s)} />)}</p>
+            <div class="meters">
+              <p class="meter">
+                <span class="label">Proof</span>
+                <span class="br">[</span>
+                <span class="cells c-ok">{Array.from({ length: cells }, (_, i) => <span data-at={passes[Math.min(passes.length - 1, Math.floor((i * passes.length) / cells))]}>|</span>)}</span>
+                <span class="num"><span class="val" {...seq(passSeq)}>{total}</span>/{total} proven</span>
+                <span class="br">]</span>
+              </p>
+            </div>
+            <div class="detail">
+              {proving.map((r, i) => (
+                <div class="one" data-at={i === 0 ? 0 : r.from} data-until={i === proving.length - 1 ? undefined : r.until}>
+                  <p class="hi">{r.fr}</p>
+                  <p class="wrap">{r.text}</p>
+                  <dl class="facts gap">
+                    <dt>Verdict</dt>
+                    <dd class="swap">
+                      <span data-at="0" data-until={r.done}><span class="spin">⠋</span>proving</span>
+                      <span data-at={r.done}><span class="ok">✓</span>proven, {r.scenarios.length} scenario{r.scenarios.length > 1 ? "s" : ""}</span>
+                    </dd>
+                  </dl>
+                  <p class="hi gap">Scenarios <span class="dim">({r.scenarios.length})</span></p>
+                  <ul>
+                    {r.sc.map((s) => (
+                      <li class="sc" {...seq(`0:wait ${f2(s.at)}:run ${f2(s.pass)}:pass`)}>
+                        <span class="mk" />
+                        <span class="txt">{s.s}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )
+    }
+    {
+      step === "Release" && (
+        <>
+          <div class="layer" data-at="0" data-until={bench}>
+            <div class="panes">
+              <div class="pane main col">
+                <div class="swap">
+                  <p class="row cur" data-at="0" data-until={released}><span><span class="spin">⠋</span>Releasing</span><span>task-tracker 0.1.0</span></p>
+                  <p class="row cur" data-at={released}><span><span class="arrow">→</span>Try it in the Workbench</span><span>task-tracker 0.1.0</span></p>
+                </div>
+                <p class="hi gap">Requirements <span class="dim">(6)</span></p>
+                {reqs.map((r) => (
+                  <p class="req done"><span class="mk" /><span class="fr">{r.fr}</span><span class="txt">{r.text}</span></p>
+                ))}
+                <p class="hi gap">Repositories <span class="dim">(1)</span></p>
+                <p class="row">
+                  <span>
+                    <span class="swap mk2">
+                      <span class="spin" data-at="0" data-until={released}>⠋</span>
+                      <span class="ok" data-at={released}>✓</span>
+                    </span>
+                    task-tracker
+                  </span>
+                  <span class="swap mid">
+                    <span data-at="0" data-until={released}>0.1.0, releasing</span>
+                    <span data-at={released}>0.1.0, tagged, pushed</span>
+                  </span>
+                </p>
+              </div>
+              <div class="pane side col">
+                <p class="hi">
+                  <span class="swap">
+                    <span data-at="0" data-until={released}><span class="rec">⏺</span>Release</span>
+                    <span data-at={released}><span class="ok">✓</span>Released, 1635b79</span>
+                  </span>
+                </p>
+                <p class="segs">{segs(5, released).map((s) => <span {...seq(s)} />)}</p>
+                <p class="hi gap">Release</p>
+                <ul>
+                  {releasing.map((r) => (
+                    <li class="row tick" {...seq(`0:wait ${f2(r.at)}:run ${f2(r.done)}:pass`)}>
+                      <span>{r.what}</span>
+                      <span class="dim">{r.note}</span>
+                    </li>
+                  ))}
+                </ul>
+                <dl class="facts gap">
+                  <dt>Took</dt>
+                  <dd>15:29, signed to released</dd>
+                  <dt>Next</dt>
+                  <dd>try it in the Workbench</dd>
+                </dl>
+                <div class="meters">
+                  <p class="meter">
+                    <span class="label">Proof</span>
+                    <span class="br">[</span>
+                    <span class="cells c-ok">{bar(Array.from({ length: cells }, () => true)).map(() => <span>|</span>)}</span>
+                    <span class="num">10/10 proven</span>
+                    <span class="br">]</span>
+                  </p>
+                  <p class="meter">
+                    <span class="label">Spent</span>
+                    <span class="br">[</span>
+                    <span class="cells c-money">{bar([true]).map((at) => (at === undefined ? <span /> : <span>|</span>))}</span>
+                    <span class="num">$0.12/$100</span>
+                    <span class="br">]</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="layer" data-at={bench}>
+            <div class="panes">
+              <div class="pane main col">
+                <p class="row cur"><span><span class="arrow">→</span>Running main</span><span>every repository at its main</span></p>
+                <p class="hi gap">Applications <span class="dim">(1)</span></p>
+                <p class="row">
+                  <span><span class="rec">⏺</span><span class="hi">task-tracker</span></span>
+                  <span>
+                    :8080{" "}
+                    <span class="swap">
+                      <span class="dim" data-at="0" data-until={bench + 1.2}>starting</span>
+                      <span data-at={bench + 1.2}>running</span>
+                    </span>
+                  </span>
+                </p>
+                <p class="hi gap">Infrastructure <span class="dim">(1)</span></p>
+                <p class="row"><span><span class="rec">⏺</span><span class="hi">postgres</span></span><span>running</span></p>
+              </div>
+              <div class="pane side col">
+                <p class="hi">task-tracker</p>
+                <dl class="facts">
+                  <dt>State</dt>
+                  <dd class="swap">
+                    <span data-at="0" data-until={bench + 1.2}><span class="spin">⠋</span>starting</span>
+                    <span data-at={bench + 1.2}><span class="rec">⏺</span>running, up 1m</span>
+                  </dd>
+                  <dt>Address</dt>
+                  <dd class="fact">http://localhost:8080</dd>
+                </dl>
+                <div class="meters">
+                  <p class="meter">
+                    <span class="label">CPU</span>
+                    <span class="br">[</span>
+                    <span class="cells c-model">{bar([true, true]).map((at) => (at === undefined ? <span /> : <span>|</span>))}</span>
+                    <span class="num">3.2%</span>
+                    <span class="br">]</span>
+                  </p>
+                  <p class="meter">
+                    <span class="label">Mem</span>
+                    <span class="br">[</span>
+                    <span class="cells c-model">{bar([true]).map((at) => (at === undefined ? <span /> : <span>|</span>))}</span>
+                    <span class="num">212M/4G</span>
+                    <span class="br">]</span>
+                  </p>
+                  <p class="meter">
+                    <span class="label">Req</span>
+                    <span class="spark-req">
+                      {Array.from({ length: 30 }, (_, i) => {
+                        const k = i - (30 - (logs.length - 2));
+                        return k < 0 ? <span>▁</span> : <span class="val" {...seq(`0:▁ ${f2(logAt(k + 2))}:${"▃▅▂▆▄▇"[k % 6]}`)}>{"▃▅▂▆▄▇"[k % 6]}</span>;
+                      })}
+                    </span>
+                    <span class="num"><span class="val" {...seq(`0:0 ${logs.slice(2).map((_, i) => `${f2(logAt(i + 2))}:${i + 1}`).join(" ")}`)}>{logs.length - 2}</span> served</span>
+                  </p>
+                </div>
+                <p class="hi gap">Guard</p>
+                <dl class="facts">
+                  <dt>Reached</dt>
+                  <dd><span class="ok">1</span>your mail relay</dd>
+                  <dt>Refused</dt>
+                  <dd><span class="faint">0</span>nothing yet</dd>
+                </dl>
+                <p class="hi gap">Logs</p>
+                <div class="logs scroll">
+                  {logs.map((l, i) => (
+                    <p class="flow" data-at={logAt(i)}>
+                      <span class="faint">task-tracker</span> {l}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )
+    }
+    <p class:list={["statusbar", step === "Release" && "one"]} data-at={step === "Release" ? 0 : undefined} data-until={step === "Release" ? bench : undefined}>
+      <span class="state">{now.spin && <span class="spin">⠋</span>}{now.state}</span>
+      {now.keys.map(([k, what]) => <span class="key"><kbd>{k}</kbd>{what}</span>)}
+      <span class="where">scope 1 of 1, updated 0s ago</span><span class="scope">acme</span><span class="ver">0.9.0</span>
+    </p>
+    {step === "Release" && (
+      <p class="statusbar one" data-at={bench}>
+        <span class="state">{benchBar.state}</span>
+        {benchBar.keys.map(([k, what]) => <span class="key"><kbd>{k}</kbd>{what}</span>)}
+        <span class="where"></span><span class="ver">0.9.0</span>
+      </p>
+    )}
+  </div>
+</figure>
+
+<style>
+  /* HAF's screen in its Garoa palette, its greys turned to Hypha's warm
+     night so it sits on the page's ground: the main pane's ground, the side
+     pane's, a key, a frame; its words, the bright, the dim, the faint;
+     the gold of what is chosen, the orange of what is going on and of
+     money, the green of what is done and proven, the teal of the model's
+     work, the purple of a question, the red of a refusal. */
+  .haf {
+    --bg: #15120e;
+    --pane: #1a150f;
+    --key: #322b22;
+    --frame: #3d362c;
+    --bar: #262019;
+    --fg: #d9d3c9;
+    --hi: #f2f0ec;
+    --dim: #948c83;
+    --faint: #7b7369;
+    --gold: #e7cb8a;
+    --orange: #e3a068;
+    --green: #9acaa2;
+    --teal: #77babf;
+    --purple: #af97d3;
+    --red: #d87676;
+    --fact: #56b19f;
+    position: relative;
+    height: 22rem;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  @media (width >= 64rem) {
+    .haf { height: 34rem; }
+    .screen { font-size: 15px; }
+  }
+  .screen, .layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .screen {
+    font-family: "HAF Mono", var(--font-mono);
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--fg);
+    font-variant-ligatures: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .haf p, .haf li { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hi { color: var(--hi); font-weight: 600; }
+  .dim { color: var(--dim); }
+  .faint { color: var(--faint); }
+  .mid { color: var(--dim); }
+  .teal { color: var(--teal); }
+  .fact { color: var(--fact); }
+  .ok, .purple, .rec, .red, .arrow, .spin { display: inline-block; width: 2ch; }
+  .spin { color: var(--orange); }
+  .cur .spin { color: inherit; }
+  .ok { color: var(--green); }
+  .purple { color: var(--purple); }
+  .rec { color: var(--orange); font-weight: 400; }
+  .red { color: var(--red); }
+  .gap { margin-top: 1.45em; }
+  .pad { padding-left: 2ch; }
+  .haf .wrap { white-space: normal; }
+  .row { display: flex; justify-content: space-between; gap: 2ch; }
+  .row > :first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .row > :last-child { flex: none; }
+
+  /* The panes: the main one on the screen's ground, the side one on its
+     own, as HAF splits them. */
+  .panes { flex: 1; min-height: 0; display: flex; }
+  /* The top line and the status bar: a line each on the bar's ground,
+     keys as caps, as HAF draws them. The layers a step swaps between sit
+     between them. */
+  .topline, .statusbar { flex: none; display: flex; align-items: center; height: 1.45em; background: var(--bar); white-space: nowrap; overflow: hidden; }
+  .screen > .layer { top: 1.45em; bottom: 1.45em; }
+  .badge { padding: 0 1ch; background: var(--orange); color: var(--pane); font-weight: 600; }
+  .topline .scope { padding: 0 1ch; background: var(--key); color: var(--hi); font-weight: 600; margin-right: 2ch; }
+  .tab { margin-right: 3ch; color: var(--dim); }
+  .tab.on { color: var(--hi); font-weight: 600; }
+  .tab .tick { margin-left: 1ch; color: var(--green); font-weight: 400; }
+  .tab .play { margin-left: 1ch; color: var(--orange); font-weight: 400; }
+  .tab .ask { margin-left: 1ch; color: var(--purple); font-weight: 400; }
+  .statusbar .state { padding: 0 3ch 0 1ch; color: var(--hi); font-weight: 600; }
+  .statusbar .state .spin { width: 2ch; }
+  .key { margin-right: 3ch; }
+  .key kbd { font: inherit; padding: 0 1ch; margin-right: 1ch; background: var(--key); }
+  .statusbar { margin-top: auto; }
+  .statusbar .where { margin-left: auto; padding-right: 2ch; color: var(--faint); }
+  .statusbar .scope { padding: 0 1ch; background: var(--key); color: var(--hi); font-weight: 600; }
+  .statusbar .ver { padding: 0 1ch 0 2ch; color: var(--faint); }
+  .pane { min-width: 0; min-height: 0; padding: 1rem 2ch; overflow: hidden; }
+  .main { flex: 1; }
+  .side { flex: 0 0 46%; background: var(--pane); }
+  .col { display: flex; flex-direction: column; }
+  @media (width < 40rem) {
+    .side { display: none; }
+  }
+
+  /* What scrolls fills from its top, and keeps its last line in view. */
+  .scroll { display: flex; flex-direction: column; gap: 1.45em; position: relative; overflow: hidden; }
+  .scroll > * { flex-shrink: 0; }
+  .plan.scroll, .logs.scroll { flex: 1; min-height: 0; gap: 0; }
+
+  /* One place holding one state at a time. */
+  .swap { display: inline-grid; }
+  div.swap { display: grid; }
+  .swap > * { grid-area: 1 / 1; }
+
+  /* The six steps as segments, the one at work named over them. */
+  .segs { display: flex; gap: 1ch; align-items: center; height: 1.45em; }
+  .segs > span { flex: 1; height: 2px; background: var(--frame); }
+  .segs > [data-state="done"] { background: var(--green); }
+  .segs > [data-state="now"] { background: var(--orange); }
+
+  /* The meters, as htop draws them: a label, the bar in brackets, the
+     value inside at its right; each the pane's width, coloured by role. */
+  .meters { display: flex; flex-direction: column; margin-top: 1.45em; }
+  .meter { display: flex; align-items: center; }
+  .meter .label { flex: none; width: 10ch; color: var(--dim); }
+  .br { flex: none; color: var(--hi); font-weight: 600; }
+  .cells { display: inline-flex; flex: 1; min-width: 0; overflow: hidden; }
+  .cells > span { width: 1ch; flex: none; }
+  .c-money { color: var(--orange); }
+  .c-model { color: var(--teal); }
+  .c-ok { color: var(--green); }
+  .c-provided { color: var(--gold); }
+  .c-own { color: var(--fg); }
+  .c-build { color: var(--orange); }
+  .meter .num { flex: none; margin-left: 1ch; color: var(--hi); font-weight: 600; }
+  .spark { flex: 1; min-width: 0; overflow: hidden; color: var(--teal); }
+  .spark-req { display: flex; justify-content: flex-end; flex: 1; min-width: 0; overflow: hidden; color: var(--green); }
+  .facts .ok, .facts .faint { display: inline-block; width: 3ch; }
+  .facts { display: grid; grid-template-columns: 11ch 1fr; }
+  .facts dt { color: var(--faint); }
+  .facts dd { min-width: 0; }
+  .facts dd p { overflow: hidden; text-overflow: ellipsis; }
+
+  /* Intent: the talk and its recap. */
+  .haf-intent .main p { white-space: normal; }
+  .ans, .think .teal { padding-left: 2ch; }
+  .ans > .dim { display: inline-block; width: 2ch; margin-left: -2ch; }
+  .ask { border: 1px solid var(--gold); border-radius: 6px; padding: 0.4rem 1ch; }
+  .opts { margin-top: 0.725em; }
+  .opt::before { content: "◇ "; color: var(--faint); }
+  .opt[data-state="cur"] { background: var(--gold); color: var(--pane); }
+  .opt[data-state="cur"]::before { content: "❯ "; color: inherit; }
+  .typed { margin-top: 0.725em; }
+  .typed > .dim { display: inline-block; width: 2ch; }
+  .cursor { display: inline-block; width: 1ch; height: 1.2em; vertical-align: -0.25em; background: var(--fg); animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Mapping: the plan by stage, the item under the cursor, its lookup. */
+  .plan { margin-top: 0.3em; }
+  .stage-name { color: var(--hi); font-weight: 600; }
+  .item { margin: 0 -1ch; padding: 0 1ch; }
+  .item[data-state="cur"] { background: var(--gold); color: var(--pane); }
+  .item[data-state="cur"] .kind { color: inherit; }
+  .kind { color: var(--dim); }
+  .k-provided { color: var(--gold); }
+  .k-own { color: var(--fg); }
+  .k-build { color: var(--orange); }
+
+  /* Composition: the gates on the item at work, the items' states. */
+  .cur { margin: 0 -1ch; padding: 0 1ch; background: var(--gold); color: var(--pane); }
+  .cur .rec, .cur .arrow { color: inherit; }
+  .gates { margin-top: 0.3em; }
+  .gate { display: grid; grid-template-columns: 2ch 8ch minmax(0, 1fr); }
+  .gname { color: var(--fg); }
+  .gsay { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--faint); }
+  .gsay > span { display: none; }
+  .gate[data-state="wait"] .g-wait, .gate[data-state="run"] .g-run, .gate[data-state="pass"] .g-pass, .gate[data-state="fail"] .g-fail { display: inline; }
+  .gate[data-state="wait"] .gname { color: var(--faint); }
+  .gate[data-state="run"] .gsay { color: var(--dim); }
+  .gate[data-state="pass"] .gsay { color: var(--fg); }
+  .gate[data-state="fail"] .gsay { color: var(--red); }
+  .piece { color: var(--faint); }
+  .gate::before, .piece::before { content: ""; display: inline-block; width: 2ch; }
+  .gate[data-state="run"]::before, .piece[data-state="work"]::before { content: var(--spin, "⠋"); color: var(--orange); }
+  .gate[data-state="pass"]::before, .piece[data-state="done"]::before { content: "✓"; color: var(--green); }
+  .gate[data-state="fail"] { color: var(--hi); }
+  .gate[data-state="fail"]::before, .piece[data-state="refused"]::before { content: "✗"; color: var(--red); }
+  .piece[data-state="work"], .piece[data-state="refused"] { color: var(--hi); }
+  .piece[data-state="done"] { color: var(--fg); }
+
+  /* Validation: the requirements, the one being proven chosen, its
+     scenarios beside it. */
+  .reqs { margin-top: 0.3em; }
+  .req, .sc { display: flex; gap: 1ch; }
+  .req { margin: 0 -1ch; padding: 0 1ch; color: var(--dim); }
+  .mk { flex: none; width: 1ch; }
+  .req .fr { flex: none; width: 4ch; color: var(--fg); }
+  .req .txt, .sc .txt { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .req[data-state="wait"], .req[data-state="wait"] .fr { color: var(--faint); }
+  .req[data-state="cur"], .req[data-state="curdone"], .req[data-state="cur"] .fr, .req[data-state="curdone"] .fr { background: var(--gold); color: var(--pane); }
+  .req[data-state="cur"] .mk::before { content: var(--spin, "⠋"); }
+  .req[data-state="curdone"] .mk::before, .req[data-state="done"] .mk::before, .sc[data-state="pass"] .mk::before { content: "✓"; }
+  .req[data-state="done"] .mk::before, .sc[data-state="pass"] .mk::before { color: var(--green); }
+  .sc[data-state="run"] .mk::before { content: var(--spin, "⠋"); color: var(--orange); }
+  .sc[data-state="wait"] { color: var(--faint); }
+  .detail { position: relative; }
+
+
+  /* Intent: the talk, then the PRD over it, read and signed. */
+  .stack { position: relative; }
+  .lay { position: absolute; inset: 1rem 2ch; }
+  .doc { flex: 1; min-height: 0; overflow: hidden; margin: 0.5em 0 0.9em; }
+  .num-item { display: grid; grid-template-columns: 5ch 1fr; }
+  .swap.mk2, .mk2 { display: inline-grid; width: 2ch; vertical-align: top; }
+  .mk2 > * { grid-area: 1 / 1; width: 2ch; }
+
+  /* A stepper's line: not begun faint, at work ⏺, done ✓. */
+  .tick { color: var(--faint); }
+  .tick::before { content: ""; display: inline-block; width: 2ch; flex: none; }
+  .tick[data-state="run"] { color: var(--hi); }
+  .tick[data-state="run"]::before { content: var(--spin, "⠋"); color: var(--orange); }
+  .tick[data-state="pass"] { color: var(--fg); }
+  .tick[data-state="pass"]::before { content: "✓"; color: var(--green); }
+  .row.tick { gap: 0; }
+  .row.tick > :first-child { flex: 1; }
+  .req.done .mk::before { content: "✓"; color: var(--green); }
+  .req.done .fr { color: var(--fg); }
+  .detail { margin-top: 1.45em; flex: 1; min-height: 0; }
+  .detail .one { position: absolute; inset: 0; }
+
+  /* Release, then the Workbench. */
+  .logs { margin-top: 0.3em; }
+  .logs .faint { margin-right: 1ch; }
+
+  /* The clock: what has not come yet waits unseen; what flows, a layer
+     or a state takes no room until it comes. Without the clock, the
+     markup stands at the loop's end. */
+  .haf:not([data-run]) [data-until] { display: none; }
+  .haf[data-run] [data-at]:not(.on) { opacity: 0; }
+  .haf[data-run] .flow:not(.on), .haf[data-run] .layer:not(.on), .haf[data-run] .one:not(.on), .haf[data-run] .lay:not(.on) { display: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cursor { animation: none; }
+  }
+</style>
+
+<script>
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const turns = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏";
+
+  for (const fig of document.querySelectorAll<HTMLElement>(".haf")) {
+    const loop = Number(fig.dataset.loop);
+    const marks = [...fig.querySelectorAll<HTMLElement>("[data-at]")].map((el) => ({
+      el,
+      at: Number(el.dataset.at),
+      until: el.dataset.until === undefined ? Infinity : Number(el.dataset.until),
+    }));
+    const seqs = [...fig.querySelectorAll<HTMLElement>("[data-seq]")].map((el) => ({
+      el,
+      val: el.classList.contains("val"),
+      steps: el.dataset.seq!.trim().split(/\s+/).map((s) => {
+        const i = s.indexOf(":");
+        return [Number(s.slice(0, i)), s.slice(i + 1)] as const;
+      }),
+    }));
+    const types = [...fig.querySelectorAll<HTMLElement>("[data-type]")].map((el) => {
+      const [a, d] = el.dataset.type!.split(" ").map(Number) as [number, number];
+      return { el, a, d, text: el.textContent ?? "" };
+    });
+    const spins = fig.querySelectorAll<HTMLElement>(".spin");
+    const sparks = [...fig.querySelectorAll<HTMLElement>(".spark")].map((el) => ({ el, text: [...(el.textContent ?? "")] }));
+    const scrolls = [...fig.querySelectorAll<HTMLElement>(".scroll")];
+    const rolls = [...fig.querySelectorAll<HTMLElement>("[data-roll]")].map((el) => {
+      const [a, d] = el.dataset.roll!.split(" ").map(Number) as [number, number];
+      return { el, a, d };
+    });
+
+    /* What scrolls keeps its last line in view; a list with a cursor
+       keeps the cursor's line in view, as a terminal does. */
+    const follow = () => {
+      for (const el of scrolls) {
+        const cur = el.classList.contains("follow") ? el.querySelector<HTMLElement>('[data-state="cur"]') : null;
+        if (cur) {
+          const lh = cur.offsetHeight;
+          const want = cur.offsetTop + lh * 2 - el.clientHeight;
+          el.scrollTop = Math.max(0, Math.ceil(want / lh) * lh);
+        } else el.scrollTop = el.scrollHeight;
+      }
+    };
+
+    /* Everything as it stands at second t of the loop. */
+    const show = (t: number) => {
+      for (const m of marks) m.el.classList.toggle("on", t >= m.at && t < m.until);
+      for (const s of seqs) {
+        let state = s.steps[0]![1];
+        for (const [at, v] of s.steps) if (t >= at) state = v;
+        if (s.el.dataset.state !== state) {
+          s.el.dataset.state = state;
+          if (s.val) s.el.textContent = state;
+        }
+      }
+      for (const ty of types) {
+        const n = Math.round(Math.min(1, Math.max(0, (t - ty.a) / ty.d)) * ty.text.length);
+        if (ty.el.textContent!.length !== n) ty.el.textContent = ty.text.slice(0, n);
+      }
+      /* What a reader scrolls, a line at a time. */
+      for (const r of rolls) {
+        const lh = parseFloat(getComputedStyle(r.el).lineHeight);
+        const k = Math.min(1, Math.max(0, (t - r.a) / r.d));
+        r.el.scrollTop = Math.round((k * (r.el.scrollHeight - r.el.clientHeight)) / lh) * lh;
+      }
+      follow();
+    };
+
+    /* A terminal shows whole lines: what scrolls is cut to a whole
+       number of them. */
+    const whole = () => {
+      for (const el of scrolls) {
+        el.style.maxHeight = "";
+        if (!el.clientHeight) continue;
+        const lh = parseFloat(getComputedStyle(el).lineHeight);
+        el.style.maxHeight = `${Math.floor(el.clientHeight / lh) * lh}px`;
+      }
+      follow();
+    };
+    new ResizeObserver(whole).observe(fig);
+    if (still) continue;
+
+    fig.dataset.run = "";
+    let t = 0;
+    show(t);
+    let seen = false;
+    let running = false;
+    let last = 0;
+    let rest = false;
+    const tick = (ms: number) => {
+      const dt = last ? Math.min(0.1, (ms - last) / 1000) : 0;
+      last = ms;
+      if (!seen) {
+        running = false;
+        return;
+      }
+      /* A step out of the run's view rests whole, and plays from its
+         start once the run reaches it. */
+      const resting = fig.closest("[data-dim]") !== null;
+      if (resting) {
+        if (!rest) show(loop - 0.001);
+        rest = true;
+      } else if (!document.hidden) {
+        if (rest) t = 0;
+        rest = false;
+        t = (t + dt) % loop;
+        show(t);
+        const glyph = turns[Math.floor(ms / 80) % turns.length]!;
+        for (const sp of spins) if (sp.textContent !== glyph) sp.textContent = glyph;
+        fig.style.setProperty("--spin", `"${glyph}"`);
+        const k = Math.floor(ms / 500);
+        for (const s of sparks) {
+          const at = k % s.text.length;
+          const next = [...s.text.slice(at), ...s.text.slice(0, at)].join("");
+          if (s.el.textContent !== next) s.el.textContent = next;
+        }
+      }
+      requestAnimationFrame(tick);
+    };
+    new IntersectionObserver(([e]) => {
+      seen = e!.isIntersecting;
+      if (seen && !running) {
+        running = true;
+        last = 0;
+        requestAnimationFrame(tick);
+      }
+    }).observe(fig);
+  }
+</script>

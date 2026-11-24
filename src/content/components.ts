@@ -16,6 +16,7 @@ export type Component = {
   about: string[];
   docs?: string;
   packages: string[];
+  then?: string[];
   dune: string;
   entries: string[];
   snippets: Snippet[];
@@ -25,14 +26,14 @@ export const repoUrl = (c: Component) => `https://github.com/hyphatech/${c.repo}
 
 const opam = (packages: string[]) =>
   ["opam repo add open-opam https://github.com/open-opam/opam-repository.git", `opam install ${packages.join(" ")}`].join("\n");
-export const install = (c: Component) => opam(c.packages);
+export const install = (c: Component) => [opam(c.packages), ...(c.then ?? [])].join("\n");
 /* Its first package's page in open-opam's catalogue. */
 export const opamUrl = (c: Component) => `https://open-opam.org/packages/${c.packages[0]}/`;
 
 export const components: Component[] = [
   {
     slug: "spindle",
-    version: "0.15.0",
+    version: "0.15.1",
     name: "Spindle",
     repo: "spindle",
     tagline: "The web framework for modern OCaml.",
@@ -91,7 +92,7 @@ let () =
   },
   {
     slug: "wiretype",
-    version: "0.7.0",
+    version: "0.7.1",
     name: "Wiretype",
     repo: "wiretype",
     tagline: "JSON contracts for modern OCaml.",
@@ -140,7 +141,7 @@ export type Line = z.infer<typeof LineSchema>;`,
   },
   {
     slug: "rowtype",
-    version: "0.10.2",
+    version: "0.10.3",
     name: "Rowtype",
     repo: "rowtype",
     tagline: "SQL queries and migrations for modern OCaml.",
@@ -187,7 +188,7 @@ Pg.run db find_user id`,
   },
   {
     slug: "postgres-eio",
-    version: "0.5.2",
+    version: "0.5.3",
     name: "postgres-eio",
     repo: "postgres-eio",
     tagline: "The Postgres driver for modern OCaml.",
@@ -220,7 +221,7 @@ host=db user=app sslmode=require`,
   },
   {
     slug: "spool",
-    version: "0.7.0",
+    version: "0.7.1",
     name: "Spool",
     repo: "spool",
     tagline: "Durable jobs for modern OCaml, backed by Postgres.",
@@ -259,7 +260,7 @@ let take_order conn ~now email =
   },
   {
     slug: "solidtype",
-    version: "0.11.1",
+    version: "0.15.1",
     name: "Solidtype",
     repo: "solidtype",
     tagline: "SolidJS for modern OCaml.",
@@ -268,11 +269,12 @@ let take_order conn ~now email =
       "[Solid](https://www.solidjs.com) is bound whole, with [Kobalte](https://kobalte.dev), [HeroUI](https://www.heroui.com), Gravity UI's icons, rhp's charts and @internationalized/date's dates included.",
     ],
     docs: "https://hyphatech.github.io/solidtype/",
-    packages: ["solidtype"],
+    packages: ["solidtype", "solidtype-heroui"],
+    then: ["bun add $(opam show solidtype-heroui --field x-npm-depends)"],
     dune: `(library
  (name app)
  (modes melange)
- (libraries solidtype melange.dom)
+ (libraries solidtype solidtype-kobalte solidtype-heroui melange.dom)
  (preprocess (pps melange.ppx ppx_solidtype)))`,
     entries: ["solidtype"],
     snippets: [
@@ -281,12 +283,13 @@ let take_order conn ~now email =
         lang: "ocaml",
         code: `module Jsx = Solidtype.Jsx
 module Solid = Solidtype.Solid
+module Button = Solidtype_heroui.Button
 
 let make () =
   let count, set_count = Solid.create_signal 0 in
-  <button type_=\`button on_click=(fun _ -> Solid.update set_count succ)>
+  <Button variant=\`secondary on_click=(fun _ -> Solid.update set_count succ)>
     "Clicked " (Jsx.int (Solid.get count))
-  </button>`,
+  </Button>`,
       },
       {
         caption: "Seamless integration with Solid.",

@@ -8,7 +8,6 @@ import JigBoard from "../components/JigBoard.astro";
 import Icon from "../components/Icon.astro";
 import Arrow from "../components/Arrow.astro";
 import Factory from "@lucide/astro/icons/factory";
-import Compass from "@lucide/astro/icons/compass";
 import Layers from "@lucide/astro/icons/layers";
 import Braces from "@lucide/astro/icons/braces";
 import Blocks from "@lucide/astro/icons/blocks";
@@ -221,8 +220,8 @@ const levels = [
             <span class="block">Deterministic where possible, intelligent where necessary.</span>
           </p>
           <p class="mt-10 flex gap-3">
-            <a href="/stack/" class="btn-primary"><Icon icon={Layers} />The Stack</a>
-            <a href="/principles/" class="btn"><Icon icon={Compass} />Principles</a>
+            <a href="/stack/" class="btn"><Icon icon={Layers} />The Stack</a>
+            <a href="/haf/" class="btn"><Icon icon={Factory} />The Factory</a>
           </p>
         </div>
         {/* The four levels on a strict grid, each a panel as the

@@ -1,0 +1,166 @@
+---
+/* The Factory's six steps as one run, read down the page as a
+   magazine reads: each step live on HAF's own screens, the frames the hero's demo plays, across
+   the page's width, its number and claim over it and what it gives
+   under it.
+
+   The step the page has reached is the one in view: its screen plays,
+   its number and its mark's cross turn gold, and the section's ground
+   turns to its light, cross-fading as the hero's does under the demo.
+   The other screens
+   rest, dimmed and whole. With reduced motion every step stands lit.
+   Each step opens on a hairline fading out at both ends, a small
+   registration cross at its middle. */
+
+import Check from "@lucide/astro/icons/check";
+import Demo from "./Demo.astro";
+import { runSteps } from "../content/screens";
+
+/* Each step's part of the run, the frames the hero's demo plays: the
+   decisions and the PRD signed, the plan, the scaffold, a stage proven
+   round by round, validation, and the release tried in the Workbench. */
+const part: Record<string, [string, number][]> = {
+  Intent: [...runSteps.intent, ...runSteps.prd],
+  Mapping: runSteps.mapping,
+  Scaffold: runSteps.scaffold,
+  Composition: runSteps.composition,
+  Validation: runSteps.validation,
+  Release: runSteps.release,
+};
+
+interface Step {
+  title: string;
+  claim: string;
+  body: string;
+  gives: string[];
+}
+interface Props {
+  steps: Step[];
+}
+const { steps } = Astro.props;
+
+const two = (n: number) => String(n).padStart(2, "0");
+/* Each step's light, one of the legal grounds, as the hero's chapters
+   take theirs: the decisions under a lamp, the build lit from the far
+   corner, the release on the horizon. */
+const light = ["overhead", "lit", "ember", "mirrored", "lit", "horizon"];
+---
+
+<div class="threaded">
+  <ol class="relative grid">
+    {
+      steps.map((st, i) => (
+        <li id={`step-${i + 1}`} class="step scroll-mt-8" data-light={light[i]}>
+          <span class="mark" aria-hidden="true" />
+          <div class="py-12 lg:py-16">
+            <div class="words">
+              <p class="t-control flex items-baseline gap-2 text-graphite">
+                <span class="index tabular-nums">{two(i + 1)}</span>
+                <span>{st.title}</span>
+              </p>
+              <h3 class="t-h2 mt-3">{st.claim}</h3>
+            </div>
+            <div class="shot mt-8 lg:mt-10">
+              <Demo bare label={`${st.title}: ${st.claim}`} chapters={[{ title: st.title, frames: part[st.title] ?? [] }]} />
+            </div>
+            <div class="words mt-6 max-w-2xl">
+              <p class="text-graphite">{st.body}</p>
+              <ul class="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                {st.gives.map((g) => (
+                  <li class="flex items-center gap-2">
+                    <span class="k-tick !size-4">
+                      <Check size={10} stroke-width={3.5} />
+                    </span>
+                    {g}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<style>
+  .threaded { position: relative; margin-top: 3rem; }
+
+  /* Each step opens on a hairline fading out at both ends, a small
+     registration cross at its middle, gold over the step in view. */
+  .mark {
+    display: block; position: relative; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-rule) 20%, var(--color-rule) 80%, transparent);
+  }
+  .mark::before, .mark::after {
+    content: ""; position: absolute; left: 50%; top: 50%; background: var(--color-graphite);
+    transform: translate(-50%, -50%); transition: background 400ms var(--ease-glide);
+  }
+  .mark::before { width: 12px; height: 1.5px; }
+  .mark::after { width: 1.5px; height: 12px; }
+  .step[data-on] .mark::before, .step[data-on] .mark::after { background: var(--accent-on-night); }
+  .step:last-child > div { padding-bottom: 0; }
+
+  /* The step in view plays; the rest rest, dimmed and whole. */
+  .shot { transition: filter 500ms var(--ease-state); }
+  .words { transition: opacity 500ms var(--ease-state); }
+  .step[data-on] .index { color: var(--accent-on-night); }
+  .step[data-dim] .shot { filter: brightness(0.55) saturate(0.7); }
+  .step[data-dim] .words { opacity: 0.55; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shot, .words, .mark::before, .mark::after { transition: none; }
+  }
+</style>
+
+<script>
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  for (const run of document.querySelectorAll<HTMLElement>(".threaded")) {
+    const steps = [...run.querySelectorAll<HTMLElement>(".step")];
+    const grounds = run.closest("section")?.querySelector<HTMLElement>(".step-grounds");
+    let heads: number[] = [];
+
+    const lay = () => {
+      const box = run.getBoundingClientRect();
+      heads = steps.map((step) => step.querySelector(".shot")!.getBoundingClientRect().top - box.top);
+      at = -1;
+      draw();
+    };
+
+    let at = -1;
+    const draw = () => {
+      const top = run.getBoundingClientRect().top;
+      const y = still ? Infinity : innerHeight * 0.6 - top;
+      let on = 0;
+      heads.forEach((h, i) => {
+        if (y >= h) on = i;
+      });
+      if (still || on === at) return;
+      at = on;
+      steps.forEach((step, i) => {
+        step.toggleAttribute("data-on", i === on);
+        step.toggleAttribute("data-dim", i !== on);
+      });
+      if (grounds) grounds.dataset.chapter = steps[on]!.dataset.light!;
+    };
+
+    new ResizeObserver(lay).observe(run);
+    document.fonts?.ready.then(lay);
+    if (!still) {
+      let queued = false;
+      addEventListener(
+        "scroll",
+        () => {
+          if (queued) return;
+          queued = true;
+          requestAnimationFrame(() => {
+            queued = false;
+            draw();
+          });
+        },
+        { passive: true },
+      );
+    }
+  }
+</script>

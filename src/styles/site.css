@@ -311,21 +311,6 @@
     background: radial-gradient(circle, color-mix(in oklab, var(--color-ink) 10%, transparent) 1.1px, transparent 1.6px) 6px 6px / 12px 12px;
     mask-image: linear-gradient(transparent 35%, #000 95%);
   }
-  /* HAF's room: the one ground taken from another palette, HAF's own,
-     for the section its app plays in. Its ground is HAF's grey a step
-     darker, its ink, graphite and rules HAF's, its one mark HAF's pale
-     gold, so the app sits in its own world and nothing round it fights
-     its screen. */
-  .k-haf {
-    --color-ivory: #141517;
-    --color-ink: #dae1ea;
-    --color-graphite: #7f8691;
-    --color-rule: #2c2e31;
-    --color-accent: #e7cb8a;
-    color-scheme: dark;
-    color: var(--color-ink);
-    background-color: var(--color-ivory);
-  }
   /* Fades a section's top in from night, so it joins the section above
      without a visible seam. */
   .k-fade-head {
