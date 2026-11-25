@@ -28,7 +28,7 @@ export function rollNumbers(selector = "[data-roll]") {
         continue;
       }
       const target = Number(ch);
-      const count = 10 * (TURNS + reels.length) + 1;
+      const count = 10 * (TURNS + reels.length) + 2 + Math.floor(Math.random() * 9);
       const reel = document.createElement("span");
       reel.className = "k-reel";
       const size = document.createElement("span");
@@ -52,7 +52,7 @@ export function rollNumbers(selector = "[data-roll]") {
             [
               { transform: "translateY(0)", filter: "blur(0)" },
               { filter: "blur(1.2px)", offset: 0.35 },
-              { transform: `translateY(calc(-${count - 1} * var(--reel-h)))`, filter: "blur(0)" },
+              { transform: `translateY(${(-100 * (count - 1)) / count}%)`, filter: "blur(0)" },
             ],
             { ...SPIN, duration: SPIN.duration + i * LAND, fill: "both" },
           ).finished.then(() => reel.removeAttribute("data-spin")),

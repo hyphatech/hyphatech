@@ -930,6 +930,8 @@
   .k-reel-size { visibility: hidden; }
   .k-reel-strip { position: absolute; inset: 0 -0.25em auto; text-align: center; white-space: pre; }
   .k-reel[data-spin] { mask-image: linear-gradient(transparent, #000 18%, #000 82%, transparent); }
+  .k-reel:not([data-spin]) .k-reel-size { visibility: visible; }
+  .k-reel:not([data-spin]) .k-reel-strip { display: none; }
 
   /* A sheet: a document lying on paper, nothing under it. */
   .k-sheet { background: #fbf9f5; color: var(--night); border-radius: 16px; box-shadow: 0 0 0 1px var(--color-rule); }
