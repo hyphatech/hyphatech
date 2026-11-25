@@ -22,8 +22,8 @@ export function onceVisible(element: Element, run: () => void, options?: Interse
 /* Calls `step` once a frame with the seconds since the last, never more
    than a thirtieth so a stalled frame is not a jump, while `element` is
    on screen and its tab open. A step that returns false rests the clock
-   until `play` is called; `seen` hears each coming and going first. */
-export function whileVisible(element: Element, step: (seconds: number) => boolean | void, seen?: (visible: boolean) => void) {
+   until `play` is called. */
+export function whileVisible(element: Element, step: (seconds: number) => boolean | void) {
   let visible = false;
   let frame = 0;
   let last = 0;
@@ -42,9 +42,34 @@ export function whileVisible(element: Element, step: (seconds: number) => boolea
   };
   onVisible(element, (on) => {
     visible = on;
-    seen?.(on);
     play();
   });
   document.addEventListener("visibilitychange", play);
   return { play };
 }
+
+/* Calls `run` at most once a frame while the page scrolls or the window
+   resizes, and once now. */
+export function onScroll(run: () => void) {
+  let frame = 0;
+  const soon = () => {
+    frame ||= requestAnimationFrame(() => {
+      frame = 0;
+      run();
+    });
+  };
+  addEventListener("scroll", soon, { passive: true });
+  addEventListener("resize", soon);
+  run();
+  return soon;
+}
+
+/* Whether an element is on screen above `share` of its height as the
+   page loads: a figure seen on arrival is simply there, and one above
+   or below the screen waits to be scrolled to, from either way. The
+   same share, as an observer's margin, is where it starts. */
+export const arrived = (element: Element, share: number) => {
+  const box = element.getBoundingClientRect();
+  return box.bottom > 0 && box.top < innerHeight * share;
+};
+export const marginAt = (share: number) => `0px 0px -${Math.round((1 - share) * 100)}% 0px`;

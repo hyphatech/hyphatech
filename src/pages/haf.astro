@@ -307,6 +307,7 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
 
 
 <script>
+  import { onScroll, reducedMotion } from "../lib/motion";
   import { powerCompare } from "../lib/power";
   import { riseNumbers } from "../lib/rise";
   riseNumbers();
@@ -325,7 +326,7 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
 
   const hood = document.querySelector<HTMLElement>(".hood-grounds");
   const marks = [...document.querySelectorAll<HTMLElement>("#inside .decision > .mark")];
-  if (hood && marks.length && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  if (hood && marks.length && !reducedMotion.matches) {
     const light = ["overhead", "lit", "ember", "mirrored", "horizon"];
     let at = -1;
     const draw = () => {
@@ -338,16 +339,7 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
       at = on;
       hood.dataset.chapter = light[on % light.length]!;
     };
-    let queued = false;
-    addEventListener("scroll", () => {
-      if (queued) return;
-      queued = true;
-      requestAnimationFrame(() => {
-        queued = false;
-        draw();
-      });
-    }, { passive: true });
-    draw();
+    onScroll(draw);
   }
 </script>
 

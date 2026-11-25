@@ -32,7 +32,7 @@ import CircleDot from "@lucide/astro/icons/circle-dot";
 import Mail from "@lucide/astro/icons/mail";
 import Ticket from "@lucide/astro/icons/ticket";
 import { marks } from "../content/marks";
-import { WIDTH, HEIGHT, P, SIZE, tileOf, iconMatrix, baseOf, gridOf, linkOf, pointOf, boundOf, byDepth, type Scene, type Tile, type IconName } from "./decisions-geometry";
+import { WIDTH, HEIGHT, P, TILE_H, tilePlan, tileOf, iconMatrix, baseOf, gridOf, linkOf, pointOf, boundOf, byDepth, type Scene, type Tile, type IconName } from "./decisions-geometry";
 import * as k from "./iso/iso-kit";
 import { litSides } from "./iso/lit";
 import "./iso/lit.css";
@@ -55,7 +55,7 @@ const iconOf = (icon: IconName | AstroComponent) => (typeof icon === "string" ? 
 const base = baseOf();
 const baseSides = litSides(k.ringOf({ x: -64, y: -64, w: 128, d: 128, r: 4 }, 8), -4, 0, P);
 const grid = gridOf();
-const sidesOfTile = ({ at: [x, y, z], size = SIZE }: Tile) => litSides(k.ringOf({ x: x - size / 2, y: y - size / 2, w: size, d: size, r: 2.5 }, 8), z - 3, z, P);
+const sidesOfTile = (t: Tile) => litSides(k.ringOf(tilePlan(t), 8), t.at[2] - TILE_H, t.at[2], P);
 const draw = (s: Scene) => {
   const focus = s.tiles.find((t) => t.gold)!;
   return {

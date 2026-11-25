@@ -149,6 +149,15 @@ const focus = pointOf([0, 0, 0]);
     };
     if (reducedMotion.matches) { show(99); continue; }
     show(0);
-    onceVisible(root, () => { let t = 0; whileVisible(root, (dt) => { t += dt; show(t); }); }, { threshold: 0.25 });
+    /* The clock stops once the last part has risen and flashed. */
+    const end = Math.max(0, ...parts.map((p) => p.i)) * STAGGER + Math.max(RISE, RISE * LAND + FLASH);
+    onceVisible(root, () => {
+      let t = 0;
+      whileVisible(root, (dt) => {
+        t += dt;
+        show(t);
+        return t < end;
+      });
+    }, { threshold: 0.25 });
   }
 </script>

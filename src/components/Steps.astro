@@ -98,7 +98,8 @@ const light = ["overhead", "lit", "ember", "mirrored", "lit", "horizon"];
 </style>
 
 <script>
-  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  import { onScroll, reducedMotion } from "../lib/motion";
+  const still = reducedMotion.matches;
 
   for (const run of document.querySelectorAll<HTMLElement>(".threaded")) {
     const steps = [...run.querySelectorAll<HTMLElement>(".step")];
@@ -130,21 +131,7 @@ const light = ["overhead", "lit", "ember", "mirrored", "lit", "horizon"];
     };
 
     new ResizeObserver(lay).observe(run);
-    document.fonts?.ready.then(lay);
-    if (!still) {
-      let queued = false;
-      addEventListener(
-        "scroll",
-        () => {
-          if (queued) return;
-          queued = true;
-          requestAnimationFrame(() => {
-            queued = false;
-            draw();
-          });
-        },
-        { passive: true },
-      );
-    }
+    void document.fonts.ready.then(lay);
+    if (!still) onScroll(draw);
   }
 </script>

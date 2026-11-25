@@ -2,15 +2,15 @@
    JavaScript) and the page at any width: relation curves, name
    placement and capability grounds. */
 
-export type Pt = { x: number; y: number };
+type Pt = { x: number; y: number };
 export type Side = "right" | "left" | "below" | "above";
-export type Box = { x0: number; y0: number; x1: number; y1: number };
+type Box = { x0: number; y0: number; x1: number; y1: number };
 
 /* The frame the hand-set places are on. */
 export const FRAME = { w: 1400, h: 870 };
 
 /* Concept ring radius, in viewBox units. */
-export const RING = 7;
+const RING = 7;
 /* Curve bow, as a share of the relation's length. */
 const BOW = 0.08;
 
@@ -46,10 +46,10 @@ const along = (e: { a: Pt; b: Pt; c: Pt }) =>
 
 /* Where a name goes: its side, and for a name above or below, how far it
    slides off centre to stay inside the frame. */
-export type Place = { side: Side; dx: number };
+type Place = { side: Side; dx: number };
 
 /* A name's bounding box on each side of its point, and its text offset. */
-export const NAME = { gap: 13, rise: 11, fall: 5, under: 27, over: 15 };
+const NAME = { gap: 13, rise: 11, fall: 5, under: 27, over: 15 };
 export const box = (p: Pt, w: number, { side: s, dx }: Place): Box => {
   const { gap, rise, fall, under, over } = NAME;
   if (s === "right") return { x0: p.x + gap - 2, y0: p.y - rise, x1: p.x + gap + w + 2, y1: p.y + fall };
@@ -139,7 +139,7 @@ const outline = (boxes: Box[]) => {
   };
   return [...half(pts), ...half([...pts].reverse())];
 };
-export const hull = (boxes: Box[]) => {
+const hull = (boxes: Box[]) => {
   const ring = outline(boxes);
   /* Corner radius is capped at half the shorter adjacent side. */
   const toward = (p: Pt, q: Pt) => {

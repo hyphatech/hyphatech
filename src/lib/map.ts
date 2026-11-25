@@ -5,10 +5,11 @@
    the others meet in. Without scripts, with reduced motion, or when the
    map is already in view on arrival, it is simply there. */
 
-import { onceVisible, reducedMotion } from "./motion";
+import { arrived, marginAt, onceVisible, reducedMotion } from "./motion";
 
 /* The delay between one step and the next, in ms. */
 const STEP = 420;
+const SHARE = 0.75;
 /* A fade on an even curve: the glide would have a card nearly opaque in
    its first tenth, which reads as a pop. */
 const FADE = { duration: 500, easing: "cubic-bezier(0.33, 0, 0.25, 1)", fill: "backwards" as const };
@@ -17,7 +18,7 @@ const DRAW = { duration: 450, easing: "cubic-bezier(0.65, 0, 0.35, 1)", fill: "b
 export function assembleMaps() {
   if (reducedMotion.matches) return;
   for (const map of document.querySelectorAll<HTMLElement>(".k-map")) {
-    if (map.getBoundingClientRect().top < innerHeight * 0.6) continue;
+    if (arrived(map, SHARE)) continue;
     /* In grid order: the cards are the first, second, third (below the
        first) and fourth; the relations run first to second, second down
        to fourth, and fourth back to third. */
@@ -55,7 +56,7 @@ export function assembleMaps() {
         }
         map.removeAttribute("data-veiled");
       },
-      { rootMargin: "0px 0px -25% 0px" },
+      { rootMargin: marginAt(SHARE) },
     );
   }
 }

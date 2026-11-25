@@ -11,13 +11,10 @@ export interface Scene {
   step(seconds: number): void;
   /* In CSS pixels, onto a cleared canvas. */
   draw(context: CanvasRenderingContext2D): void;
-  /* Seconds run before the first frame shows, so the band never opens
-     empty. */
-  warm: number;
-  /* With reduced motion, seconds run to the held frame; else `warm`. */
-  rest?: number;
-  /* If set, the canvas is one pixel per CSS pixel. */
-  sand?: Sand;
+  /* With reduced motion, seconds run to the held frame. */
+  rest: number;
+  /* The grains it draws; the canvas is one pixel per CSS pixel. */
+  sand: Sand;
 }
 
 export interface Fade {
@@ -101,7 +98,6 @@ export function stage(host: HTMLElement, scene: Scene, fade: Fade) {
 
   let width = 0;
   let height = 0;
-  let ratio = 1;
 
   /* What the sand keeps off: each character of the words, as the page
      sets it, and each control's box. */
@@ -183,7 +179,7 @@ export function stage(host: HTMLElement, scene: Scene, fade: Fade) {
   };
 
   const render = () => {
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    context.setTransform(1, 0, 0, 1, 0, 0);
     context.globalCompositeOperation = "source-over";
     context.globalAlpha = 1;
     context.clearRect(0, 0, width, height);
@@ -195,9 +191,9 @@ export function stage(host: HTMLElement, scene: Scene, fade: Fade) {
     context.globalCompositeOperation = "source-over";
   };
 
-  /* The warm-up runs in time slices, yielding between them so the page
-     never waits. The canvas keeps its last frame meanwhile; a newer
-     resize abandons the run. */
+  /* With reduced motion, the run to the held frame goes in time slices,
+     yielding between them so the page never waits. The canvas keeps its
+     last frame meanwhile; a newer resize abandons the run. */
   const SLICE_MS = 8;
   let generation = 0;
   const pause = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -207,9 +203,9 @@ export function stage(host: HTMLElement, scene: Scene, fade: Fade) {
     const w = host.clientWidth;
     const h = host.clientHeight;
     if (!w || !h) return false;
-    scene.sand?.resize(context, w, h);
+    scene.sand.resize(context, w, h);
     scene.resize(w, h);
-    const seconds = reduce ? (scene.rest ?? scene.warm) : scene.warm;
+    const seconds = reduce ? scene.rest : 0;
     let slice = performance.now();
     for (let t = 0; t < seconds; t += 1 / 30) {
       scene.step(1 / 30);
@@ -221,9 +217,8 @@ export function stage(host: HTMLElement, scene: Scene, fade: Fade) {
     }
     width = w;
     height = h;
-    ratio = scene.sand ? 1 : Math.min(2, window.devicePixelRatio || 1);
-    canvas.width = Math.round(width * ratio);
-    canvas.height = Math.round(height * ratio);
+    canvas.width = width;
+    canvas.height = height;
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     shade(measure());

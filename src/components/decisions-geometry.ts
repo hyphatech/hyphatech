@@ -35,10 +35,9 @@ const path = (points: Point3[]) => k.pathOf(points.map(at));
 
 /* A thin tile: its top, its two visible sides and its outline. */
 export const SIZE = 28;
-export function tileOf({ at: [x, y, z], size = SIZE }: Tile, h = 3) {
-  const plan = { x: x - size / 2, y: y - size / 2, w: size, d: size, r: 2.5 };
-  return k.slabOf(plan, z - h, h, P, 4, 0);
-}
+export const TILE_H = 3;
+export const tilePlan = ({ at: [x, y], size = SIZE }: Tile) => ({ x: x - size / 2, y: y - size / 2, w: size, d: size, r: 2.5 });
+export const tileOf = (tile: Tile) => k.slabOf(tilePlan(tile), tile.at[2] - TILE_H, TILE_H, P, 4, 0);
 /* The icon painted on a tile's top, square to the viewer: its across
    along the top's screen-level diagonal, its down along the other. */
 export const iconMatrix = ({ at: [x, y, z], size = SIZE }: Tile) => {

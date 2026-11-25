@@ -3,7 +3,7 @@
    a page claims nothing its code does not bear out. `entries` are the
    ontology's entry ids the component's packages provide. */
 
-export type Snippet = { caption: string; lang: string; code: string };
+type Snippet = { caption: string; lang: string; code: string };
 
 export type Component = {
   slug: string;

@@ -3,14 +3,16 @@
    on in its order, its colours going over to its own. Without scripts,
    with reduced motion, or already in view on arrival, it is simply on. */
 
-import { onceVisible, reducedMotion } from "./motion";
+import { arrived, marginAt, onceVisible, reducedMotion } from "./motion";
 
+/* The longest of a part's transitions in site.css (.k-compare[data-powering]). */
 const TURN = 700;
+const SHARE = 0.8;
 
 /* Switches `figure` off now, and on once seen, `order` setting when each
-   part turns; `extra` runs as it starts. */
-function power(figure: HTMLElement, order: [HTMLElement, number][], end: number, extra?: () => void) {
-  if (reducedMotion.matches || figure.getBoundingClientRect().top < innerHeight * 0.75) return;
+   part turns. */
+function power(figure: HTMLElement, order: [HTMLElement, number][], end: number) {
+  if (reducedMotion.matches || arrived(figure, SHARE)) return;
   for (const [el, at] of order) el.style.setProperty("--on", `${at}ms`);
   figure.setAttribute("data-dim", "");
   onceVisible(
@@ -19,11 +21,10 @@ function power(figure: HTMLElement, order: [HTMLElement, number][], end: number,
       figure.setAttribute("data-powering", "");
       requestAnimationFrame(() => {
         figure.removeAttribute("data-dim");
-        extra?.();
         setTimeout(() => figure.removeAttribute("data-powering"), end + TURN);
       });
     },
-    { rootMargin: "0px 0px -20% 0px" },
+    { rootMargin: marginAt(SHARE) },
   );
 }
 

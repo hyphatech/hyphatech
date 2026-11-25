@@ -125,11 +125,15 @@ const focus = pointOf([0, 0, 0]);
         root,
         () => {
           let t = 0;
+          const checks = root.hasAttribute("data-checks");
+          /* Without checks, the clock stops once the parts are built. */
           whileVisible(root, (dt) => {
             t += dt;
-            if (t <= built + dt) for (const p of parts) lift(p, ease(clamp((t - p.i * STAGGER) / RISE)));
+            const building = t <= built + dt;
+            if (building) for (const p of parts) lift(p, ease(clamp((t - p.i * STAGGER) / RISE)));
+            if (!checks) return building;
             const after = t - built - 0.6;
-            if (after < 0 || !root.hasAttribute("data-checks")) return;
+            if (after < 0) return;
             const c = after % CYCLE;
             for (const p of parts) {
               const s = c - RUN.indexOf(p.i) * EACH;

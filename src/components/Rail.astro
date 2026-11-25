@@ -95,6 +95,8 @@
 </style>
 
 <script>
+  import { onScroll } from "../lib/motion";
+
   /* The page's sections, as they name themselves: each with an id and
      a `data-rail-name`, in the order they stand. */
   for (const rail of document.querySelectorAll<HTMLElement>("[data-rail]")) {
@@ -117,9 +119,7 @@
     /* The section in view is the last whose top has passed the window's
        middle, and the last of all at the page's foot; over a paper
        section the rail takes paper's greys. */
-    let queued = false;
     const update = () => {
-      queued = false;
       const middle = innerHeight / 2;
       let at = 0;
       targets.forEach(({ el }, i) => {
@@ -139,14 +139,6 @@
         a.toggleAttribute("data-dark", !own && light);
       }
     };
-    const queue = () => {
-      if (!queued) {
-        queued = true;
-        requestAnimationFrame(update);
-      }
-    };
-    addEventListener("scroll", queue, { passive: true });
-    addEventListener("resize", queue);
-    update();
+    onScroll(update);
   }
 </script>

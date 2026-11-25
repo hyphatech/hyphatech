@@ -232,13 +232,22 @@ const itemOf = (it: (typeof run.items)[number]) =>
      tap anywhere else, puts it away. */
   for (const box of document.querySelectorAll<HTMLElement>("[data-run]")) {
     const tip = box.querySelector<HTMLElement>("[data-tip]")!;
-    const esc = (s: string) => s.replace(/[<>&]/g, "");
+    const el = (tag: string, cls: string, ...kids: (Node | string)[]) => {
+      const node = document.createElement(tag);
+      if (cls) node.className = cls;
+      node.append(...kids);
+      return node;
+    };
     for (const g of box.querySelectorAll<SVGGElement>("[data-item]")) {
       const it = JSON.parse(g.dataset.item!) as { name: string; checks: string[]; refused: { gate: string; why: string }[]; when: string };
       const show = () => {
         for (const o of box.querySelectorAll("[data-on]")) o.removeAttribute("data-on");
         g.setAttribute("data-on", "");
-        tip.innerHTML = `<div class="head"><b>${esc(it.name)}</b><span>${esc(it.when)}</span></div><ul class="checks">${it.checks.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>${it.refused.map((r) => `<div class="refusal-note"><b>Refused by ${esc(r.gate)}, then mended</b>${esc(r.why)}</div>`).join("")}`;
+        tip.replaceChildren(
+          el("div", "head", el("b", "", it.name), el("span", "", it.when)),
+          el("ul", "checks", ...it.checks.map((c) => el("li", "", c))),
+          ...it.refused.map((r) => el("div", "refusal-note", el("b", "", `Refused by ${r.gate}, then mended`), r.why)),
+        );
         const bar = (g.querySelector(".bar") ?? g).getBoundingClientRect();
         const b = box.getBoundingClientRect();
         tip.style.top = `${bar.bottom - b.top + 10}px`;

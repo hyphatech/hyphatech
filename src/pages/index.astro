@@ -194,6 +194,7 @@ const byTitle = Object.fromEntries(levels.map((l) => [l.title, l])) as Record<"L
   import { riseNumbers } from "../lib/rise";
   riseNumbers();
   const turn = document.querySelector<HTMLElement>("[data-turn]");
-  if (turn) turnAt(turn, document.querySelector<HTMLElement>(".k-turn-ground"));
+  const ground = document.querySelector<HTMLElement>(".k-turn-ground");
+  if (turn && ground) turnAt(turn, ground);
 
 </script>

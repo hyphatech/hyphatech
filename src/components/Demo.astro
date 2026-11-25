@@ -290,6 +290,8 @@ const style = ([, fg, bg]: Run) => `${fg ? `color:${tone(fg)};` : ""}${bg && bg 
 </style>
 
 <script>
+  import { reducedMotion, whileVisible } from "../lib/motion";
+
   /* One clock for the whole demo: the chapter playing and how far into
      it. A frame shows from its `data-t` until its `data-until`; with
      reduced motion a chapter shows its last frame. */
@@ -300,11 +302,9 @@ const style = ([, fg, bg]: Run) => `${fg ? `color:${tone(fg)};` : ""}${bg && bg 
     const frames = scenes.map((s) => [...s.querySelectorAll<HTMLElement>(".frame")]);
     const tabs = [...demo.querySelectorAll<HTMLButtonElement>(".tab")];
     const now = demo.querySelector<HTMLElement>("[data-now]");
-    const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const still = reducedMotion.matches;
     let at = Number(demo.dataset.first ?? 0);
     let t = 0;
-    let seen = false;
-    let last = 0;
     let shown = "";
 
     /* A real terminal: its type at its own size and its window as wide as
@@ -317,7 +317,7 @@ const style = ([, fg, bg]: Run) => `${fg ? `color:${tone(fg)};` : ""}${bg && bg 
       demo.setAttribute("data-fit", "");
     };
     new ResizeObserver(fit).observe(stage);
-    document.fonts?.ready.then(fit);
+    void document.fonts.ready.then(fit);
 
     const draw = () => {
       scenes.forEach((s, i) => (s.hidden = i !== at));
@@ -354,31 +354,10 @@ const style = ([, fg, bg]: Run) => `${fg ? `color:${tone(fg)};` : ""}${bg && bg 
       t = 0;
       draw();
     };
-    /* The clock runs only while the demo is on screen. */
-    let running = false;
-    const start = () => {
-      if (!seen || running || still) return;
-      running = true;
-      last = 0;
-      requestAnimationFrame(tick);
-    };
-
-    tabs.forEach((tab, i) =>
-      tab.addEventListener("click", () => {
-        go(i);
-        start();
-      }),
-    );
-
-    new IntersectionObserver(([e]) => {
-      seen = e!.isIntersecting;
-      start();
-    }).observe(stage);
-
     /* HAF's spinner turns through its ten frames, one each 80ms, and the
        status bar's three working dots light one at a time, as HAF draws
        them in a terminal: the lit one in HAF's working blue, the rest in
-       its frame's grey. */
+       the grey of their own line. */
     const turns = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏";
     const live = (ms: number) => {
       const frame = scenes[at]!.querySelector<HTMLElement>(".frame:not([hidden])");
@@ -388,29 +367,32 @@ const style = ([, fg, bg]: Run) => `${fg ? `color:${tone(fg)};` : ""}${bg && bg 
       for (const row of frame.querySelectorAll<HTMLElement>("p")) {
         const dots = [...row.querySelectorAll<HTMLElement>(".dot")];
         const lit = Math.floor(ms / 320) % (dots.length || 1);
-        dots.forEach((d, i) => (d.style.color = i === lit ? "#7993cb" : "#414346"));
+        dots.forEach((d, i) => (d.style.color = i === lit ? "#7993cb" : ""));
       }
     };
 
-    const tick = (ms: number) => {
-      const dt = last ? Math.min(0.1, (ms - last) / 1000) : 0;
-      last = ms;
-      if (!seen) {
-        running = false;
-        return;
-      }
-      if (!document.hidden) {
-        t += dt;
-        const len = Number(scenes[at]!.dataset.len);
-        if (t >= len) go(at + 1);
-        else {
-          t = Math.min(t, len - 0.001);
-          draw();
-        }
-        live(ms);
-      }
-      requestAnimationFrame(tick);
-    };
+    /* The clock runs only while the demo is on screen and its tab open. */
+    let elapsed = 0;
+    const clock = still
+      ? null
+      : whileVisible(stage, (dt) => {
+          t += dt;
+          elapsed += dt;
+          const len = Number(scenes[at]!.dataset.len);
+          if (t >= len) go(at + 1);
+          else {
+            t = Math.min(t, len - 0.001);
+            draw();
+          }
+          live(elapsed * 1000);
+        });
+    tabs.forEach((tab, i) =>
+      tab.addEventListener("click", () => {
+        go(i);
+        clock?.play();
+      }),
+    );
+
     draw();
   }
 </script>

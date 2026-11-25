@@ -439,13 +439,12 @@ const classAt = (g: Group) =>
     const groups: Group[] = JSON.parse(svg.dataset.groups || "[]");
     const relations: Relation[] = JSON.parse(svg.dataset.relations || "[]");
 
-    /* `stop` takes focus (the node). `hx`, `hy`: home place;
+    /* `el` takes focus (the node). `hx`, `hy`: home place;
        `ox`, `oy`: lean offset; `vx`, `vy`: its velocity; `tx`, `ty`: its
        target. */
     type N = {
       t: Thing;
       el: SVGGElement;
-      stop: SVGElement;
       name: SVGTextElement;
       hx: number;
       hy: number;
@@ -462,9 +461,8 @@ const classAt = (g: Group) =>
     const nodes = new Map<string, N>();
     things.forEach((t, i) => {
       const el = svg.querySelector<SVGGElement>(`[data-node="${t.id}"]`)!;
-      const stop = el.matches("[data-stop]") ? el : el.querySelector<SVGElement>("[data-stop]")!;
       const name = el.querySelector<SVGTextElement>(".name")!;
-      nodes.set(t.id, { t, el, stop, name, hx: 0, hy: 0, x: 0, y: 0, ox: 0, oy: 0, vx: 0, vy: 0, tx: 0, ty: 0, phase: i * 2.399 });
+      nodes.set(t.id, { t, el, name, hx: 0, hy: 0, x: 0, y: 0, ox: 0, oy: 0, vx: 0, vy: 0, tx: 0, ty: 0, phase: i * 2.399 });
     });
     const classes = groups.map((g) => ({
       g,
@@ -594,7 +592,7 @@ const classAt = (g: Group) =>
       draw();
     };
     new ResizeObserver(remeasure).observe(svg.parentElement!);
-    document.fonts?.ready.then(remeasure);
+    void document.fonts.ready.then(remeasure);
 
     /* Animates only while on screen: floats unless focus holds it, and
        runs until every lean settles. */
@@ -797,12 +795,12 @@ const classAt = (g: Group) =>
         tapped = e.pointerType === "mouse" ? null : { n, armed: forward === n };
       });
       n.el.addEventListener("pointercancel", () => (tapped = null));
-      n.stop.addEventListener("click", (e) => {
+      n.el.addEventListener("click", (e) => {
         const tap = tapped;
         tapped = null;
         if (!tap || tap.n !== n || tap.armed) return;
         e.preventDefault();
-        n.stop.focus();
+        n.el.focus();
         enter(n);
       });
     }
@@ -813,10 +811,10 @@ const classAt = (g: Group) =>
        tab stop. */
     const order = [...nodes.values()];
     const rove = (n: N) => {
-      for (const m of order) m.stop.setAttribute("tabindex", m === n ? "0" : "-1");
+      for (const m of order) m.el.setAttribute("tabindex", m === n ? "0" : "-1");
     };
     rove(order[0]!);
-    const focused = () => order.find((n) => n.stop === document.activeElement) ?? null;
+    const focused = () => order.find((n) => n.el === document.activeElement) ?? null;
     field.addEventListener("focusin", () => {
       const n = focused();
       if (!n) return;
@@ -824,7 +822,7 @@ const classAt = (g: Group) =>
       enter(n);
     });
     field.addEventListener("focusout", (e) => {
-      if (!order.some((n) => n.stop === e.relatedTarget)) leave();
+      if (!order.some((n) => n.el === e.relatedTarget)) leave();
     });
     const toward = (from: N, dx: number, dy: number) => {
       let best: N | null = null;
@@ -849,11 +847,7 @@ const classAt = (g: Group) =>
         e.key === "Home" ? order[0] : e.key === "End" ? order.at(-1) : e.key in ways ? toward(n, ...ways[e.key]!) : undefined;
       if (next === undefined) return;
       e.preventDefault();
-      if (next) next.stop.focus();
+      if (next) next.el.focus();
     });
-    for (const entry of document.querySelectorAll<HTMLElement>("li[data-part]")) {
-      entry.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && focus((n) => !!n.t.entry && n.t.group === entry.dataset.part));
-      entry.addEventListener("pointerleave", () => focus(null));
-    }
   }
 </script>

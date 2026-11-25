@@ -269,7 +269,11 @@ const first = presets[0]!;
       next.models.forEach((m, i) => {
         const old = was.models[i]!;
         if (m.model === old.model) return;
-        const pool = [...new Set(presets.flatMap((p) => p.models.map((x) => x.model)))].filter((n) => n !== m.model && n !== old.model).sort(() => Math.random() - 0.5);
+        const pool = [...new Set(presets.flatMap((p) => p.models.map((x) => x.model)))].filter((n) => n !== m.model && n !== old.model);
+        for (let j = pool.length - 1; j > 0; j--) {
+          const k = Math.floor(Math.random() * (j + 1));
+          [pool[j], pool[k]] = [pool[k]!, pool[j]!];
+        }
         const delay = 120 + i * STAGGER;
         spin(reel(`model-${i}`), pool.slice(0, 2).map(text), text(m.model), delay);
         if (m.provider !== old.provider) spin(reel(`provider-${i}`), [], provider(m), delay + 60);

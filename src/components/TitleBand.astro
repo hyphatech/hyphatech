@@ -18,7 +18,7 @@ const above = Astro.slots.has("above");
   <div class:list={["relative mx-auto max-w-page px-4 pb-12 sm:px-6 md:pb-16", above ? "pt-10 md:pt-16" : "pt-12 md:pt-16"]}>
     <div>
       <slot name="above" />
-      <h1 class:list={["t-display max-w-3xl", above && "mt-6"]}>{title}</h1>
+      <h1 class:list={["t-hero max-w-3xl", above && "mt-6"]}>{title}</h1>
       <slot />
     </div>
   </div>

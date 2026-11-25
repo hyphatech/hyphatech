@@ -70,21 +70,20 @@
       const top = board.getBoundingClientRect();
       width = Math.round(origin.width);
       height = Math.round(origin.height);
+      curves = [];
+      grains = 0;
       if (!width || !height || !top.width) return false;
-      canvas.width = width;
-      canvas.height = height;
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-      sand.resize(context, width, height);
-
       const cx = top.left + top.width / 2 - origin.left;
       const cy = top.top + top.height / 2 - origin.top;
       const W = top.width / 2;
       const H = top.height / 2;
       const room = Math.max(W, Math.min(cx, width - cx) - W * 0.6);
-      curves = [];
-      grains = 0;
       if (room < 400) return false;
+      canvas.width = width;
+      canvas.height = height;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      sand.resize(context, width, height);
       for (const sx of [-1, 1])
         for (const sy of [-1, 1]) {
           const gx = cx + sx * W * 0.8;
@@ -140,6 +139,8 @@
       sand.put(context);
     };
 
+    /* Where there is no room for the sand, the clock rests. */
+    const clock = reducedMotion.matches ? null : whileVisible(host, (seconds) => grains > 0 && (draw(seconds), true));
     const start = () => {
       if (!build()) {
         host.classList.remove("is-live");
@@ -147,6 +148,7 @@
       }
       draw(0);
       host.classList.add("is-live");
+      clock?.play();
     };
     void document.fonts.ready.then(start);
     let pending = 0;
@@ -156,6 +158,5 @@
     });
     watch.observe(root);
     watch.observe(host);
-    if (!reducedMotion.matches) whileVisible(host, (seconds) => draw(seconds));
   }
 </script>

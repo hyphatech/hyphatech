@@ -302,12 +302,11 @@ const nodes: { x: number; y: number; icon: any; gold?: boolean; aside?: boolean;
 </style>
 
 <script>
-  import { onceVisible, whileVisible } from "../lib/motion";
+  import { onceVisible, onScroll, reducedMotion, whileVisible } from "../lib/motion";
 
   /* The scroll is the clock: the figure's way up the screen, from its
      top at 85% of the screen to its foot at 40%, is the run, eased toward
-     so a flick glides. Each mark lights once the trace has passed it, and
-     stays. It runs only while the figure is on screen and catching up.
+     so a flick glides. Each mark is lit while the trace is past it. It runs only while the figure is on screen and catching up.
      Never with reduced motion: the drawing then stands whole. */
   const clockFigure = (fig: HTMLElement) => {
     const svg = fig.querySelector<SVGSVGElement>("svg")!;
@@ -362,17 +361,18 @@ const nodes: { x: number; y: number; icon: any; gold?: boolean; aside?: boolean;
       spare.classList.toggle("on", sided > 0 && sided < asideLength);
       for (const n of nodes) n.el.classList.toggle("lit", (n.onAside ? split + sided : traced) >= n.at - 1);
     };
-    const clock = whileVisible(fig, () => {
+    const clock = whileVisible(fig, (seconds) => {
       const goal = target();
-      shown += (goal - shown) * 0.12;
+      /* An eighth of the way each sixtieth of a second, whatever the
+         screen's refresh. */
+      shown += (goal - shown) * (1 - Math.exp(-7.7 * seconds));
       if (Math.abs(goal - shown) < 0.0005) shown = goal;
       draw(shown);
       return shown !== goal;
     });
     draw(shown);
-    addEventListener("scroll", clock.play, { passive: true });
-    addEventListener("resize", clock.play, { passive: true });
+    onScroll(clock.play);
   };
-  if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
+  if (!reducedMotion.matches)
     for (const fig of document.querySelectorAll<HTMLElement>(".autonomy, .run-v")) onceVisible(fig, () => clockFigure(fig), { rootMargin: "50% 0px" });
 </script>
