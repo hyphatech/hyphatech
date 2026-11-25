@@ -56,40 +56,6 @@ const cards: { title: string; body: string; scene: Scene }[] = [
     },
   },
   {
-    title: "Modular by design",
-    body: "Built around an MCP server, so any editor, client or agent plugs straight in.",
-    /* Three clients on one line, MCP, into the one socket of the server. */
-    scene: {
-      tiles: [
-        { at: [-32, -16, 3], icon: "monitor" },
-        { at: [0, -16, 3], icon: "terminal" },
-        { at: [32, -16, 3], icon: "plug" },
-        { at: [0, 32, 3], icon: "server", gold: true },
-      ],
-      links: [
-        line([-32, -2], [-32, 16], [-14, 16]),
-        line([32, -2], [32, 16], [14, 16]),
-        line([0, -2], [0, 18]),
-      ],
-    },
-  },
-  {
-    title: "Your system as one whole",
-    body: "However many repositories it spans, a feature is built as one change, each part in the repository that owns it.",
-    /* One intent at the hub, a spoke to each repository it changes, on
-       all four sides so the board is whole. */
-    scene: {
-      tiles: [
-        { at: [0, 0, 3], icon: "questions", gold: true },
-        { at: [-48, 0, 3], icon: "github" },
-        { at: [0, -48, 3], icon: "github" },
-        { at: [48, 0, 3], icon: "github" },
-        { at: [0, 48, 3], icon: "github" },
-      ],
-      links: [line([-14, 0], [-34, 0]), line([0, -14], [0, -34]), line([14, 0], [34, 0]), line([0, 14], [0, 34])],
-    },
-  },
-  {
     title: "Never a black box",
     body: "Your team hears about the work in the tools it already uses: a message when a person is needed, a report when a change lands, and a pull request to read it the familiar way, with nothing to approve.",
     /* HAF at the back, the work reaching down to the team's tools. */

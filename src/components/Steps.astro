@@ -59,12 +59,12 @@ const light = ["overhead", "lit", "ember", "mirrored", "lit", "horizon"];
               </p>
               <h3 class="t-h2 mt-3">{st.claim}</h3>
             </div>
-            <div class="shot mt-8 lg:mt-10">
+            <div class="shot mt-6">
               <Demo bare label={`${st.title}: ${st.claim}`} chapters={[{ title: st.title, frames: part[st.title] ?? [] }]} />
             </div>
             <div class="words mt-6 max-w-2xl">
               <p class="text-graphite">{st.body}</p>
-              <ul class="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+              <ul class="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm">
                 {st.gives.map((g) => (
                   <li class="flex items-center gap-2">
                     <span class="k-tick !size-4">
