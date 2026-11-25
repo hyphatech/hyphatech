@@ -27,29 +27,39 @@ export function turnAt(turn: HTMLElement, ground?: HTMLElement | null) {
      it, the turn runs down the page as it stands. */
   let fits = true;
   const holding = () => held.matches && fits;
+  /* The screen's height less a phone's toolbars, which does not change
+     as they come and go while scrolling: measured by it, the turn keeps
+     its length, and the page does not jump under the reader's finger. */
+  const screen = document.createElement("div");
+  screen.style.cssText = "position:absolute;top:0;width:0;height:100svh;visibility:hidden;pointer-events:none";
+  turn.append(screen);
+  const set = (el: HTMLElement, prop: "height" | "top" | "position", value: string) => {
+    if (el.style[prop] !== value) el.style[prop] = value;
+  };
+  let seen = "";
   const measure = () => {
-    turn.style.height = "";
-    stage.style.top = "";
+    const tall = screen.offsetHeight;
     const pad = innerWidth >= 768 ? 64 : 48;
     stage.style.minHeight = "0";
-    fits = stage.offsetHeight <= innerHeight - pad;
+    const h0 = stage.offsetHeight;
     stage.style.minHeight = "";
-    stage.style.position = held.matches && !fits ? "static" : "";
+    fits = h0 <= tall - pad;
+    set(stage, "position", held.matches && !fits ? "static" : "");
     if (!holding()) {
-      turn.style.height = "";
-      stage.style.top = "";
-      mark.style.top = "";
+      set(turn, "height", "");
+      set(stage, "top", "");
+      set(mark, "top", "");
       return;
     }
     const h = stage.offsetHeight;
     /* At least a section's padding from the screen's top, as a section's
        heading stands (the masthead scrolls away with the page), and
        centred on the screen where it has room to be. */
-    top = Math.max(pad, Math.round((innerHeight - h) / 2));
-    stretch = Math.min(800, Math.max(500, innerHeight * 0.9));
-    stage.style.top = `${top}px`;
-    turn.style.height = `${h + stretch}px`;
-    mark.style.top = `${innerHeight / 2 - top + HYPHA * stretch}px`;
+    top = Math.max(pad, Math.round((tall - h) / 2));
+    stretch = Math.round(Math.min(800, Math.max(500, tall * 0.9)));
+    set(stage, "top", `${top}px`);
+    set(turn, "height", `${h + stretch}px`);
+    set(mark, "top", `${Math.round(tall / 2 - top + HYPHA * stretch)}px`);
   };
   let frame = 0;
   const update = () => {
@@ -80,9 +90,17 @@ export function turnAt(turn: HTMLElement, ground?: HTMLElement | null) {
     soon();
   };
   addEventListener("scroll", soon, { passive: true });
-  addEventListener("resize", again);
+  /* A phone's toolbars resize the window as they come and go: only a
+     change of width or of the steady height measures again. */
+  addEventListener("resize", () => {
+    const now = `${innerWidth}x${screen.offsetHeight}`;
+    if (now === seen) return soon();
+    seen = now;
+    again();
+  });
   held.addEventListener("change", again);
   new ResizeObserver(again).observe(stage);
+  seen = `${innerWidth}x${screen.offsetHeight}`;
   measure();
   update();
 }
