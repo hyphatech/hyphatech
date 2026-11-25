@@ -1,11 +1,13 @@
 ---
-/* HAF's presets, as hypha-haf's docs/how/models.md states them: a
-   preset names three models, one for the questions and the PRD, one
-   for building each item, one for review, each from any provider. One
-   preset is drawn, mixing providers, each model beside its provider's
-   mark; under it the providers, those HAF calls today and those it
-   will (said so, since the Factory is coming soon). Marks from Simple
-   Icons, in the text colour; none is gold, so no provider is sold. */
+/* HAF's presets, as hypha-haf's README states them: a preset names a
+   model for each kind of work, the questions and the PRD (Intent),
+   building each item (Composition) and review, each from any provider,
+   and you keep as many as you like. Four of yours, mixing makers, take
+   turns on one panel: each job's model is a reel, and a job whose model
+   changes spins to the next while the others hold, so the panel shows a
+   model chosen per job. Under it every provider HAF calls. Marks from Simple Icons, in the text colour;
+   none is gold, so no provider is sold. With reduced motion or without
+   scripts the first preset stands. */
 
 import Icon from "./Icon.astro";
 import MessagesSquare from "@lucide/astro/icons/messages-square";
@@ -14,65 +16,97 @@ import ScanSearch from "@lucide/astro/icons/scan-search";
 import Route from "@lucide/astro/icons/route";
 import { marks } from "../content/marks";
 
-const rows = [
-  { icon: MessagesSquare, work: "Questions and the PRD", model: "Claude Opus", provider: "Anthropic", mark: "anthropic" },
-  { icon: Hammer, work: "Building each item", model: "Your local model", provider: "Ollama", mark: "ollama" },
-  { icon: ScanSearch, work: "Reviewing each change", model: "Claude Sonnet", provider: "Anthropic", mark: "anthropic" },
+type Model = { model: string; provider: string; mark: string };
+const opus: Model = { model: "Claude Opus", provider: "Anthropic", mark: "anthropic" };
+const sonnet: Model = { model: "Claude Sonnet", provider: "Anthropic", mark: "anthropic" };
+const haiku: Model = { model: "Claude Haiku", provider: "Anthropic", mark: "anthropic" };
+const codex: Model = { model: "GPT Codex", provider: "OpenAI", mark: "openai" };
+const geminiPro: Model = { model: "Gemini Pro", provider: "Gemini", mark: "gemini" };
+const geminiFlash: Model = { model: "Gemini Flash", provider: "Gemini", mark: "gemini" };
+const kimi: Model = { model: "Kimi K2", provider: "OpenRouter", mark: "openrouter" };
+const deepseek: Model = { model: "DeepSeek", provider: "OpenRouter", mark: "openrouter" };
+const qwen: Model = { model: "Qwen Coder", provider: "Ollama", mark: "ollama" };
+
+const jobs = [
+  { icon: MessagesSquare, work: "Questions and the PRD" },
+  { icon: Hammer, work: "Building each item" },
+  { icon: ScanSearch, work: "Reviewing each change" },
 ];
-const today = [
-  { name: "Anthropic", mark: "anthropic" },
-  { name: "Ollama", mark: "ollama" },
+const presets: { name: string; models: Model[] }[] = [
+  { name: "Default", models: [opus, haiku, sonnet] },
+  { name: "Mixed", models: [geminiPro, codex, sonnet] },
+  { name: "Open models", models: [kimi, qwen, deepseek] },
+  { name: "Local builder", models: [opus, qwen, geminiFlash] },
 ];
-const soon = [
-  { name: "OpenAI", mark: "openai" },
-  { name: "Gemini", mark: "gemini" },
-  { name: "OpenRouter", mark: "openrouter" },
-  { name: "Hopscotch", icon: Route },
-];
+const providers = [...new Map(presets.flatMap((p) => p.models).map((m) => [m.provider, m])).values()];
+
+const served = [
+  [
+    { name: "Anthropic", mark: "anthropic" },
+    { name: "OpenAI", mark: "openai" },
+    { name: "Gemini", mark: "gemini" },
+  ],
+  [
+    { name: "OpenRouter", mark: "openrouter" },
+    { name: "Hopscotch", icon: Route },
+    { name: "Ollama", mark: "ollama" },
+  ],
+] as { name: string; mark?: string; icon?: any }[][];
+const first = presets[0]!;
 ---
 
-<div class="presets">
+<div class="presets" data-presets={JSON.stringify(presets)}>
   <div class="k-panel k-panel-card pt-1">
-    <ul class="k-panel-well">
+    <ul class="k-panel-well" aria-hidden="true">
       {
-        rows.map((r) => (
+        jobs.map((j, i) => (
           <li class="k-panel-row flex items-center gap-3">
-            <span class="row-icon"><Icon icon={r.icon} /></span>
+            <span class="row-icon"><Icon icon={j.icon} /></span>
             <span class="min-w-0 flex-1">
-              <span class="block text-ink">{r.model}</span>
-              <span class="block text-sm text-graphite">{r.work}</span>
+              <span class="reel block text-ink" data-reel={`model-${i}`}><span class="reel-strip"><span class="reel-item">{first.models[i]!.model}</span></span></span>
+              <span class="block text-sm text-graphite">{j.work}</span>
             </span>
-            <span class="provider">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d={marks[r.mark]} /></svg>
-              {r.provider}
+            <span class="reel provider-reel" data-reel={`provider-${i}`}>
+              {providers.map((p) => (
+                <span class="provider sizer">
+                  <svg viewBox="0 0 24 24"><path d={marks[p.mark]} /></svg>
+                  {p.provider}
+                </span>
+              ))}
+              <span class="reel-strip">
+                <span class="reel-item provider">
+                  <svg viewBox="0 0 24 24"><path d={marks[first.models[i]!.mark]} /></svg>
+                  {first.models[i]!.provider}
+                </span>
+              </span>
             </span>
           </li>
         ))
       }
+    </ul>
+    <ul class="sr-only">
+      {presets.map((p) => <li>{p.name}: {jobs.map((j, i) => `${j.work}, ${p.models[i]!.model} from ${p.models[i]!.provider}`).join("; ")}.</li>)}
     </ul>
   </div>
   <div class="strip">
-    <ul>
-      {
-        today.map((p) => (
-          <li class="chip">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d={marks[p.mark]} /></svg>
-            {p.name}
-          </li>
-        ))
-      }
-    </ul>
-    <ul>
-      {
-        soon.map((p) => (
-          <li class="chip chip-soon">
-            {p.mark ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d={marks[p.mark]} /></svg> : <Icon icon={p.icon!} />}
-            {p.name}
-          </li>
-        ))
-      }
-    </ul>
+    {
+      served.map((row) => (
+        <ul>
+          {row.map((p) => (
+            <li class="chip">
+              {p.mark ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d={marks[p.mark]} /></svg> : <Icon icon={p.icon!} />}
+              {p.name}
+            </li>
+          ))}
+        </ul>
+      ))
+    }
   </div>
+  <template data-marks>
+    {providers.map((p) => (
+      <svg data-mark={p.mark} viewBox="0 0 24 24"><path d={marks[p.mark]} /></svg>
+    ))}
+  </template>
 </div>
 
 <style>
@@ -94,23 +128,60 @@ const soon = [
     width: 1rem;
     height: 1rem;
   }
-  .provider {
+  .presets :global(.provider) {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     font-size: 0.875rem;
     line-height: 1.25rem;
     color: var(--color-graphite);
+    white-space: nowrap;
   }
-  .provider svg,
+  .presets :global(.provider svg),
   .chip svg {
     width: 1rem;
     height: 1rem;
     fill: currentColor;
     flex: none;
   }
-  /* Two rows of chips, those served today above those coming, which
-     stay quieter in their own style; no label over either. */
+
+  /* A reel shows one line; its strip runs past behind a window that
+     fades at its top and foot, so a word comes in and goes out soft.
+     The provider's reel is as wide as its widest provider, laid unseen
+     in the same cell, so a row never shifts as it turns. */
+  .reel {
+    display: grid;
+    align-items: start;
+    height: 1lh;
+    overflow: hidden;
+  }
+  .reel[data-spinning] {
+    mask-image: linear-gradient(transparent, #000 20%, #000 80%, transparent);
+  }
+  .reel > * {
+    grid-area: 1 / 1;
+  }
+  .reel-strip {
+    display: flex;
+    flex-direction: column;
+  }
+  .presets :global(.reel-item) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .provider-reel {
+    flex: none;
+    justify-items: start;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  .sizer {
+    visibility: hidden;
+  }
+
+  /* Every provider HAF calls, as chips in two rows, each from the left:
+     the makers, then the ways to any model; no label over either. */
   .strip {
     display: grid;
     gap: 0.75rem;
@@ -135,8 +206,87 @@ const soon = [
     width: 1rem;
     height: 1rem;
   }
-  .chip-soon {
-    color: var(--color-graphite);
-    box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-rule) 70%, transparent);
-  }
 </style>
+
+<script>
+  import { reducedMotion, onVisible } from "../lib/motion";
+
+  type Model = { model: string; provider: string; mark: string };
+  type Preset = { name: string; models: Model[] };
+
+  const HOLD = 3600;
+  const SPIN = 900;
+  const STAGGER = 140;
+  const EASE = "cubic-bezier(0.22, 0.8, 0.2, 1)";
+
+  for (const root of document.querySelectorAll<HTMLElement>("[data-presets]")) {
+    if (reducedMotion.matches) continue;
+    const presets = JSON.parse(root.dataset.presets!) as Preset[];
+    const markOf = new Map(
+      [...(root.querySelector<HTMLTemplateElement>("[data-marks]")?.content.querySelectorAll<SVGElement>("svg") ?? [])].map((s) => [s.dataset.mark!, s]),
+    );
+    const reel = (key: string) => root.querySelector<HTMLElement>(`[data-reel="${key}"] .reel-strip`)!;
+    const text = (s: string) => {
+      const item = document.createElement("span");
+      item.className = "reel-item";
+      item.textContent = s;
+      return item;
+    };
+    const provider = (m: Model) => {
+      const item = document.createElement("span");
+      item.className = "reel-item provider";
+      const mark = markOf.get(m.mark)?.cloneNode(true);
+      if (mark) item.append(mark);
+      item.append(m.provider);
+      return item;
+    };
+
+    /* Spins `strip` from what it shows, past two passers-by, to `to`. */
+    const spin = (strip: HTMLElement, passing: HTMLElement[], to: HTMLElement, delay: number) => {
+      const from = strip.firstElementChild!;
+      const view = strip.parentElement!;
+      strip.replaceChildren(from, ...passing, to);
+      view.setAttribute("data-spinning", "");
+      const line = from.getBoundingClientRect().height;
+      const run = strip.animate([{ transform: "translateY(0)" }, { transform: `translateY(${-line * (passing.length + 1)}px)` }], {
+        duration: SPIN,
+        delay,
+        easing: EASE,
+        fill: "both",
+      });
+      run.onfinish = () => {
+        strip.replaceChildren(to);
+        run.cancel();
+        view.removeAttribute("data-spinning");
+      };
+    };
+
+    let at = 0;
+    const turn = () => {
+      const was = presets[at]!;
+      at = (at + 1) % presets.length;
+      const next = presets[at]!;
+      next.models.forEach((m, i) => {
+        const old = was.models[i]!;
+        if (m.model === old.model) return;
+        const pool = [...new Set(presets.flatMap((p) => p.models.map((x) => x.model)))].filter((n) => n !== m.model && n !== old.model).sort(() => Math.random() - 0.5);
+        const delay = 120 + i * STAGGER;
+        spin(reel(`model-${i}`), pool.slice(0, 2).map(text), text(m.model), delay);
+        if (m.provider !== old.provider) spin(reel(`provider-${i}`), [], provider(m), delay + 60);
+      });
+    };
+
+    let timer = 0;
+    let visible = false;
+    const play = () => {
+      clearInterval(timer);
+      timer = 0;
+      if (visible && !document.hidden) timer = window.setInterval(turn, HOLD);
+    };
+    onVisible(root, (on) => {
+      visible = on;
+      play();
+    });
+    document.addEventListener("visibilitychange", play);
+  }
+</script>

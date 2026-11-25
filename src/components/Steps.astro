@@ -5,12 +5,12 @@
    under it.
 
    The step the page has reached is the one in view: its screen plays,
-   its number and its mark's cross turn gold, and the section's ground
+   its number turns gold, and the section's ground
    turns to its light, cross-fading as the hero's does under the demo.
    The other screens
    rest, dimmed and whole. With reduced motion every step stands lit.
-   Each step opens on a hairline fading out at both ends, a small
-   registration cross at its middle. */
+   The steps stand one section padding apart, with no rule
+   between them. */
 
 import Check from "@lucide/astro/icons/check";
 import Demo from "./Demo.astro";
@@ -47,14 +47,13 @@ const light = ["overhead", "lit", "ember", "mirrored", "lit", "horizon"];
 ---
 
 <div class="threaded">
-  <ol class="relative grid">
+  <ol class="relative grid gap-12 md:gap-16">
     {
       steps.map((st, i) => (
         <li id={`step-${i + 1}`} class="step scroll-mt-8" data-light={light[i]}>
-          <span class="mark" aria-hidden="true" />
-          <div class="py-12 lg:py-16">
+          <div>
             <div class="words">
-              <p class="t-control flex items-baseline gap-2 text-graphite">
+              <p class="t-label flex items-baseline gap-2 text-graphite">
                 <span class="index tabular-nums">{two(i + 1)}</span>
                 <span>{st.title}</span>
               </p>
@@ -86,21 +85,6 @@ const light = ["overhead", "lit", "ember", "mirrored", "lit", "horizon"];
 <style>
   .threaded { position: relative; margin-top: 3rem; }
 
-  /* Each step opens on a hairline fading out at both ends, a small
-     registration cross at its middle, gold over the step in view. */
-  .mark {
-    display: block; position: relative; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--color-rule) 20%, var(--color-rule) 80%, transparent);
-  }
-  .mark::before, .mark::after {
-    content: ""; position: absolute; left: 50%; top: 50%; background: var(--color-graphite);
-    transform: translate(-50%, -50%); transition: background 400ms var(--ease-glide);
-  }
-  .mark::before { width: 12px; height: 1.5px; }
-  .mark::after { width: 1.5px; height: 12px; }
-  .step[data-on] .mark::before, .step[data-on] .mark::after { background: var(--accent-on-night); }
-  .step:last-child > div { padding-bottom: 0; }
-
   /* The step in view plays; the rest rest, dimmed and whole. */
   .shot { transition: filter 500ms var(--ease-state); }
   .words { transition: opacity 500ms var(--ease-state); }
@@ -109,7 +93,7 @@ const light = ["overhead", "lit", "ember", "mirrored", "lit", "horizon"];
   .step[data-dim] .words { opacity: 0.55; }
 
   @media (prefers-reduced-motion: reduce) {
-    .shot, .words, .mark::before, .mark::after { transition: none; }
+    .shot, .words { transition: none; }
   }
 </style>
 
