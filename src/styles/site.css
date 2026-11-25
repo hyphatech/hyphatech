@@ -923,16 +923,10 @@
   .k-figure-link:hover .k-figure-source { color: var(--color-ink); text-decoration-color: currentColor; }
   .k-figure-number { font-family: var(--font-serif); font-weight: 400; font-size: 3rem; letter-spacing: -0.04em; line-height: 1; @media (width >= 48rem) { font-size: 4rem; } @media (width >= 64rem) { font-size: 5rem; } }
 
-  /* A figure's number as reels (src/lib/roll.ts): each digit keeps its
-     own width and line, its reel clipped above and below, softened at
-     the edges only while it spins. */
-  .k-reel { --reel-h: 1.1em; position: relative; display: inline-block; height: var(--reel-h); margin-block: calc((1em - var(--reel-h)) / 2); line-height: var(--reel-h); vertical-align: top; overflow-x: visible; overflow-y: clip; }
-  .k-reel-size { visibility: hidden; }
-  .k-reel-strip { position: absolute; inset: 0 -0.25em auto; display: flex; flex-direction: column; text-align: center; will-change: transform; }
-  .k-reel-strip > span { height: var(--reel-h); }
-  .k-reel[data-spin] { mask-image: linear-gradient(transparent, #000 18%, #000 82%, transparent); }
-  .k-reel:not([data-spin]) .k-reel-size { visibility: visible; }
-  .k-reel:not([data-spin]) .k-reel-strip { display: none; }
+  /* A figure's number rising from its base line (src/lib/rise.ts):
+     each character its own box, clipped only below. */
+  .k-rise { display: inline-block; clip-path: inset(-0.5em -0.5em 0 -0.5em); }
+  .k-rise > span { display: inline-block; white-space: pre; }
 
   /* A sheet: a document lying on paper, nothing under it. */
   .k-sheet { background: #fbf9f5; color: var(--night); border-radius: 16px; box-shadow: 0 0 0 1px var(--color-rule); }

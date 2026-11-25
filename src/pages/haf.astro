@@ -274,7 +274,7 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
           economy.map((r) => (
             <li class="flex">
               <div class="k-figure flex w-full flex-col">
-                <p class="k-figure-number" data-roll>{r.number}</p>
+                <p class="k-figure-number" data-rise>{r.number}</p>
                 <p class="mt-4">{r.what}</p>
                 <p class="mt-3 text-sm text-graphite">{r.limit}</p>
                 <p class="mt-auto pt-4 text-sm text-graphite">{r.by}</p>
@@ -308,8 +308,8 @@ const row = "grid gap-x-10 gap-y-6 md:grid-cols-3 [&>*]:!my-0";
 
 <script>
   import { powerCompare } from "../lib/power";
-  import { rollNumbers } from "../lib/roll";
-  rollNumbers(".k-figure-number[data-roll]");
+  import { riseNumbers } from "../lib/rise";
+  riseNumbers();
   const harness = document.querySelector<HTMLElement>("#harness .k-compare");
   if (harness) powerCompare(harness);
 
