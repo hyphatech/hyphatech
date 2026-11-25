@@ -1,0 +1,161 @@
+---
+/* Gold sand round the jig, in the Chladni band's grains: it streams on
+   loops that leave the board at its four corners and on rings round the
+   board. Drawn under the drawing, which hides what passes behind it.
+   Without JavaScript the ground stands bare; with reduced motion one
+   frame is held. */
+---
+
+<div class="board-field" data-board-field aria-hidden="true">
+  <canvas></canvas>
+</div>
+
+<style>
+  .board-field {
+    position: absolute;
+    z-index: -1;
+    top: -6rem;
+    bottom: -6rem;
+    left: 50%;
+    width: 100vw;
+    translate: -50% 0;
+    pointer-events: none;
+    mask-image: linear-gradient(transparent, black 8rem, black calc(100% - 8rem), transparent);
+  }
+  .board-field canvas {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 600ms var(--ease-glide);
+  }
+  .board-field.is-live canvas { opacity: 1; }
+  :global([data-step="hypha"]) > .board-field.is-live canvas { opacity: 0.4; }
+</style>
+
+<script>
+  import { Sand, tone } from "../scripts/stage";
+  import { reducedMotion, whileVisible } from "../lib/motion";
+
+  const DENSITY = 0.03;
+  const FEWEST = 16000;
+  const MOST = 64000;
+  const GRAIN = 0.2;
+  const CURVE = 0.8;
+  const LOOPS = 9;
+  const FAN = 0.14;
+  const PACE = 0.05;
+  const TURN = Math.PI * 2;
+
+  type Curve = { cx: number; cy: number; ux: number; uy: number; a: number; b: number; dir: number; share: number; ring: boolean };
+
+  for (const host of document.querySelectorAll<HTMLElement>("[data-board-field]")) {
+    const canvas = host.querySelector("canvas");
+    const context = canvas?.getContext("2d");
+    const root = host.parentElement;
+    const board = root?.querySelector<SVGGraphicsElement>(".jig .base .top");
+    if (!canvas || !context || !root || !board) continue;
+    const sand = new Sand(tone("--accent-on-night"), GRAIN, CURVE);
+
+    let width = 0;
+    let height = 0;
+    let curves: Curve[] = [];
+    let grains = 0;
+    let curve = new Uint16Array(0);
+    let angle = new Float32Array(0);
+    let offset = new Float32Array(0);
+    let speed = new Float32Array(0);
+
+    const build = () => {
+      const origin = host.getBoundingClientRect();
+      const top = board.getBoundingClientRect();
+      width = Math.round(origin.width);
+      height = Math.round(origin.height);
+      if (!width || !height || !top.width) return false;
+      canvas.width = width;
+      canvas.height = height;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      sand.resize(context, width, height);
+
+      const cx = top.left + top.width / 2 - origin.left;
+      const cy = top.top + top.height / 2 - origin.top;
+      const W = top.width / 2;
+      const H = top.height / 2;
+      const room = Math.max(W, Math.min(cx, width - cx) - W * 0.6);
+      curves = [];
+      grains = 0;
+      if (room < 400) return false;
+      for (const sx of [-1, 1])
+        for (const sy of [-1, 1]) {
+          const gx = cx + sx * W * 0.8;
+          const gy = cy + sy * H * 0.62;
+          const tilt = 0.2;
+          const n = Math.hypot(1, tilt);
+          const ux = sx / n;
+          const uy = (sy * tilt) / n;
+          for (let k = 0; k < LOOPS; k++) {
+            const s = 0.42 + (0.62 * k) / (LOOPS - 1);
+            const a = (room * s) / 2;
+            const b = a * (0.42 + 0.05 * k);
+            curves.push({ cx: gx + ux * a, cy: gy + uy * a, ux, uy, a, b, dir: sx * sy, share: 1.1 - s * 0.35, ring: false });
+          }
+        }
+      for (const r of [1.08, 1.22])
+        curves.push({ cx, cy, ux: 1, uy: 0, a: W * r, b: H * r * 1.04, dir: 1, share: 1.2 / r, ring: true });
+
+      const total = curves.reduce((sum, c) => sum + c.share, 0);
+      grains = Math.round(Math.min(MOST, Math.max(FEWEST, width * height * DENSITY)));
+      curve = new Uint16Array(grains);
+      angle = new Float32Array(grains);
+      offset = new Float32Array(grains);
+      speed = new Float32Array(grains);
+      for (let i = 0, c = 0, left = 0; i < grains; i++) {
+        while (left <= 0 && c < curves.length) left += (curves[c++]!.share / total) * grains;
+        left--;
+        curve[i] = c - 1;
+        angle[i] = Math.random() * TURN;
+        offset[i] = Math.random() + Math.random() - 1;
+        speed[i] = PACE * (0.6 + Math.random() * 0.8);
+      }
+      return true;
+    };
+
+    /* A loop's angle 0 is where it touches its corner: grains crowd there
+       and fan out as they travel round. */
+    const draw = (seconds: number) => {
+      sand.clear();
+      for (let i = 0; i < grains; i++) {
+        const c = curves[curve[i]!]!;
+        let t = angle[i]! + speed[i]! * seconds * c.dir;
+        if (t > TURN) t -= TURN;
+        else if (t < 0) t += TURN;
+        angle[i] = t;
+        const cos = Math.cos(t);
+        const grow = 1 + offset[i]! * (c.ring ? 0.02 : FAN * (1 - cos) * 0.5);
+        const lx = (c.ring ? cos : -cos) * c.a * grow;
+        const ly = Math.sin(t) * c.b * grow;
+        sand.plot(c.cx + lx * c.ux - ly * c.uy, c.cy + lx * c.uy + ly * c.ux);
+      }
+      context.clearRect(0, 0, width, height);
+      sand.put(context);
+    };
+
+    const start = () => {
+      if (!build()) {
+        host.classList.remove("is-live");
+        return;
+      }
+      draw(0);
+      host.classList.add("is-live");
+    };
+    void document.fonts.ready.then(start);
+    let pending = 0;
+    const watch = new ResizeObserver(() => {
+      clearTimeout(pending);
+      pending = window.setTimeout(start, 150);
+    });
+    watch.observe(root);
+    watch.observe(host);
+    if (!reducedMotion.matches) whileVisible(host, (seconds) => draw(seconds));
+  }
+</script>

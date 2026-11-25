@@ -10,6 +10,10 @@
    it, the top edges that face the viewer caught, and its outline. */
 
 import Sparkles from "@lucide/astro/icons/sparkles";
+import Braces from "@lucide/astro/icons/braces";
+import Blocks from "@lucide/astro/icons/blocks";
+import Factory from "@lucide/astro/icons/factory";
+import Network from "@lucide/astro/icons/network";
 import * as k from "./iso/iso-kit";
 import { WIDTH, P, baseOf, gridOf, pointOf, iconMatrix } from "./decisions-geometry";
 import { litSides, lightOf, toneOf } from "./iso/lit";
@@ -73,6 +77,17 @@ const floorGrid = (() => {
 })();
 const tool = k.cylinder(0, 0, R, F, TOP - F, P, 48);
 const icon = iconMatrix({ at: [0, 0, TOP], size: R * 2, icon: "sparkles" });
+/* Hypha's four levels, the landing map's icons, one in each corner of
+   the template: the Factory at the back, the Language right, the
+   Ontology left, the Components at the front. The
+   template the model rides is Hypha whole. */
+const band = (PLATE.w / 2 + OPEN.w / 2) / 2;
+const levels = [
+  { name: "Factory", icon: Factory, at: [-band, -band] },
+  { name: "Language", icon: Braces, at: [band, -band] },
+  { name: "Ontology", icon: Network, at: [-band, band] },
+  { name: "Components", icon: Blocks, at: [band, band] },
+].map((l) => ({ ...l, transform: iconMatrix({ at: [l.at[0]!, l.at[1]!, T], size: 15, icon: "sparkles" }) }));
 
 const base = baseOf();
 const corners: k.Point3[] = [[-64, -64, 0], [64, 64, -4], [-48, -48, T]];
@@ -133,6 +148,7 @@ const grad = (name: string) => `${id}-${name}`;
       <path class="top" d={plate.top} fill={`url(#${grad("plate")})`} />
       <path class="edge" d={plate.outline} />
       <path class="crease" d={plate.crease} />
+      {levels.map((l) => <g class="level" data-level={JSON.stringify(l.at.map(Math.sign))} data-name={l.name} transform={l.transform}><l.icon size={24} stroke-width={2} /></g>)}
     </g>
     <g clip-path={`url(#${id}-open)`}>
       <path class="well" d={rim} />
@@ -165,7 +181,26 @@ const grad = (name: string) => `${id}-${name}`;
     const tools = [...root.querySelectorAll<SVGElement>("[data-tool]")];
     const screen = (x: number, y: number) => [x * f.ux[0] + y * f.uy[0], x * f.ux[1] + y * f.uy[1]];
     const clamp = (v: number) => Math.min(f.reach, Math.max(-f.reach, v));
-
+    /* A level's card beside the drawing, where a page sets one, lights
+       with its corner. */
+    const around = root.closest("section") ?? document;
+    const levels = [...root.querySelectorAll<SVGElement>("[data-level]")].map((el) => ({
+      el,
+      cards: [...around.querySelectorAll<HTMLElement>(`[data-level-for="${el.dataset.name}"]`)],
+      at: JSON.parse(el.dataset.level!) as number[],
+      lit: 0,
+    }));
+    /* Each level lights as the bushing presses on the wall toward it,
+       most at its own corner, half where a wall meets two. */
+    const light = (pressing: boolean, dt: number) => {
+      for (const l of levels) {
+        const d = Math.hypot(at[0] - l.at[0] * f.reach, at[1] - l.at[1] * f.reach);
+        const want = pressing ? Math.min(1, Math.max(0, (1.3 * f.reach - d) / (0.5 * f.reach))) : 0;
+        l.lit += (want - l.lit) * Math.min(1, dt * (want > l.lit ? 12 : 1.6));
+        l.el.style.setProperty("--lit", l.lit.toFixed(3));
+        for (const c of l.cards) c.style.setProperty("--lit", l.lit.toFixed(3));
+      }
+    };
     let at = [0, 0];
     let goal = [0, 0];
     /* Anywhere over the template, often past the opening's edge. */
@@ -182,6 +217,7 @@ const grad = (name: string) => `${id}-${name}`;
       at = [f.reach, -f.reach / 2];
       goal = [f.roam, -f.reach / 2];
       draw();
+      light(true, 1);
       continue;
     }
 
@@ -193,7 +229,9 @@ const grad = (name: string) => `${id}-${name}`;
       const [gx, gy] = [goal[0] - at[0], goal[1] - at[1]];
       const d = Math.hypot(gx, gy);
       const step = Math.min(d, 42 * dt);
-      const next = [clamp(at[0] + (gx / (d || 1)) * step), clamp(at[1] + (gy / (d || 1)) * step)];
+      const want = [at[0] + (gx / (d || 1)) * step, at[1] + (gy / (d || 1)) * step];
+      const next = [clamp(want[0]), clamp(want[1])];
+      light(next[0] !== want[0] || next[1] !== want[1], dt);
       const moved = Math.hypot(next[0] - at[0], next[1] - at[1]);
       at = next;
       /* A new pull once this one is reached or the wall holds it. */
@@ -223,5 +261,6 @@ const grad = (name: string) => `${id}-${name}`;
   .dg .well { fill: var(--ln-well); }
   .dg .rim { fill: none; stroke: var(--accent-on-night); stroke-width: 1.4; stroke-linejoin: round; }
   .dg .glow { fill: none; stroke: var(--accent-on-night); stroke-width: 5; opacity: 0.4; }
+  .dg .level :global(svg) { color: color-mix(in oklab, var(--accent-on-night) calc(var(--lit, 0) * 100%), color-mix(in oklab, var(--ln-icon) 40%, transparent)); overflow: visible; }
   .dg .icon :global(svg) { color: var(--ln-icon); overflow: visible; }
 </style>

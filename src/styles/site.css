@@ -806,6 +806,109 @@
 /* A short page: on a window taller than the page, the section before
    the closing (or the last, on a page without one) takes the room left,
    its ground stretched and its words in its middle, so the closing and
+  /* Hypha's four levels round the jig, called out as a drawing is
+     annotated: where the drawing is held, the Factory over it, the
+     Language right, the Components under it and the Ontology left, each
+     beside the corner of the template that carries its icon, a hairline
+     reaching toward it; no box. Lit gold with the corner while the
+     bushing presses that way (JigBoard's --lit). Elsewhere the four stand
+     under the drawing two by two, no hairlines. */
+  .k-callout { --lit-c: color-mix(in oklab, var(--accent-on-night) calc(var(--lit, 0) * 100%), var(--color-ink)); position: relative; max-width: 16rem; }
+  .k-callout-name { display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 500; color: var(--lit-c); }
+  .k-callout-body { margin-top: 0.5rem; font-size: 0.875rem; line-height: 1.25rem; color: color-mix(in oklab, var(--color-ink) 66%, var(--color-ivory)); }
+  .k-callout-link { display: inline-block; margin-top: 0.75rem; font-size: 0.875rem; line-height: 1.25rem; color: var(--color-ink); }
+
+  /* The landing's turn (src/lib/turn.ts), on its own Ember: a ground that
+     stays with the screen, its gold travelling as the page scrolls, from
+     under the board to the top right, the rust coming round to the
+     bottom left. Two steps on one drawing: the principle with the jig,
+     then Hypha with its levels on it. Where the screen holds the heading
+     and the drawing, they are held still and the heading turns over the
+     drawing; elsewhere it all runs down the page. With reduced motion it
+     is simply whole. */
+  .k-turn-section { background-image: none; }
+  .k-turn { position: relative; }
+  /* The section's whole height under it, held with the screen, so its
+     light never ends at an edge inside the section. Ember's two lights,
+     wide and soft as Ember's own, moved gently by the scroll. */
+  .k-turn-ground {
+    --p: 0;
+    position: sticky; top: 0; z-index: -1; height: 100svh; margin-bottom: -100svh; pointer-events: none;
+    background-image:
+      radial-gradient(110% 120% at calc(70% + var(--p) * 30%) calc(90% - var(--p) * 90%), color-mix(in oklab, var(--accent-on-night) 15%, transparent), transparent 70%),
+      radial-gradient(100% 110% at 0% calc(20% + var(--p) * 80%), color-mix(in oklab, var(--rust) 14%, transparent), transparent 70%);
+  }
+  .k-turn-mark { position: absolute; left: 0; width: 1px; height: 1px; }
+  .k-turn-stage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 1.5rem; }
+  .k-turn-words, .k-turn .k-jig-levels { display: contents; }
+  .k-turn-say, .k-jig-levels-jig { grid-column: 1 / -1; }
+  .k-turn [data-say="bound"] { order: 1; }
+  .k-turn .k-jig-levels-jig { order: 2; }
+  .k-turn [data-say="hypha"] { order: 3; margin-top: 2rem; }
+  .k-turn [data-level-for="Factory"] { order: 4; }
+  .k-turn [data-level-for="Language"] { order: 5; }
+  .k-turn [data-level-for="Ontology"] { order: 6; }
+  .k-turn [data-level-for="Components"] { order: 7; }
+  /* Hypha's levels arrive on the drawing with its heading, one after
+     another clockwise from the top. */
+  @media (prefers-reduced-motion: no-preference) {
+    .k-turn .k-callout { transition: opacity 400ms var(--ease-state) var(--arrive, 0ms); }
+    .k-turn .k-callout::after { transition: transform 450ms cubic-bezier(0.65, 0, 0.35, 1) var(--arrive, 0ms); }
+    .k-turn [data-level] { transition: opacity 400ms var(--ease-state) var(--arrive, 0ms); }
+    [data-step="bound"] .k-callout { opacity: 0; transition-delay: 0ms; }
+    [data-step="bound"] .k-callout::after { transition-delay: 0ms; }
+    [data-step="bound"] [data-level] { opacity: 0; transition-delay: 0ms; }
+    .k-turn :is([data-level-for="Factory"], [data-name="Factory"]) { --arrive: 300ms; }
+    .k-turn :is([data-level-for="Language"], [data-name="Language"]) { --arrive: 450ms; }
+    .k-turn :is([data-level-for="Components"], [data-name="Components"]) { --arrive: 600ms; }
+    .k-turn :is([data-level-for="Ontology"], [data-name="Ontology"]) { --arrive: 750ms; }
+  }
+  /* Held: the heading and the drawing stay on the screen while the page
+     scrolls, the heading turning in place. */
+  @media (prefers-reduced-motion: no-preference) and (height >= 34rem) {
+    .k-turn-stage { display: block; position: sticky; top: 3rem; }
+    .k-turn-words { display: grid; }
+    .k-turn-say { grid-area: 1 / 1; transition: opacity 350ms var(--ease-state), visibility 0ms linear 0ms; }
+    .k-turn [data-say="hypha"] { margin-top: 0; }
+    [data-step="bound"] > .k-turn-words > [data-say="hypha"],
+    [data-step="hypha"] > .k-turn-words > [data-say="bound"] { opacity: 0; visibility: hidden; transition: opacity 250ms var(--ease-state), visibility 0ms linear 250ms; }
+  }
+  /* Held on a narrow or low screen: the heading, the drawing and the
+     four levels, two by two, the Factory and the Components first, all
+     held in a screen less a padding above and below: the heading at its
+     top, the levels at its foot and the drawing centred between them;
+     only the heading and the icons on the drawing change. */
+  @media (prefers-reduced-motion: no-preference) and (height >= 34rem) and ((width < 64rem) or (height < 50rem)) {
+    .k-turn-stage { display: flex; flex-direction: column; min-height: calc(100svh - 6rem); }
+    .k-turn .k-jig-levels { flex: 1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: 1fr auto auto; gap: 2rem 1.5rem; margin-top: 2rem; }
+    .k-turn .k-jig-levels-jig { grid-column: 1 / -1; order: 0; align-self: center; width: 100%; max-width: 20rem; justify-self: center; }
+    @media (width >= 48rem) { .k-turn-stage { min-height: calc(100svh - 8rem); } }
+    .k-turn .k-jig-levels > .k-callout { opacity: 1; }
+    .k-turn [data-level-for="Factory"] { order: 1; }
+    .k-turn [data-level-for="Components"] { order: 2; }
+    .k-turn [data-level-for="Language"] { order: 3; }
+    .k-turn [data-level-for="Ontology"] { order: 4; }
+  }
+  /* Held on a wide, tall screen: the callouts round the drawing, the
+     Factory over it, the Language right, the Components under it and the
+     Ontology left, each beside the corner that carries its icon. */
+  @media (width >= 64rem) and (height >= 50rem) and (prefers-reduced-motion: no-preference) {
+    .k-turn .k-jig-levels { display: grid; margin-top: 2rem; grid-template-columns: 16rem minmax(0, 30rem) 16rem; grid-template-rows: auto auto auto; justify-content: center; gap: 0.5rem 2.5rem; align-items: center; }
+    .k-turn .k-jig-levels-jig { grid-area: 2 / 2; }
+    .k-turn [data-level-for="Factory"] { grid-area: 1 / 2; justify-self: center; text-align: center; padding-bottom: 2rem; }
+    .k-turn [data-level-for="Components"] { grid-area: 3 / 2; justify-self: center; text-align: center; padding-top: 2rem; }
+    .k-turn [data-level-for="Language"] { grid-area: 2 / 3; }
+    .k-turn [data-level-for="Ontology"] { grid-area: 2 / 1; justify-self: end; text-align: right; }
+    .k-turn :is([data-level-for="Factory"], [data-level-for="Components"]) .k-callout-name { justify-content: center; }
+    .k-callout::after { content: ""; position: absolute; background: color-mix(in oklab, var(--accent-on-night) calc(var(--lit, 0) * 100%), var(--color-graphite)); opacity: calc(0.6 + var(--lit, 0) * 0.4); }
+    [data-level-for="Factory"]::after { left: 50%; bottom: 0; width: 1px; height: 1.5rem; transform-origin: bottom; }
+    [data-level-for="Components"]::after { left: 50%; top: 0; width: 1px; height: 1.5rem; transform-origin: top; }
+    [data-level-for="Language"]::after { right: calc(100% + 0.75rem); top: 0.75rem; width: 2rem; height: 1px; transform-origin: left; }
+    [data-level-for="Ontology"]::after { left: calc(100% + 0.75rem); top: 0.75rem; width: 2rem; height: 1px; transform-origin: right; }
+    [data-step="bound"] :is([data-level-for="Factory"], [data-level-for="Components"])::after { transform: scaleY(0); }
+    [data-step="bound"] :is([data-level-for="Language"], [data-level-for="Ontology"])::after { transform: scaleX(0); }
+  }
+
    the footer meet the bottom with no bare night above them. */
 main > :has(+ .k-closing),
 main > section:last-of-type:not(.k-closing) {
@@ -818,3 +921,11 @@ main > :has(+ .k-closing) > *,
 main > section:last-of-type:not(.k-closing) > * {
   width: 100%;
 }
+  /* A figure's number as reels (src/lib/roll.ts): each digit keeps its
+     own width and line, its reel clipped above and below, softened at
+     the edges only while it spins. */
+  .k-reel { --reel-h: 1.1em; position: relative; display: inline-block; height: var(--reel-h); margin-block: calc((1em - var(--reel-h)) / 2); line-height: var(--reel-h); vertical-align: top; overflow-x: visible; overflow-y: clip; }
+  .k-reel-size { visibility: hidden; }
+  .k-reel-strip { position: absolute; inset: 0 -0.25em auto; text-align: center; white-space: pre; }
+  .k-reel[data-spin] { mask-image: linear-gradient(transparent, #000 18%, #000 82%, transparent); }
+
