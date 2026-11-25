@@ -1,6 +1,6 @@
 /* A figure's number rolls in once, the first time it comes into view:
-   each digit a reel that spins and lands on its own, left to right, the
-   marks between them still. A screen reader hears the number alone.
+   each digit a reel that spins up from 0 and lands on its own, left to
+   right, the marks between them still. A screen reader hears the number alone.
    Without scripts, with reduced motion, or already in view on arrival,
    it is simply there. */
 
@@ -28,7 +28,7 @@ export function rollNumbers(selector = "[data-roll]") {
         continue;
       }
       const target = Number(ch);
-      const count = 10 * (TURNS + reels.length) + 2 + Math.floor(Math.random() * 9);
+      const count = 10 * (TURNS + reels.length) + target + 1;
       const reel = document.createElement("span");
       reel.className = "k-reel";
       const size = document.createElement("span");
@@ -36,7 +36,13 @@ export function rollNumbers(selector = "[data-roll]") {
       size.textContent = ch;
       const strip = document.createElement("span");
       strip.className = "k-reel-strip";
-      strip.textContent = Array.from({ length: count }, (_, i) => (target - (count - 1 - i) + 100) % 10).join("\n");
+      strip.append(
+        ...Array.from({ length: count }, (_, i) => {
+          const digit = document.createElement("span");
+          digit.textContent = String(i % 10);
+          return digit;
+        }),
+      );
       reel.append(size, strip);
       shown.append(reel);
       reel.setAttribute("data-spin", "");
@@ -50,9 +56,8 @@ export function rollNumbers(selector = "[data-roll]") {
         reels.forEach(([reel, strip, count], i) =>
           strip.animate(
             [
-              { transform: "translateY(0)", filter: "blur(0)" },
-              { filter: "blur(1.2px)", offset: 0.35 },
-              { transform: `translateY(${(-100 * (count - 1)) / count}%)`, filter: "blur(0)" },
+              { transform: "translateY(0)" },
+              { transform: `translateY(${(-100 * (count - 1)) / count}%)` },
             ],
             { ...SPIN, duration: SPIN.duration + i * LAND, fill: "both" },
           ).finished.then(() => reel.removeAttribute("data-spin")),

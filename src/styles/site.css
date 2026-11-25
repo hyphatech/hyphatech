@@ -928,7 +928,8 @@
      the edges only while it spins. */
   .k-reel { --reel-h: 1.1em; position: relative; display: inline-block; height: var(--reel-h); margin-block: calc((1em - var(--reel-h)) / 2); line-height: var(--reel-h); vertical-align: top; overflow-x: visible; overflow-y: clip; }
   .k-reel-size { visibility: hidden; }
-  .k-reel-strip { position: absolute; inset: 0 -0.25em auto; text-align: center; white-space: pre; }
+  .k-reel-strip { position: absolute; inset: 0 -0.25em auto; display: flex; flex-direction: column; text-align: center; will-change: transform; }
+  .k-reel-strip > span { height: var(--reel-h); }
   .k-reel[data-spin] { mask-image: linear-gradient(transparent, #000 18%, #000 82%, transparent); }
   .k-reel:not([data-spin]) .k-reel-size { visibility: visible; }
   .k-reel:not([data-spin]) .k-reel-strip { display: none; }
