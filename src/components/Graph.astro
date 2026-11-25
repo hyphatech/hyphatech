@@ -173,7 +173,8 @@ const classAt = (g: Group) =>
                 stroke="var(--color-ivory)"
                 stroke-width="5"
                 paint-order="stroke"
-                font-family="var(--font-serif)"
+                font-family="var(--font-sans)"
+                font-weight="500"
                 font-size="15"
               >
                 {t.name}
@@ -230,7 +231,7 @@ const classAt = (g: Group) =>
   @media (width < 40rem) { .peek { width: calc(100% - 16px); } }
   @keyframes peek { from { opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .peek { animation: none; } }
-  .peek-name { font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.75rem; color: var(--color-ink); }
+  .peek-name { font-family: var(--font-sans); font-weight: 500; font-size: 1.25rem; line-height: 1.75rem; color: var(--color-ink); }
   .peek-is { margin-top: 0.25rem; font-size: 0.875rem; line-height: 1.25rem; color: var(--color-graphite); }
   .peek-refusals { margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.25rem; }
   .peek-refusals[hidden], .peek-proof[hidden] { display: none; }
